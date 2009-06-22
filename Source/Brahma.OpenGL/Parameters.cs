@@ -34,7 +34,7 @@ namespace Brahma.OpenGL
         }
     }
 
-    internal sealed class FloatParameter: ParameterBase<float>
+    internal sealed class FloatParameter : ParameterBase<float>
     {
         public FloatParameter(int location)
             : base(location)

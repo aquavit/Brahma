@@ -212,7 +212,7 @@ namespace Brahma.DirectX
 
                 // The 0.5f is VERY important.
                 // Remember, texels are points, not squares like pixels. A texel lies at the center of a pixel.
-                // http://www.paradoxalpress.info/Docs/dx9_out/directly_mapping_texels_to_pixels.htm
+                // http://msdn.microsoft.com/en-us/library/bb219690(VS.85).aspx
                 _vertices[0].X = 0f - 0.5f;
                 _vertices[0].Y = 0f - 0.5f;
                 _vertices[1].X = width - 0.5f;
@@ -320,7 +320,13 @@ namespace Brahma.DirectX
             // Finally, set up the shader constants here
             foreach (MemberExpression memberExp in q.ShaderConstants)
             {
-                if (memberExp.Type == typeof (float))
+                if (memberExp.Type == typeof(int))
+                    q.Parameters<int>(memberExp.Member.Name).Value =
+                        memberExp.Expression == null // Is this a static field?
+                            ? (int)((FieldInfo)memberExp.Member).GetValue(null) // Yes it is. We don't need an instance
+                            : (int)((FieldInfo)memberExp.Member).GetValue(((ConstantExpression)memberExp.Expression).Value); // We need an instance. Get it from memberExp.Expression
+
+                if (memberExp.Type == typeof(float))
                     q.Parameters<float>(memberExp.Member.Name).Value =
                         memberExp.Expression == null // Is this a static field?
                             ? (float)((FieldInfo)memberExp.Member).GetValue(null) // Yes it is. We don't need an instance

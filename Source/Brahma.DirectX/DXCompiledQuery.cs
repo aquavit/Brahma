@@ -128,8 +128,10 @@ namespace Brahma.DirectX
                         return new DummyParameter<T>(); // Return a dummy parameter, don't cache it
                     else
                         throw new ParameterException(string.Format(CultureInfo.InvariantCulture, "Could not find shader parameter {0}. Check to see if it exists", name));
-
-                if (typeof (T) == typeof (float))
+                
+                if (typeof(T) == typeof(int))
+                    parameter = new IntParameter(this, effectHandle);
+                else if (typeof (T) == typeof (float))
                     parameter = new FloatParameter(this, effectHandle);
                 else if (typeof (T) == typeof (Vector2))
                     parameter = new Vector2Parameter(this, effectHandle);

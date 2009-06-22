@@ -45,7 +45,30 @@ namespace Brahma.DirectX
         }
     }
 
-    internal sealed class FloatParameter: ParameterBase<float>
+    internal sealed class IntParameter : ParameterBase<int>
+    {
+        private int _value;
+
+        internal IntParameter(DXCompiledQuery query, EffectHandle effectHandle)
+            : base(query, effectHandle)
+        {
+        }
+
+        public override int Value
+        {
+            get
+            {
+                return _value;
+            }
+            set
+            {
+                Query.Constants.SetValue(Query.Device, EffectHandle, value); // Set the shader constant
+                _value = value;
+            }
+        }
+    }
+
+    internal sealed class FloatParameter : ParameterBase<float>
     {
         private float _value;
 

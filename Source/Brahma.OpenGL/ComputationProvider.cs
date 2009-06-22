@@ -258,37 +258,35 @@ namespace Brahma.OpenGL
             // Finally, set up the shader constants here
             foreach (MemberExpression memberExp in q.Uniforms)
             {
-                if (memberExp.Type == typeof (float))
+                if (memberExp.Type == typeof(int))
+                    q.Program.Parameters<int>(memberExp.Member.Name).Value =
+                        memberExp.Expression == null // Is this a static field?
+                            ? (int)((FieldInfo)memberExp.Member).GetValue(null) // Yes it is. We don't need an instance
+                            : (int)((FieldInfo)memberExp.Member).GetValue(((ConstantExpression)memberExp.Expression).Value); // We need an instance. Get it from memberExp.Expression
+
+                if (memberExp.Type == typeof(float))
                     q.Program.Parameters<float>(memberExp.Member.Name).Value =
-                        memberExp.Expression == null
-                            ? // Is this a static field?
-                        (float)((FieldInfo)memberExp.Member).GetValue(null)
-                            : // Yes it is. We don't need an instance
-                        (float)((FieldInfo)memberExp.Member).GetValue(((ConstantExpression)memberExp.Expression).Value); // We need an instance. Get it from memberExp.Expression
+                        memberExp.Expression == null // Is this a static field?
+                            ? (float)((FieldInfo)memberExp.Member).GetValue(null) // Yes it is. We don't need an instance
+                            : (float)((FieldInfo)memberExp.Member).GetValue(((ConstantExpression)memberExp.Expression).Value); // We need an instance. Get it from memberExp.Expression
 
                 if (memberExp.Type == typeof (Vector2))
                     q.Program.Parameters<Vector2>(memberExp.Member.Name).Value =
-                        memberExp.Expression == null
-                            ? // Is this a static field?
-                        (Vector2)((FieldInfo)memberExp.Member).GetValue(null)
-                            : // Yes it is. We don't need an instance
-                        (Vector2)((FieldInfo)memberExp.Member).GetValue(((ConstantExpression)memberExp.Expression).Value); // We need an instance. Get it from memberExp.Expression
+                        memberExp.Expression == null // Is this a static field?
+                            ? (Vector2)((FieldInfo)memberExp.Member).GetValue(null) // Yes it is. We don't need an instance
+                            : (Vector2)((FieldInfo)memberExp.Member).GetValue(((ConstantExpression)memberExp.Expression).Value); // We need an instance. Get it from memberExp.Expression
 
                 if (memberExp.Type == typeof (Vector3))
                     q.Program.Parameters<Vector3>(memberExp.Member.Name).Value =
-                        memberExp.Expression == null
-                            ? // Is this a static field?
-                        (Vector3)((FieldInfo)memberExp.Member).GetValue(null)
-                            : // Yes it is. We don't need an instance
-                        (Vector3)((FieldInfo)memberExp.Member).GetValue(((ConstantExpression)memberExp.Expression).Value); // We need an instance. Get it from memberExp.Expression
+                        memberExp.Expression == null // Is this a static field?
+                            ? (Vector3)((FieldInfo)memberExp.Member).GetValue(null) // Yes it is. We don't need an instance
+                            : (Vector3)((FieldInfo)memberExp.Member).GetValue(((ConstantExpression)memberExp.Expression).Value); // We need an instance. Get it from memberExp.Expression
 
                 if (memberExp.Type == typeof (Vector4))
                     q.Program.Parameters<Vector4>(memberExp.Member.Name).Value =
-                        memberExp.Expression == null
-                            ? // Is this a static field?
-                        (Vector4)((FieldInfo)memberExp.Member).GetValue(null)
-                            : // Yes it is. We don't need an instance
-                        (Vector4)((FieldInfo)memberExp.Member).GetValue(((ConstantExpression)memberExp.Expression).Value); // We need an instance. Get it from memberExp.Expression
+                        memberExp.Expression == null // Is this a static field?
+                            ? (Vector4)((FieldInfo)memberExp.Member).GetValue(null) // Yes it is. We don't need an instance
+                            : (Vector4)((FieldInfo)memberExp.Member).GetValue(((ConstantExpression)memberExp.Expression).Value); // We need an instance. Get it from memberExp.Expression
             }
 
             // Set up the shader constants we've added for internal use

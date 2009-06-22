@@ -252,7 +252,14 @@ namespace Brahma.OpenGL
                 throw new NotSupportedException("Indexing inside a GPU query is allowed only on data-parallel array type query parameters");
 
             sender._code.Append(string.Format(CultureInfo.InvariantCulture, "texture2D({0}, vec2(", ((ParameterExpression)methodCall.Object).Name)); // Uniform name and vec2 constructor
-            sender.Visit(methodCall.Arguments[0]); // first parameter for the vec2 constructor, the actual index
+
+            // The 0.5f is VERY important.
+            // Remember, texels are points, not squares like pixels. A texel lies at the center of a pixel.
+            // http://msdn.microsoft.com/en-us/library/bb219690(VS.85).aspx
+            sender._code.Append("(");
+            sender.Visit(methodCall.Arguments[0]); // first parameter for the float2 constructor
+            sender._code.Append(" + 0.5f)");
+
             // Normalize by multiplying it with (1 / texture's width). The component is already de-normalized (see VisitMemberAccess)
             sender._code.Append(string.Format(CultureInfo.InvariantCulture, " * _brahma_invDimensions[{0}].x",
                                               sender._expressionProcessor.QueryParameters.IndexOf(methodCall.Object as ParameterExpression)));
@@ -280,12 +287,25 @@ namespace Brahma.OpenGL
             int index = sender._expressionProcessor.QueryParameters.IndexOf(methodCall.Object as ParameterExpression);
 
             sender._code.Append(string.Format(CultureInfo.InvariantCulture, "texture2D({0}, vec2(", ((ParameterExpression)methodCall.Object).Name)); // Uniform name and vec2 constructor
-            sender.Visit(methodCall.Arguments[0]); // first parameter for the vec2 constructor
-            // Normalize by multiplying it with (1 / texture's width). The component is already de-normalized (see VisitMemberAccess)
+
+            // The 0.5f is VERY important.
+            // Remember, texels are points, not squares like pixels. A texel lies at the center of a pixel.
+            // http://msdn.microsoft.com/en-us/library/bb219690(VS.85).aspx
+            sender._code.Append("(");
+            sender.Visit(methodCall.Arguments[0]); // first parameter for the float2 constructor
+            sender._code.Append(" + 0.5f)");
+
+            // Normalize by multiplying it with (1 / sampler's width). The component is already de-normalized (see VisitMemberAccess)
             sender._code.Append(string.Format(CultureInfo.InvariantCulture, " * _brahma_invDimensions[{0}].x, ", index));
 
-            sender.Visit(methodCall.Arguments[1]); // second parameter for the vec2 constructor
-            // Normalize by multiplying it with (1 / texture's width). The component is already de-normalized (see VisitMemberAccess)
+            // The 0.5f is VERY important.
+            // Remember, texels are points, not squares like pixels. A texel lies at the center of a pixel.
+            // http://msdn.microsoft.com/en-us/library/bb219690(VS.85).aspx
+            sender._code.Append("(");
+            sender.Visit(methodCall.Arguments[1]); // second parameter for the float2 constructor
+            sender._code.Append(" + 0.5f)");
+
+            // Normalize by multiplying it with (1 / sampler's width). The component is already de-normalized (see VisitMemberAccess)
             sender._code.Append(string.Format(CultureInfo.InvariantCulture, " * _brahma_invDimensions[{0}].y", index));
 
             sender._code.Append("))");
@@ -299,7 +319,7 @@ namespace Brahma.OpenGL
                 sender._code.Append(".xyz");
         }
 
-        // Add anonymous that transform method calls here. We to add more method support, preferably everything GLSL supports
+        // TODO: Add anonymous delegates that transform more method calls here. We to add more method support, preferably everything GLSL supports
 
         private static string TranslateType(Type type)
         {
@@ -553,7 +573,8 @@ namespace Brahma.OpenGL
                 (m.Expression is ParameterExpression))
             {
                 // De-normalize the texture coordinate. It will be normalized just before tex2D'ing
-                _code.Append("(gl_TexCoord[0].x * _brahma_minWidth)"); // We can afford to use only one component, because we know this is a DataParallelArray
+                // The " - 0.5f" is here because gl_TexCoord[0].x points to the center of the texel but an adjustment factor is going to be applied in IndexInto1D or IndexInto2D
+                _code.Append("((gl_TexCoord[0].x * _brahma_minWidth) - 0.5f)"); // We can afford to use only one component, because we know this is a DataParallelArray
                 return m;
             }
 
@@ -565,12 +586,14 @@ namespace Brahma.OpenGL
                 {
                     case "CurrentX":
                         // De-normalize the texture coordinate. It will be normalized just before tex2D'ing
-                        _code.Append("(gl_TexCoord[0].x * _brahma_minWidth)"); // We know this is CurrentX of a DataParallArray2D
+                        // The " - 0.5f" is here because gl_TexCoord[0].x points to the center of the texel but an adjustment factor is going to be applied in IndexInto1D or IndexInto2D
+                        _code.Append("((gl_TexCoord[0].x * _brahma_minWidth) - 0.5f)"); // We know this is CurrentX of a DataParallArray2D
                         return m;
 
                     case "CurrentY":
                         // De-normalize the texture coordinate. It will be normalized just before tex2D'ing
-                        _code.Append("(gl_TexCoord[0].y * _brahma_minHeight)"); // We know this is CurrentY of a DataParallArray2D
+                        // The " - 0.5f" is here because gl_TexCoord[0].y points to the center of the texel but an adjustment factor is going to be applied in IndexInto1D or IndexInto2D
+                        _code.Append("((gl_TexCoord[0].y * _brahma_minHeight) - 0.5f)"); // We know this is CurrentY of a DataParallArray2D
                         return m;
                 }
             }

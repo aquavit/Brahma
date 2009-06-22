@@ -32,6 +32,7 @@ namespace Brahma.OpenGL.Tests
     public sealed class BasicTests
     {
         private ComputationProvider _provider;
+        private int _index;
 
         [TestFixtureSetUp]
         public void Setup()
@@ -177,6 +178,37 @@ namespace Brahma.OpenGL.Tests
             }
 
             #endregion
+        }
+
+        #region Description
+        // This error was caused due to improper sampling (sampling the top left of a texel as opposed to its center)
+        // HLSLGenerator and GLSLGenerator have this fixed now (IndexInto1D, IndexInto2D and VisitMemberAccess methods are part of the fix)
+        // Thanks to Marcel Richter for finding this bug!
+        #endregion
+        [Test]
+        public void SamplingTexelCenter()
+        {
+            // We're using an int field that's automagically parameterized
+            CompiledQuery selector = _provider.Compile<DataParallelArray<float>>(d => from value in d
+                                                                                      select d[_index]); // Select one of the elements all through
+
+            var data = new DataParallelArray<float>(_provider, new[] { 1f, 2f, 3f, 4f, 5f, 6f, 7f }); // Ramp data
+
+            // Three cases, 0, somewhere in the middle and at the last element
+
+            IQueryable result = _provider.Run(selector, data); // Run the query on this data
+            foreach (float value in result) // Verify that it contains the right value
+                Assert.AreEqual(value, (float)(_index + 1));
+
+            _index = 3;
+            result = _provider.Run(selector, data); // Run the query on this data
+            foreach (float value in result) // Verify that it contains the right value
+                Assert.AreEqual(value, (float)(_index + 1));
+
+            _index = 6;
+            result = _provider.Run(selector, data); // Run the query on this data
+            foreach (float value in result) // Verify that it contains the right value
+                Assert.AreEqual(value, (float)(_index + 1));
         }
 
         [Test]

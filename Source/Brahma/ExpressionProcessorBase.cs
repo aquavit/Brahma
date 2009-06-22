@@ -214,11 +214,12 @@ namespace Brahma
 
             foreach (MemberExpression memberExp in MemberAccess)
                 // It should be one of these types
-                if (!(memberExp.Type == typeof(float) ||
+                if (!(memberExp.Type == typeof(int) ||
+                      memberExp.Type == typeof(float) ||
                       memberExp.Type == typeof(Vector2) ||
                       memberExp.Type == typeof(Vector3) ||
                       memberExp.Type == typeof(Vector4)))
-                    throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "Cannot access {0} of type {1}. You can only access members of type float, Vector2, Vector3 or Vector4",
+                    throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "Cannot access {0} of type {1}. You can only access members of type int, float, Vector2, Vector3 or Vector4",
                                                                       memberExp.Member, memberExp.Type));
 
             // That's all this method does. Derived classes can use the protected properties this class exposes to perform further processing.
