@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<CodeSnippets xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+  <CodeSnippet Format="1.0.0">
+    <Header>
+      <Title>Check an argument for null</Title>
+      <Shortcut>argnull</Shortcut>
+      <Description>Checks if an argument is null and throws an ArgumentNullException if it is</Description>
+      <Author>Ananth B.</Author>
+      <SnippetTypes>
+        <SnippetType>Expansion</SnippetType>
+      </SnippetTypes>
+    </Header>
+    <Snippet>
+      <Declarations>
+        <Literal Editable="true">
+          <ID>argname</ID>
+          <ToolTip>The name of the argument to be checked</ToolTip>
+          <Default>argumentname</Default>
+          <Function>
+          </Function>
+        </Literal>
+      </Declarations>
+      <Code Language="csharp"><![CDATA[if ($argname$ == null)
+  throw new ArgumentNullException("$argname$");]]></Code>
+    </Snippet>
+  </CodeSnippet>
+</CodeSnippets>

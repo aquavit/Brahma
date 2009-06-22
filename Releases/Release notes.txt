@@ -1,0 +1,64 @@
+------------------------------------------------------
+Brahma 0.3 - Release notes
+------------------------------------------------------
+
+1. This release contains an important globalization fix for locales that use "," as the decimal separator
+2. A mandelbrot visualizer has been added.
+
+
+------------------------------------------------------
+Brahma 0.2 - Release notes
+------------------------------------------------------
+
+This 0.2 release is part of the Brahma 2.0 LINQ based approach. This release has the following features
+
+*** Features ***
+
+1. 1D and 2D data-parallel arrays supporting float, Vector2, Vector3 and Vector4 data types.
+2. Compiled queries for performance (see note about imperative queries)
+3. Support for some BCL functions that map to HLSL functions
+4. Support for ternary operators as conditional
+5. Support for let statements (these increase performance by adding local variables and computing their value only once)
+6. Support for SelectMany, so you can run a query on multiple data-parallel arrays at the same time
+... and more
+
+*** Samples ***
+I'm afraid there isn't much by way of documentation yet. However, there are two samples
+
+1. A parallel sorting algorithm (odd-even transposition sort)
+2. Conway's game of life
+
+Please submit any samples you may cook up, it will help other users.
+
+*** Known Issues ***
+
+Do not use imperative queries. While they might work (sometimes), it is 
+a) slow
+b) likely to be removed due to problems in the way chunks of expression trees are given to it (so you never know when a query is over) - if you know what I'm talking about and want to help, email me.
+
+*** Dependencies and requirements ***
+
+*** Software ***
+1. Managed DirectX needs to be installed on your system
+2. The unit tests depend on NUnit but is optional. If you're using NUnit I would recommend TestDriven.NET to run tests from inside Visual Studio.
+3. Visual Studio 2008 (Express user may not be able to open the sln: it contains solution folders, sorry!).
+
+
+*** Hardware ***
+1. You need a graphics card that supports Shader Model 3.0
+2. The card should support floating point texture formats (A32B32G32R32F in particular)
+
+
+*** FAQ ***
+1. I have a LoaderLock exception: What do I do? 
+	Go here (http://www.thezbuffer.com/articles/304.aspx)
+2. I get an exception that says "The generated HLSL was invalid, ..."! 
+	Do as the exception says, and email that entire error to me along with the query that generated that error.
+3. I get some other exception when I run a query
+	Send me as much information as you can about the query and the exception thrown. I will try and figure out what's happening
+4. I need this method call/member access to be supported!
+	Sure. Just let me know what it is you need and I will try to figure out how best to integrate that into Brahma.
+5. Brahma rocks/sucks! I have suggestions!
+	Send me your comments and I promise to read them. I always welcome constructive feedback and good suggestions.
+6. Do you need help?
+	Yes, I do. Please let me know what you might be interested in helping with: Samples, documentation, writing an new provider for another API, SlimDX migration, etc. I will deal with this on a case-by-case basis.

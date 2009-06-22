@@ -1,0 +1,20 @@
+------------------------------------------------------
+Brahma 0.3 - Change log
+------------------------------------------------------
+
+- Globalization bug-fix in HLSLGenerator
+- Added 1D color map visualization
+- Added Mandelbrot sample
+
+------------------------------------------------------
+Brahma 0.2 - Change log
+------------------------------------------------------
+
+- Added support for let statements
+- Added support for SelectMany
+- Added texture and system memory surface caching
+- Added two examples
+- Added loads of comments all over the source (almost fully re-written)
+- Added Visualizer class to allow visualization of data-parallel arrays
+- Data-parallel arrays can now sync CPU changes back to GPU for the next run
+- Added Visualizer class to view data-parallel arrays
