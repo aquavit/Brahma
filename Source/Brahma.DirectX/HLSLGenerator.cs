@@ -258,7 +258,7 @@ namespace Brahma.DirectX
         private static void CheckArgumentCount(string function, int expectedArgumentCount, int actualArgumentCount) // Utility method for method call transformers
         {
             if (expectedArgumentCount != actualArgumentCount)
-                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "Incorrect number of arguments to {0}(): {1}, expected {2}.", function, expectedArgumentCount, actualArgumentCount));
+                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "Incorrect number of arguments to {0}(): {1}, expected {2}.", function, actualArgumentCount, expectedArgumentCount));
         }
 
         private static void IndexInto1D(HLSLGenerator sender, MethodCallExpression methodCall)
