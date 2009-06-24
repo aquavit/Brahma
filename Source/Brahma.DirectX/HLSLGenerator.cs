@@ -40,67 +40,267 @@ namespace Brahma.DirectX
         private const string FloatNumberFormat = "F4";
 
         private delegate void TransformExpression<T>(HLSLGenerator sender, T methodCall);
+
+        // TODO: Add anonymous delegates that transform more method calls here. We to add more method support, preferably everything HLSL supports
+        // Math functions provided by Dennis
+        #region Method call transformations
         private static readonly Dictionary<string, TransformExpression<MethodCallExpression>> _methodCallTransformations =
             new Dictionary<string, TransformExpression<MethodCallExpression>>
             {
-                {
-                    "System.Math.Sin",
-                    delegate(HLSLGenerator sender, MethodCallExpression methodCall)
-                    {
-                        CheckArgumentCount("sin", 1, methodCall.Arguments.Count);
+                  {
+                      "System.Math.Abs",
+                      delegate(HLSLGenerator sender, MethodCallExpression methodCall)
+                          {
+                              CheckArgumentCount("abs", 1, methodCall.Arguments.Count);
 
-                        sender._code.Append("sin(");
-                        sender.Visit(methodCall.Arguments[0]);
-                        sender._code.Append(")");
-                    }
-                },
-                {
-                    "System.Math.Cos",
-                    delegate(HLSLGenerator sender, MethodCallExpression methodCall)
-                    {
-                        CheckArgumentCount("cos", 1, methodCall.Arguments.Count);
+                              sender._code.Append("abs(");
+                              sender.Visit(methodCall.Arguments[0]);
+                              sender._code.Append(")");
+                          }
+                  },
+                  {
+                      "System.Math.Acos",
+                      delegate(HLSLGenerator sender, MethodCallExpression methodCall)
+                          {
+                              CheckArgumentCount("acos", 1, methodCall.Arguments.Count);
 
-                        sender._code.Append("cos(");
-                        sender.Visit(methodCall.Arguments[0]);
-                        sender._code.Append(")");
-                    }
-                },
-                {
-                    "System.Math.Sqrt",
-                    delegate(HLSLGenerator sender, MethodCallExpression methodCall)
-                    {
-                        CheckArgumentCount("sqrt", 1, methodCall.Arguments.Count);
+                              sender._code.Append("acos(");
+                              sender.Visit(methodCall.Arguments[0]);
+                              sender._code.Append(")");
+                          }
+                  },
+                  {
+                      "System.Math.Asin",
+                      delegate(HLSLGenerator sender, MethodCallExpression methodCall)
+                          {
+                              CheckArgumentCount("asin", 1, methodCall.Arguments.Count);
 
-                        sender._code.Append("sqrt(");
-                        sender.Visit(methodCall.Arguments[0]);
-                        sender._code.Append(")");
-                    }
-                },
-                {
-                    "System.Math.Min",
-                    delegate(HLSLGenerator sender, MethodCallExpression methodCall)
-                    {
-                        CheckArgumentCount("min", 2, methodCall.Arguments.Count);
+                              sender._code.Append("asin(");
+                              sender.Visit(methodCall.Arguments[0]);
+                              sender._code.Append(")");
+                          }
+                  },
+                  {
+                      "System.Math.Atan",
+                      delegate(HLSLGenerator sender, MethodCallExpression methodCall)
+                          {
+                              CheckArgumentCount("atan", 1, methodCall.Arguments.Count);
 
-                        sender._code.Append("min(");
-                        sender.Visit(methodCall.Arguments[0]);
-                        sender._code.Append(", ");
-                        sender.Visit(methodCall.Arguments[1]);
-                        sender._code.Append(")");
-                    }
-                },
-                {
-                    "System.Math.Max",
-                    delegate(HLSLGenerator sender, MethodCallExpression methodCall)
-                    {
-                        CheckArgumentCount("max", 2, methodCall.Arguments.Count);
+                              sender._code.Append("atan(");
+                              sender.Visit(methodCall.Arguments[0]);
+                              sender._code.Append(")");
+                          }
+                  },
+                  {
+                      "System.Math.Atan2",
+                      delegate(HLSLGenerator sender, MethodCallExpression methodCall)
+                          {
+                              CheckArgumentCount("atan2", 2, methodCall.Arguments.Count);
 
-                        sender._code.Append("max(");
-                        sender.Visit(methodCall.Arguments[0]);
-                        sender._code.Append(", ");
-                        sender.Visit(methodCall.Arguments[1]);
-                        sender._code.Append(")");
-                    }
+                              sender._code.Append("atan2(");
+                              sender.Visit(methodCall.Arguments[0]);
+                              sender._code.Append(", ");
+                              sender.Visit(methodCall.Arguments[1]);
+                              sender._code.Append(")");
+                          }
+                  },
+                  {
+                      "System.Math.Ceiling",
+                      delegate(HLSLGenerator sender, MethodCallExpression methodCall)
+                          {
+                              CheckArgumentCount("ceil", 1, methodCall.Arguments.Count);
+
+                              sender._code.Append("ceil(");
+                              sender.Visit(methodCall.Arguments[0]);
+                              sender._code.Append(")");
+                          }
+                  },
+                  {
+                      "System.Math.Cos",
+                      delegate(HLSLGenerator sender, MethodCallExpression methodCall)
+                          {
+                              CheckArgumentCount("cos", 1, methodCall.Arguments.Count);
+
+                              sender._code.Append("cos(");
+                              sender.Visit(methodCall.Arguments[0]);
+                              sender._code.Append(")");
+                          }
+                  },
+                  {
+                      "System.Math.Cosh",
+                      delegate(HLSLGenerator sender, MethodCallExpression methodCall)
+                          {
+                              CheckArgumentCount("cosh", 1, methodCall.Arguments.Count);
+
+                              sender._code.Append("cosh(");
+                              sender.Visit(methodCall.Arguments[0]);
+                              sender._code.Append(")");
+                          }
+                  },
+                  {
+                      "System.Math.Exp",
+                      delegate(HLSLGenerator sender, MethodCallExpression methodCall)
+                          {
+                              CheckArgumentCount("exp", 1, methodCall.Arguments.Count);
+                              sender._code.Append("exp(");
+                              sender.Visit(methodCall.Arguments[0]);
+                              sender._code.Append(")");
+                          }
+                  },
+                  {
+                      "System.Math.Floor",
+                      delegate(HLSLGenerator sender, MethodCallExpression methodCall)
+                          {
+                              CheckArgumentCount("floor", 1, methodCall.Arguments.Count);
+                              sender._code.Append("floor(");
+                              sender.Visit(methodCall.Arguments[0]);
+                              sender._code.Append(")");
+                          }
+                  },
+                  {
+                      "System.Math.Log",
+                      delegate(HLSLGenerator sender, MethodCallExpression methodCall)
+                          {
+                              CheckArgumentCount("log", 1, methodCall.Arguments.Count);
+                              sender._code.Append("log(");
+                              sender.Visit(methodCall.Arguments[0]);
+                              sender._code.Append(")");
+                          }
+                  },
+                  {
+                      "System.Math.Log10",
+                      delegate(HLSLGenerator sender, MethodCallExpression methodCall)
+                          {
+                              CheckArgumentCount("log10", 1, methodCall.Arguments.Count);
+                              sender._code.Append("log10(");
+                              sender.Visit(methodCall.Arguments[0]);
+                              sender._code.Append(")");
+                          }
+                  },
+                  {
+                      "System.Math.Max",
+                      delegate(HLSLGenerator sender, MethodCallExpression methodCall)
+                          {
+                              CheckArgumentCount("max", 2, methodCall.Arguments.Count);
+
+                              sender._code.Append("max(");
+                              sender.Visit(methodCall.Arguments[0]);
+                              sender._code.Append(", ");
+                              sender.Visit(methodCall.Arguments[1]);
+                              sender._code.Append(")");
+                          }
+                  },
+                  {
+                      "System.Math.Min",
+                      delegate(HLSLGenerator sender, MethodCallExpression methodCall)
+                          {
+                              CheckArgumentCount("min", 2, methodCall.Arguments.Count);
+
+                              sender._code.Append("min(");
+                              sender.Visit(methodCall.Arguments[0]);
+                              sender._code.Append(", ");
+                              sender.Visit(methodCall.Arguments[1]);
+                              sender._code.Append(")");
+                          }
+                  },
+                  {
+                      "System.Math.Pow",
+                      delegate(HLSLGenerator sender, MethodCallExpression methodCall)
+                          {
+                              CheckArgumentCount("pow", 2, methodCall.Arguments.Count);
+                              sender._code.Append("pow(");
+                              sender.Visit(methodCall.Arguments[0]);
+                              sender._code.Append(",");
+                              sender.Visit(methodCall.Arguments[1]);
+                              sender._code.Append(")");
+                          }
+                  },
+                  {
+                      "System.Math.Round",
+                      delegate(HLSLGenerator sender, MethodCallExpression methodCall)
+                          {
+                              CheckArgumentCount("round", 1, methodCall.Arguments.Count);
+                              sender._code.Append("round(");
+                              sender.Visit(methodCall.Arguments[0]);
+                              sender._code.Append(")");
+                          }
+                  },
+                  {
+                      "System.Math.Sign",
+                      delegate(HLSLGenerator sender, MethodCallExpression methodCall)
+                          {
+                              CheckArgumentCount("sign", 1, methodCall.Arguments.Count);
+
+                              sender._code.Append("sign(");
+                              sender.Visit(methodCall.Arguments[0]);
+                              sender._code.Append(")");
+                          }
+                  },
+                  {
+                      "System.Math.Sin",
+                      delegate(HLSLGenerator sender, MethodCallExpression methodCall)
+                          {
+                              CheckArgumentCount("sin", 1, methodCall.Arguments.Count);
+
+                              sender._code.Append("sin(");
+                              sender.Visit(methodCall.Arguments[0]);
+                              sender._code.Append(")");
+                          }
+                  },
+                  {
+                      "System.Math.Sinh",
+                      delegate(HLSLGenerator sender, MethodCallExpression methodCall)
+                          {
+                              CheckArgumentCount("sinh", 1, methodCall.Arguments.Count);
+
+                              sender._code.Append("sinh(");
+                              sender.Visit(methodCall.Arguments[0]);
+                              sender._code.Append(")");
+                          }
+                  },
+                  {
+                      "System.Math.Sqrt",
+                      delegate(HLSLGenerator sender, MethodCallExpression methodCall)
+                          {
+                              CheckArgumentCount("sqrt", 1, methodCall.Arguments.Count);
+
+                              sender._code.Append("sqrt(");
+                              sender.Visit(methodCall.Arguments[0]);
+                              sender._code.Append(")");
+                          }
+                  },
+                  {
+                      "System.Math.Tan",
+                      delegate(HLSLGenerator sender, MethodCallExpression methodCall)
+                          {
+                              CheckArgumentCount("tan", 1, methodCall.Arguments.Count);
+
+                              sender._code.Append("tan(");
+                              sender.Visit(methodCall.Arguments[0]);
+                              sender._code.Append(")");
+                          }
+                  },
+                  {
+                      "System.Math.Tanh",
+                      delegate(HLSLGenerator sender, MethodCallExpression methodCall)
+                          {
+                              CheckArgumentCount("tanh", 1, methodCall.Arguments.Count);
+
+                              sender._code.Append("tanh(");
+                              sender.Visit(methodCall.Arguments[0]);
+                              sender._code.Append(")");
+                          }
+                  },
+                  {
+                      "System.Math.Truncate",
+                      delegate(HLSLGenerator sender, MethodCallExpression methodCall)
+                          {
+                              CheckArgumentCount("trunc", 1, methodCall.Arguments.Count);
+
+                              sender._code.Append("trunc(");
+                              sender.Visit(methodCall.Arguments[0]);
+                              sender._code.Append(")");
+                          }
                 },
                 {
                     "Brahma.Vector4.Length",
@@ -108,26 +308,6 @@ namespace Brahma.DirectX
                     {
                         CheckArgumentCount("length", 1, methodCall.Arguments.Count);
                         sender._code.Append("length(");
-                        sender.Visit(methodCall.Arguments[0]);
-                        sender._code.Append(")");
-                    }
-                },
-                {
-                    "System.Math.Log",
-                    delegate(HLSLGenerator sender, MethodCallExpression methodCall)
-                    {
-                        CheckArgumentCount("log", 1, methodCall.Arguments.Count);
-                        sender._code.Append("log(");
-                        sender.Visit(methodCall.Arguments[0]);
-                        sender._code.Append(")");
-                    }
-                },
-                {
-                    "System.Math.Floor",
-                    delegate(HLSLGenerator sender, MethodCallExpression methodCall)
-                    {
-                        CheckArgumentCount("floor", 1, methodCall.Arguments.Count);
-                        sender._code.Append("floor(");
                         sender.Visit(methodCall.Arguments[0]);
                         sender._code.Append(")");
                     }
@@ -165,8 +345,10 @@ namespace Brahma.DirectX
                     IndexInto2D
                 }
             };
+        #endregion Method call transformations
 
         // Add anonymous methods that transform "new" calls here
+        #region Object creation transformations
         private static readonly Dictionary<string, TransformExpression<NewExpression>> _newExpressionTransformations =
             new Dictionary<string, TransformExpression<NewExpression>>
             {
@@ -225,6 +407,7 @@ namespace Brahma.DirectX
                     }
                 }
             };
+        #endregion Object creation transformations
 
         private static readonly Dictionary<Type, string> _typeTranslations
             = new Dictionary<Type, string> // A table of type translations
@@ -270,8 +453,12 @@ namespace Brahma.DirectX
                   (sender._expressionProcessor.QueryParameters.Contains(methodCall.Object as ParameterExpression))))
                 throw new NotSupportedException("Indexing inside a GPU query is allowed only on data-parallel array type query parameters");
 
+            // Let's find out if we're using the float or the int overload of get_Item
+            bool requiresAdjustment = (methodCall.Arguments[0].Type == typeof(int)); // If we're using the float indexer, we shouldn't adjust the co-ordinate
+
             sender._code.Append(string.Format(CultureInfo.InvariantCulture, "tex2D({0}, float2(", ((ParameterExpression)methodCall.Object).Name)); // Sampler name and float2 constructor
 
+            // Make the + 0.5 adjustment if required.
             // The 0.5f is VERY important.
             // Remember, texels are points, not squares like pixels. A texel lies at the center of a pixel.
             // http://msdn.microsoft.com/en-us/library/bb219690(VS.85).aspx
@@ -322,8 +509,6 @@ namespace Brahma.DirectX
 
             sender._code.Append("))");
         }
-
-        // TODO: Add anonymous delegates that transform more method calls here. We to add more method support, preferably everything HLSL supports
 
         private static string TranslateType(Type type)
         {
@@ -575,8 +760,6 @@ namespace Brahma.DirectX
                 (m.Expression != null) &&
                 (m.Expression is ParameterExpression))
             {
-                // De-normalize the texture coordinate. It will be normalized just before tex2D'ing
-                // The " - 0.5f" is here because texCoord.x points to the center of the texel but an adjustment factor is going to be applied in IndexInto1D or IndexInto2D
                 _code.Append("((texCoord.x * _brahma_minWidth) - 0.5f)"); // We can afford to use only one component, because we know this is a DataParallelArray
                 return m;
             }
@@ -588,14 +771,10 @@ namespace Brahma.DirectX
                 switch (m.Member.Name)
                 {
                     case "CurrentX":
-                        // De-normalize the texture coordinate. It will be normalized just before tex2D'ing
-                        // The " - 0.5f" is here because texCoord.x points to the center of the texel but an adjustment factor is going to be applied in IndexInto1D or IndexInto2D
                         _code.Append("((texCoord.x * _brahma_minWidth) - 0.5f)"); // We know this is CurrentX of a DataParallArray2D
                         return m;
 
                     case "CurrentY":
-                        // De-normalize the texture coordinate. It will be normalized just before tex2D'ing
-                        // The " - 0.5f" is here because texCoord.y points to the center of the texel but an adjustment factor is going to be applied in IndexInto1D or IndexInto2D
                         _code.Append("((texCoord.y * _brahma_minHeight) - 0.5f)"); // We know this is CurrentY of a DataParallArray2D
                         return m;
                 }
