@@ -221,7 +221,7 @@ namespace Brahma.DirectX.Tests
             var random = new Random();
 
             CompiledQuery query = _provider.Compile<DataParallelArray<float>>(d => from float value in d
-                                                                                   select (d[d.Current - 1] + d[d.Current] + d[d.Current + 1]) / 3f);
+                                                                                   select (d[output.Current - 1] + d[output.Current] + d[output.Current + 1]) / 3f);
 
             var data = new DataParallelArray<float>(_provider, 256, x => (float)random.NextDouble());
 
@@ -244,7 +244,7 @@ namespace Brahma.DirectX.Tests
                 DataParallelArray<float>>((d1, d2) => from value1 in d1
                                                       from value2 in d2
                                                       let num = 2
-                                                      select (d1[d1.Current - 1] + d2[d2.Current - 1]) / num);
+                                                      select (d1[output.Current - 1] + d2[output.Current - 1]) / num);
 
             var data1 = new DataParallelArray<float>(_provider, 256, x => (float)random.NextDouble());
             var data2 = new DataParallelArray<float>(_provider, 256, x => (float)random.NextDouble());
@@ -438,7 +438,7 @@ namespace Brahma.DirectX.Tests
             CompiledQuery query = _provider.Compile<DataParallelArray2D<float>,
                 DataParallelArray2D<float>>((d1, d2) => from value1 in d1
                                                         from value2 in d2
-                                                        select d1[d1.CurrentX, d1.CurrentY] + d2[d2.CurrentX, d2.CurrentY]);
+                                                        select d1[output.CurrentX, output.CurrentY] + d2[output.CurrentX, output.CurrentY]);
 
             var data1 = new DataParallelArray2D<float>(_provider, 256, 256, (x, y) => (float)random.NextDouble());
             var data2 = new DataParallelArray2D<float>(_provider, 256, 256, (x, y) => (float)random.NextDouble());
@@ -450,6 +450,37 @@ namespace Brahma.DirectX.Tests
             for (int x = 0; x < 255; x++)
                 for (int y = 0; y < 255; y++)
                     result[x, y].AssertIfClose(data1[x, y] + data2[x, y]);
+        }
+
+        // Required for test ReductionAdd
+        private int _currLength;
+
+        [Test]
+        public void ReductionAdd()
+        {
+            var data = new DataParallelArray<float>(_provider, new[]{1f, 2f, 3f, 4f, 5f});
+            var sizes = new[] {3, 2, 1};
+
+            CompiledQuery reduce = _provider.Compile<DataParallelArray<float>>
+                (input => from value in input
+                          let x = output.Current
+                          let x1 = 2 * x > _currLength ? 0f : input[2 * x]
+                          let x2 = (2 * x + 1) > _currLength ? 0f : input[2 * x + 1]
+                          select x1 + x2
+                );
+
+            DataParallelArray<float> currentData = data;
+            _currLength = data.Length - 1;
+            foreach (int size in sizes)
+            {
+                var reduced = _provider.Run(reduce, currentData, size);
+                
+                currentData.Dispose();
+                currentData = (DataParallelArray<float>)reduced;
+                _currLength = size - 1;
+            }
+
+            Assert.AreEqual(currentData[0], 15f);
         }
     }
 }

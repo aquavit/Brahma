@@ -89,22 +89,6 @@ namespace Brahma.OpenGL
             set;
         }
 
-        public int CurrentX
-        {
-            get
-            {
-                throw new InvalidOperationException("This value can never be accessed");
-            }
-        }
-
-        public int CurrentY
-        {
-            get
-            {
-                throw new InvalidOperationException("This value can never be accessed");
-            }
-        }
-
         public override T this[int x, int y]
         {
             get

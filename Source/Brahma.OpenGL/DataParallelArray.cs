@@ -108,14 +108,6 @@ namespace Brahma.OpenGL
             }
         }
 
-        public int Current
-        {
-            get
-            {
-                throw new InvalidOperationException("This value can never be accessed");
-            }
-        }
-
         // This dictates what happens when we address outside the range of this array
         public AddressingMode AddressingMode
         {

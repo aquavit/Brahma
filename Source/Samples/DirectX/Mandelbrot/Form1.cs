@@ -76,7 +76,7 @@ namespace Mandelbrot
             _mandelbrot = _provider.Compile<DataParallelArray2D<Vector4>>(
                 d => from value in d
                      let z = new Vector2(value.x, value.y)
-                     let coord = new Vector2(d.CurrentX / (float)WindowWidth, d.CurrentY / (float)WindowHeight)
+                     let coord = new Vector2(output.CurrentX / (float)WindowWidth, output.CurrentY / (float)WindowHeight)
                      let window_mins = new Vector2(_left, _bottom)
                      let window_extents = new Vector2(_right - _left, _top - _bottom)
                      let c = window_mins + coord * window_extents
@@ -109,8 +109,8 @@ namespace Mandelbrot
                 d => from value in d
                      select new Vector4
                                 {
-                                    x = _left + ((d.CurrentX / (float)WindowWidth) * (_right - _left)),
-                                    y = _bottom + (d.CurrentY / (float)WindowHeight) * (_top - _bottom),
+                                    x = _left + ((output.CurrentX / (float)WindowWidth) * (_right - _left)),
+                                    y = _bottom + (output.CurrentY / (float)WindowHeight) * (_top - _bottom),
                                     z = 0f,
                                     w = 0f
                                 }

@@ -102,9 +102,9 @@ namespace OddEvenTranspositionSort
                 // We're using value (which we've defined) and indexing with offsets
                 CompiledQuery evenSelector = provider.Compile<DataParallelArray<float>>(
                     d => from value in d
-                         select (d.Current % 2 == 0)
-                                    ? Math.Min(value, d[d.Current + 1])
-                                    : Math.Max(value, d[d.Current - 1])
+                         select (output.Current % 2 == 0)
+                                    ? Math.Min(value, d[output.Current + 1])
+                                    : Math.Max(value, d[output.Current - 1])
                     );
                 WriteLine("Query evenselector compiled in {0:F4} seconds", PerformanceTimer.Stop());
 
@@ -112,9 +112,9 @@ namespace OddEvenTranspositionSort
                 // query to be applied to odd passes
                 CompiledQuery oddSelector = provider.Compile<DataParallelArray<float>>(
                     d => from float value in d
-                         select (d.Current % 2 != 0)
-                                    ? Math.Min(value, d[d.Current + 1])
-                                    : Math.Max(value, d[d.Current - 1])
+                         select (output.Current % 2 != 0)
+                                    ? Math.Min(value, d[output.Current + 1])
+                                    : Math.Max(value, d[output.Current - 1])
                     );
                 WriteLine("Query oddselector compiled in {0:F4} seconds", PerformanceTimer.Stop());
 
@@ -235,12 +235,12 @@ namespace OddEvenTranspositionSort
                 // because each one becomes a temporary variable and is therefore evaluated only once.
                 CompiledQuery evenSelector = provider.Compile<DataParallelArray<Vector4>>(
                     d => from Vector4 value in d
-                         let prevValue = d[d.Current - 1]
-                         let nextValue = d[d.Current + 1]
+                         let prevValue = d[output.Current - 1]
+                         let nextValue = d[output.Current + 1]
                          let length = Math.Sqrt(value.x * value.x + value.y * value.y + value.z * value.z)
                          let prevLength = Math.Sqrt(prevValue.x * prevValue.x + prevValue.y * prevValue.y + prevValue.z * prevValue.z)
                          let nextLength = Math.Sqrt(nextValue.x * nextValue.x + nextValue.y * nextValue.y + nextValue.z * nextValue.z)
-                         select (d.Current % 2 == 0)
+                         select (output.Current % 2 == 0)
                                     ? Math.Min(length, nextLength) == length
                                           ? value
                                           : nextValue
@@ -255,12 +255,12 @@ namespace OddEvenTranspositionSort
                 // Write the query that runs on odd passes.
                 CompiledQuery oddSelector = provider.Compile<DataParallelArray<Vector4>>(
                     d => from Vector4 value in d
-                         let prevValue = d[d.Current - 1]
-                         let nextValue = d[d.Current + 1]
+                         let prevValue = d[output.Current - 1]
+                         let nextValue = d[output.Current + 1]
                          let length = Math.Sqrt(value.x * value.x + value.y * value.y + value.z * value.z)
                          let prevLength = Math.Sqrt(prevValue.x * prevValue.x + prevValue.y * prevValue.y + prevValue.z * prevValue.z)
                          let nextLength = Math.Sqrt(nextValue.x * nextValue.x + nextValue.y * nextValue.y + nextValue.z * nextValue.z)
-                         select (d.Current % 2 != 0)
+                         select (output.Current % 2 != 0)
                                     ? Math.Min(length, nextLength) == length
                                           ? value
                                           : nextValue

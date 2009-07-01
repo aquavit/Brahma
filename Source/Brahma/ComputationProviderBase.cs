@@ -71,12 +71,12 @@ namespace Brahma
 
         #endregion
 
-        private IQueryable InitializeAndRunQuery(CompiledQuery query, params DataParallelArrayBase[] arguments)
+        private IQueryable InitializeAndRunQuery(CompiledQuery query, int[] outputDimensions, params DataParallelArrayBase[] arguments)
         {
             foreach (DataParallelArrayBase argument in arguments)
                 argument.BeginQuery(); // Call this to let the data-parallel array initialize itself before a query is run on it
 
-            IQueryable result = RunQuery(query, arguments); // Run the query
+            IQueryable result = RunQuery(query, outputDimensions, arguments); // Run the query
 
             foreach (DataParallelArrayBase argument in arguments)
                 argument.EndQuery(); // Call this to let the data-parallel array perform cleanup on itself after a query is run on it
@@ -97,7 +97,7 @@ namespace Brahma
         protected abstract CompiledQuery CompileQuery(LambdaExpression expression);
 
         // Override this method in derived classes to run a CompiledQuery
-        protected abstract IQueryable RunQuery(CompiledQuery query, params DataParallelArrayBase[] arguments);
+        protected abstract IQueryable RunQuery(CompiledQuery query, int[] outputDimensions, params DataParallelArrayBase[] arguments);
 
         private void Dispose(bool disposing)
         {
@@ -160,24 +160,24 @@ namespace Brahma
         }
 
         // All the overloads that run a CompiledQuery
-        public IQueryable Run(CompiledQuery query, DataParallelArrayBase data)
+        public IQueryable Run(CompiledQuery query, DataParallelArrayBase data, params int[] outputDimensions)
         {
-            return InitializeAndRunQuery(query, data);
+            return InitializeAndRunQuery(query, outputDimensions, data);
         }
 
-        public IQueryable Run(CompiledQuery query, DataParallelArrayBase data1, DataParallelArrayBase data2)
+        public IQueryable Run(CompiledQuery query, DataParallelArrayBase data1, DataParallelArrayBase data2, params int[] outputDimensions)
         {
-            return InitializeAndRunQuery(query, data1, data2);
+            return InitializeAndRunQuery(query, outputDimensions, data1, data2);
         }
 
-        public IQueryable Run(CompiledQuery query, DataParallelArrayBase data1, DataParallelArrayBase data2, DataParallelArrayBase data3)
+        public IQueryable Run(CompiledQuery query, DataParallelArrayBase data1, DataParallelArrayBase data2, DataParallelArrayBase data3, params int[] outputDimensions)
         {
-            return InitializeAndRunQuery(query, data1, data2, data3);
+            return InitializeAndRunQuery(query, outputDimensions, data1, data2, data3);
         }
 
-        public IQueryable Run(CompiledQuery query, DataParallelArrayBase data1, DataParallelArrayBase data2, DataParallelArrayBase data3, DataParallelArrayBase data4)
+        public IQueryable Run(CompiledQuery query, DataParallelArrayBase data1, DataParallelArrayBase data2, DataParallelArrayBase data3, DataParallelArrayBase data4, params int[] outputDimensions)
         {
-            return InitializeAndRunQuery(query, data1, data2, data3, data4);
+            return InitializeAndRunQuery(query, outputDimensions, data1, data2, data3, data4);
         }
     }
 }

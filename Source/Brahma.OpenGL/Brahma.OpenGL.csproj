@@ -55,7 +55,10 @@
     <Compile Include="FrameBufferObject.cs" />
     <Compile Include="GLCompiledQuery.cs" />
     <Compile Include="GLSLGenerator.cs" />
+    <Compile Include="Helper\ExpressionExtensions.cs" />
+    <Compile Include="Helper\TypeExtensions.cs" />
     <Compile Include="ISampler.cs" />
+    <Compile Include="output.cs" />
     <Compile Include="ParameterBase.cs" />
     <Compile Include="Parameters.cs" />
     <Compile Include="ProgramObject.cs" />

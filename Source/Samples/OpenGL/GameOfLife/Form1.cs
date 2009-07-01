@@ -61,31 +61,31 @@ namespace GameOfLife
             _nextGeneration = _provider.Compile<DataParallelArray2D<float>>(
                 d => from value in d
                      // Find all the neighbors, binarize them
-                     let topLeft = d[d.CurrentX - 1, d.CurrentY - 1] > 0f
+                     let topLeft = d[output.CurrentX - 1, output.CurrentY - 1] > 0f
                                        ? 1f
                                        : 0f
-                     let top = d[d.CurrentX, d.CurrentY - 1] > 0f
+                     let top = d[output.CurrentX, output.CurrentY - 1] > 0f
                                    ? 1f
                                    : 0f
-                     let topRight = d[d.CurrentX + 1, d.CurrentY - 1] > 0f
+                     let topRight = d[output.CurrentX + 1, output.CurrentY - 1] > 0f
                                         ? 1f
                                         : 0f
-                     let left = d[d.CurrentX - 1, d.CurrentY] > 0f
+                     let left = d[output.CurrentX - 1, output.CurrentY] > 0f
                                     ? 1f
                                     : 0f
                      let current = value > 0f
                                        ? 1f
                                        : 0f
-                     let right = d[d.CurrentX + 1, d.CurrentY] > 0f
+                     let right = d[output.CurrentX + 1, output.CurrentY] > 0f
                                      ? 1f
                                      : 0f
-                     let bottomLeft = d[d.CurrentX - 1, d.CurrentY + 1] > 0f
+                     let bottomLeft = d[output.CurrentX - 1, output.CurrentY + 1] > 0f
                                           ? 1f
                                           : 0f
-                     let bottom = d[d.CurrentX, d.CurrentY + 1] > 0f
+                     let bottom = d[output.CurrentX, output.CurrentY + 1] > 0f
                                       ? 1f
                                       : 0f
-                     let bottomRight = d[d.CurrentX + 1, d.CurrentY + 1] > 0f
+                     let bottomRight = d[output.CurrentX + 1, output.CurrentY + 1] > 0f
                                            ? 1f
                                            : 0f
                      // Count the number of live neighbors

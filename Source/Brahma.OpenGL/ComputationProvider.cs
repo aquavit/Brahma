@@ -28,6 +28,7 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using System.Windows.Forms;
 
+using Brahma.OpenGL.Helper;
 using Brahma.Platform.OpenGL;
 
 using Tao.OpenGl;
@@ -178,7 +179,7 @@ namespace Brahma.OpenGL
             return new GLCompiledQuery(program, expressionProcessor.MemberAccess.ToArray(), expression.Body.Type, expressionProcessor.QueryParameters.ToArray());
         }
 
-        protected override IQueryable RunQuery(CompiledQuery query, DataParallelArrayBase[] arguments)
+        protected override IQueryable RunQuery(CompiledQuery query, int[] outputDimensions, params DataParallelArrayBase[] arguments)
         {
             if (!_glContext.IsCurrent)
                 _glContext.MakeCurrent(); // Make sure this context is active
@@ -198,6 +199,9 @@ namespace Brahma.OpenGL
             // All "special" functionality that is not element-wise needs to be implemented as operators or extension methods on data-parallel arrays
             // Example: Given 3 data-parallel arrays of dimensions d1 = 3x3 d2 = 2x3 d3 = 10x1, the result would have dimensions min(2, 2, 10) x min(3, 3, 1) = 2 x 1
             // so, only two columns and one row will be processed on ALL the data-parallel arrays. The rest of the elements will NOT be processed.
+            // *** Addendum ***
+            // The user is allowed to pass in the output dimensions, so these will be used (if valid)
+
             int width = int.MaxValue;
             int height = int.MaxValue;
 
@@ -216,6 +220,17 @@ namespace Brahma.OpenGL
                     height = sampler.Height;
 
                 invDimensions.Add(new Vector2(1f / sampler.Width, 1f / sampler.Height));
+            }
+
+            // Force the specified dimensions (if correct)
+            if ((outputDimensions != null) && (outputDimensions.Length > 0))
+            {
+                if (outputDimensions.Length > 2)
+                    throw new ArgumentOutOfRangeException("outputDimensions", "The rank of the output cannot exceed 2");
+
+                // Get the width and height
+                width = outputDimensions[0];
+                height = outputDimensions.Length == 2 ? outputDimensions[1] : 1;
             }
 
             Type resultType = height == 1
@@ -258,6 +273,9 @@ namespace Brahma.OpenGL
             // Finally, set up the shader constants here
             foreach (MemberExpression memberExp in q.Uniforms)
             {
+                if (memberExp.IsOutputCoordAccess()) // Skip output.Current<blah> accesses
+                    continue;
+
                 if (memberExp.Type == typeof(int))
                     q.Program.Parameters<int>(memberExp.Member.Name).Value =
                         memberExp.Expression == null // Is this a static field?

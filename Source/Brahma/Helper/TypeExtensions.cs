@@ -31,7 +31,7 @@ namespace Brahma.Helper
         {
             return _dataParallelArrayBaseType.IsAssignableFrom(type);
         }
-        
+
         public static bool IsDataParallelArray1D(this Type type)
         {
             foreach (Type allowedType in _dataParallelArray1DBaseTypes)
