@@ -226,14 +226,6 @@ namespace Brahma
         }
     }
 
-    public static class ParameterExpressionExtensions
-    {
-        public static bool IsTransparentIdentifier(this ParameterExpression parameter)
-        {
-            return parameter.Name.StartsWith("<>h__TransparentIdentifier");
-        }
-    }
-
     public sealed class MemberExpressionComparer : IEqualityComparer<MemberExpression>
     {
         #region IEqualityComparer<MemberExpression> Members

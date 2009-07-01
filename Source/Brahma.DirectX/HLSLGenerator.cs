@@ -450,7 +450,7 @@ namespace Brahma.DirectX
             CheckArgumentCount("get_Item", 1, methodCall.Arguments.Count);
             // This should only be indexing on a data-parallel array which is a parameter
             if (!((methodCall.Object is ParameterExpression) &&
-                  (typeof (DataParallelArrayBase).IsAssignableFrom(methodCall.Object.Type)) &&
+                  methodCall.Object.Type.DerivesFrom(typeof(DataParallelArrayBase)) &&
                   (sender._expressionProcessor.QueryParameters.Contains(methodCall.Object as ParameterExpression))))
                 throw new NotSupportedException("Indexing inside a GPU query is allowed only on data-parallel array type query parameters");
 
@@ -476,7 +476,7 @@ namespace Brahma.DirectX
             CheckArgumentCount("get_Item", 2, methodCall.Arguments.Count);
             // This should only be indexing on a data-parallel array which is a parameter
             if (!((methodCall.Object is ParameterExpression) &&
-                  (typeof (DataParallelArrayBase).IsAssignableFrom(methodCall.Object.Type)) &&
+                  methodCall.Object.Type.DerivesFrom(typeof(DataParallelArrayBase)) &&
                   (sender._expressionProcessor.QueryParameters.Contains(methodCall.Object as ParameterExpression))))
                 throw new NotSupportedException("Indexing inside a GPU query is allowed only on data-parallel array type query parameters");
 

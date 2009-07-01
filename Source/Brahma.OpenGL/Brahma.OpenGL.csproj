@@ -45,7 +45,7 @@
     <Compile Include="..\SolutionInfo.cs">
       <Link>Properties\SolutionInfo.cs</Link>
     </Compile>
-    <Compile Include="AddressingModeExtensions.cs" />
+    <Compile Include="Helper\AddressingModeExtensions.cs" />
     <Compile Include="ComputationProvider.cs" />
     <Compile Include="DataParallelArray.cs" />
     <Compile Include="DataParallelArray2D.cs" />

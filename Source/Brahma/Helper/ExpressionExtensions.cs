@@ -19,17 +19,15 @@
 
 #endregion
 
-using System;
+using System.Linq.Expressions;
 
-namespace Brahma.OpenGL.Helper
+namespace Brahma.Helper
 {
-    internal static class TypeExtensions
+    internal static class ParameterExpressionExtensions
     {
-        private static readonly Type _outputType = typeof(output);
-
-        public static bool IsOutput(this Type type)
+        public static bool IsTransparentIdentifier(this ParameterExpression parameter)
         {
-            return (type == _outputType);
+            return parameter.Name.StartsWith("<>h__TransparentIdentifier");
         }
     }
 }

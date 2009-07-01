@@ -25,7 +25,7 @@ using NUnit.Framework;
 
 namespace Brahma.DirectX.Tests.Helper
 {
-    public static class AssertHelper
+    internal static class AssertHelper
     {
         public static void AssertIfClose(this float actual, float expected)
         {

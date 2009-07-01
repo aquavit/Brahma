@@ -22,23 +22,23 @@
 using System;
 using System.Globalization;
 
-using Microsoft.DirectX.Direct3D;
+using Tao.OpenGl;
 
-namespace Brahma.DirectX
+namespace Brahma.OpenGL.Helper
 {
     internal static class AddressingModeExtensions
     {
-        public static int ToDXAddressingMode(this AddressingMode addressingMode)
+        public static int ToGLAddressingMode(this AddressingMode addressingMode)
         {
             switch (addressingMode)
             {
                 case AddressingMode.Clamp:
-                    return (int)TextureAddress.Clamp;
+                    return Gl.GL_CLAMP;
                 case AddressingMode.Repeat:
-                    return (int)TextureAddress.Wrap;
+                    return Gl.GL_REPEAT;
 
                 default:
-                    throw new NotSupportedException(string.Format(CultureInfo.InvariantCulture, "The addressing mode {0} cannot be converted to an equivalent DirectX addressing mode", addressingMode));
+                    throw new NotSupportedException(string.Format(CultureInfo.InvariantCulture, "The addressing mode {0} cannot be converted to an equivalent OpenGL addressing mode", addressingMode));
             }
         }
     }
