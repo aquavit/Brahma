@@ -93,9 +93,6 @@ namespace Brahma
 
         #endregion
 
-        // Override this to perform any initializations before a query is run using this as an argument
-        // Remember, this is NOT called on the result of a query, only the arguments
-
         #region IQueryable Members
 
         IEnumerator IEnumerable.GetEnumerator()
@@ -131,6 +128,8 @@ namespace Brahma
         protected abstract AddressingMode GetColumnAddressingMode();
         protected abstract AddressingMode GetRowAddressingMode();
 
+        // Override this to perform any initializations before a query is run using this as an argument
+        // Remember, this is NOT called on the result of a query, only the arguments
         protected internal virtual void BeginQuery()
         {
         }
