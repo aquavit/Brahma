@@ -33,7 +33,7 @@ using System.Runtime.InteropServices;
 
 //Assembly version information
 
-[assembly: AssemblyVersion("0.0.*")]
+[assembly: AssemblyVersion("0.4.*")]
 
 //CLS compliance. True by default. Turn off specifically for code that is not compliant.
 
