@@ -1,6 +1,6 @@
 ﻿#region License and Copyright Notice
 
-//Brahma 2.0: Framework for streaming/parallel computing with an emphasis on GPGPU
+//Brahma: Framework for streaming/parallel computing with an emphasis on GPGPU
 
 //Copyright (c) 2007 Ananth B.
 //All rights reserved.

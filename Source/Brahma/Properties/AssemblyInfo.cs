@@ -1,6 +1,6 @@
 ﻿#region License and Copyright Notice
 
-//Brahma 2.0: Framework for streaming/parallel computing with an emphasis on GPGPU
+//Brahma: Framework for streaming/parallel computing with an emphasis on GPGPU
 
 //Copyright (c) 2007 Ananth B.
 //All rights reserved.
@@ -25,7 +25,7 @@ using System.Runtime.InteropServices;
 //General assembly information
 
 [assembly: AssemblyTitle("Brahma")]
-[assembly: AssemblyDescription("Provides base classes and interfaces that are graphics API and shading language independent")]
+[assembly: AssemblyDescription("Provides base classes and interfaces that are compute device/API independent")]
 
 // GUID for the ID of the typelib if this project is exposed to COM
 

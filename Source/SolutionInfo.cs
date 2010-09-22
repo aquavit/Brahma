@@ -1,6 +1,6 @@
 #region License and Copyright Notice
 
-//Brahma 2.0: Framework for streaming/parallel computing with an emphasis on GPGPU
+//Brahma: Framework for streaming/parallel computing with an emphasis on GPGPU
 
 //Copyright (c) 2007 Ananth B.
 //All rights reserved.
@@ -35,9 +35,9 @@ using System.Runtime.InteropServices;
 
 [assembly: AssemblyVersion("0.4.*")]
 
-//CLS compliance. True by default. Turn off specifically for code that is not compliant.
+//CLS compliance. False.
 
-[assembly: CLSCompliant(true)]
+[assembly: CLSCompliant(false)]
 
 //Visibility to COM. False by default. Turn on specifically for code that needs to be
 //visible to COM.

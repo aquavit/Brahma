@@ -1,6 +1,6 @@
 ﻿#region License and Copyright Notice
 
-//Brahma 2.0: Framework for streaming/parallel computing with an emphasis on GPGPU
+//Brahma: Framework for streaming/parallel computing with an emphasis on GPGPU
 
 //Copyright (c) 2007 Ananth B.
 //All rights reserved.
@@ -19,18 +19,20 @@
 
 #endregion
 
+using System;
+using System.Collections.Generic;
+
 namespace Brahma
 {
-    public interface IAddressable
+    public abstract class Kernel<TResult>
     {
-        AddressingMode ColumnAddressingMode
-        {
-            get;
-        }
+    }
 
-        AddressingMode RowAddressingMode
-        {
-            get;
-        }
+    public abstract class Kernel<T, TResult>
+    {
+    }
+
+    public abstract class Kernel<T1, T2, TResult>
+    {
     }
 }
