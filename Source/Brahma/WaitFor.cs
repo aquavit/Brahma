@@ -10,14 +10,9 @@ namespace Brahma
         private const string AnonymousWaitForName = "WaitFor_{0}";
         private static int _anonymousWaitForID = 0;
 
-        private WaitFor()
-            : base(string.Format(AnonymousWaitForName, _anonymousWaitForID++))
+        protected WaitFor()
         {
-        }
-
-        protected WaitFor(string name)
-            : this()
-        {
+            base.Name = string.Format(AnonymousWaitForName, _anonymousWaitForID++);
         }
 
         public static Command operator &(WaitFor wait, Command command)

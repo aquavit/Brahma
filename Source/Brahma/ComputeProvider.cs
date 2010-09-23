@@ -25,7 +25,7 @@ using System.Collections.Generic;
 
 namespace Brahma
 {
-    public abstract class ComputeProvider
+    public abstract class ComputeProvider: IDisposable
     {
         public abstract Kernel<IEnumerable<TResult>> Compile<TResult>(Expression<Func<IEnumerable<TResult>>> kernel) where TResult: struct;
 
@@ -35,5 +35,7 @@ namespace Brahma
         public abstract Kernel<T1, T2, IEnumerable<TResult>> Compile<T1, T2, TResult>(Expression<Func<Buffer<T1>, Buffer<T2>, IEnumerable<TResult>>> kernel) where T1: struct 
                                                                                                                                 where T2: struct 
                                                                                                                                 where TResult: struct;
+
+        public abstract void Dispose();
     }
 }

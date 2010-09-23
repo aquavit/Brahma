@@ -24,12 +24,17 @@ namespace Brahma.OpenCL
             throw new NotImplementedException();
         }
 
-        public static Run<T, TResult> Run<T, TResult>(this Brahma.Kernel<T, IEnumerable<TResult>> kernel) where T: struct where TResult: struct
+        public static Run<T, TResult> Run<T, TResult>(this Brahma.Kernel<T, IEnumerable<TResult>> kernel, Buffer<T> data)
+            where T : struct
+            where TResult : struct
         {
             throw new NotImplementedException();
         }
-
-        public static Run<T1, T2, TResult> Run<T1, T2, TResult>(this Brahma.Kernel<T1, T2, IEnumerable<TResult>> kernel) where T1: struct where T2: struct where TResult: struct
+        
+        public static Run<T1, T2, TResult> Run<T1, T2, TResult>(this Brahma.Kernel<T1, T2, IEnumerable<TResult>> kernel, Buffer<T1> d1, Buffer<T2> d2) 
+            where T1: struct 
+            where T2: struct 
+            where TResult: struct
         {
             throw new NotImplementedException();
         }

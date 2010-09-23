@@ -7,8 +7,7 @@ namespace Brahma
 {
     public abstract class Run<TResult> : Command<TResult> where TResult : struct
     {
-        protected Run(string name, Kernel<TResult> kernel)
-            : base(name)
+        protected Run(Kernel<TResult> kernel)
         {
         }
     }
@@ -16,8 +15,7 @@ namespace Brahma
     public abstract class Run<T, TResult> : Command<T, TResult> where T : struct
                                                                 where TResult : struct
     {
-        protected Run(string name, Kernel<T, TResult> kernel, Buffer<T> buffer)
-            : base(name)
+        protected Run(Kernel<T, TResult> kernel, Buffer<T> buffer)
         { 
         }
     }
@@ -26,8 +24,7 @@ namespace Brahma
                                                                           where T2 : struct
                                                                           where TResult : struct
     {
-        protected Run(string name, Kernel<T1, T2, TResult> kernel, Buffer<T1> d1, Buffer<T2> d2)
-            : base(name)
+        protected Run(Kernel<T1, T2, TResult> kernel, Buffer<T1> d1, Buffer<T2> d2)
         {
         }
     }

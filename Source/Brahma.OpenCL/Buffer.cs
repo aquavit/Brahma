@@ -3,10 +3,30 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
+using OpenCL.Net;
+
 namespace Brahma.OpenCL
 {
+    public enum BufferFlags: ulong
+    {
+        ReadWrite = Cl.MemFlags.ReadWrite,
+        ReadOnly = Cl.MemFlags.ReadOnly,
+        WriteOnly = Cl.MemFlags.WriteOnly,
+        HostAccessible = Cl.MemFlags.AllocHostPtr
+    }
+    
     public sealed class Buffer<T>: Brahma.Buffer<T> where T: struct
     {
+        private Cl.Mem _mem;
+        
+        public Buffer(ComputeProvider provider, BufferFlags flags, IntPtr size)
+        {
+            Cl.ErrorCode error;
+            _mem = Cl.CreateBuffer(provider.Context, (Cl.MemFlags)flags, size, null, out error);
+        }
+
+        // TODO: Add overloads, one that takes an array and the other that takes a Func<IEnumerable<T>>
+        
         public override IEnumerator<T> GetEnumerator()
         {
             throw new NotImplementedException();
@@ -15,34 +35,12 @@ namespace Brahma.OpenCL
 
     public static class BufferExtensions
     {
-        private const string AnonymousReadName = "Read_{0}";
-        private static int _anonymousReadID = 0;
-        
-        public static ReadBuffer<T> Read<T>(this Buffer<T> buffer,
-            string name,
-            int offset,
-            int count,
-            T[] data) where T: struct
-        {
-            return new ReadBuffer<T>(name, buffer, true, offset, count, data);
-        }
-
         public static ReadBuffer<T> Read<T>(this Buffer<T> buffer,
             int offset,
             int count,
             T[] data) where T : struct
         {
-            return new ReadBuffer<T>(string.Format(AnonymousReadName, _anonymousReadID++), 
-                buffer, true, offset, count, data);
-        }
-
-        public static ReadBuffer<T> ReadAsync<T>(this Buffer<T> buffer,
-            string name,
-            int offset,
-            int count,
-            T[] data) where T : struct
-        {
-            return new ReadBuffer<T>(name, buffer, false, offset, count, data);
+            return new ReadBuffer<T>(buffer, true, offset, count, data);
         }
 
         public static ReadBuffer<T> ReadAsync<T>(this Buffer<T> buffer,
@@ -50,20 +48,7 @@ namespace Brahma.OpenCL
             int count,
             T[] data) where T : struct
         {
-            return new ReadBuffer<T>(string.Format(AnonymousReadName, _anonymousReadID++),
-                buffer, false, offset, count, data);
-        }
-
-        private const string AnonymousWriteName = "Read_{0}";
-        private static int _anonymousWriteID = 0;
-
-        public static WriteBuffer<T> Write<T>(this Buffer<T> buffer,
-            string name,
-            int offset,
-            int count,
-            T[] data) where T : struct
-        {
-            return new WriteBuffer<T>(name, buffer, true, offset, count, data);
+            return new ReadBuffer<T>(buffer, false, offset, count, data);
         }
 
         public static WriteBuffer<T> Write<T>(this Buffer<T> buffer,
@@ -71,17 +56,7 @@ namespace Brahma.OpenCL
             int count,
             T[] data) where T : struct
         {
-            return new WriteBuffer<T>(string.Format(AnonymousWriteName, _anonymousWriteID++),
-                buffer, true, offset, count, data);
-        }
-
-        public static WriteBuffer<T> WriteAsync<T>(this Buffer<T> buffer,
-            string name,
-            int offset,
-            int count,
-            T[] data) where T : struct
-        {
-            return new WriteBuffer<T>(name, buffer, false, offset, count, data);
+            return new WriteBuffer<T>(buffer, true, offset, count, data);
         }
 
         public static WriteBuffer<T> WriteAsync<T>(this Buffer<T> buffer,
@@ -89,8 +64,7 @@ namespace Brahma.OpenCL
             int count,
             T[] data) where T : struct
         {
-            return new WriteBuffer<T>(string.Format(AnonymousWriteName, _anonymousWriteID++),
-                buffer, false, offset, count, data);
+            return new WriteBuffer<T>(buffer, false, offset, count, data);
         }
     }
 }

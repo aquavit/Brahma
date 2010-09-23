@@ -7,13 +7,12 @@ namespace Brahma.OpenCL
 {
     public sealed class ReadBuffer<T> : Brahma.ReadBuffer<T> where T : struct
     {
-        public ReadBuffer(string name,
-                          Buffer<T> buffer,
+        public ReadBuffer(Buffer<T> buffer,
                           bool blocking,
                           int offset,
                           int count,
                           T[] data)
-            : base(name, buffer, blocking, offset, count, data)
+            : base(buffer, blocking, offset, count, data)
         {
         }
     }

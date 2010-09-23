@@ -67,6 +67,9 @@
     <Compile Include="Command.cs" />
     <Compile Include="ComputeProvider.cs" />
     <Compile Include="Buffer.cs" />
+    <Compile Include="Image2D.cs" />
+    <Compile Include="Image3D.cs" />
+    <Compile Include="ImageFormat.cs" />
     <Compile Include="Kernel.cs">
       <SubType>Code</SubType>
     </Compile>

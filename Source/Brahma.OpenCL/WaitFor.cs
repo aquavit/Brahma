@@ -7,14 +7,13 @@ namespace Brahma.OpenCL
 {
     public sealed class WaitFor: Brahma.WaitFor
     {
-        public WaitFor(string name)
-            : base(name)
+        internal WaitFor()
         { 
         }
-
+        
         public static explicit operator WaitFor(string name)
         {
-            return new WaitFor(name);
+            return new WaitFor() { Name = name };
         }
     }
 }

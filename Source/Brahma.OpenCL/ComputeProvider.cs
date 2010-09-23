@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Linq.Expressions;
 
 using OpenCL.Net;
 
@@ -9,52 +10,48 @@ namespace Brahma.OpenCL
 {
     public sealed class ComputeProvider: Brahma.ComputeProvider
     {
-        public ComputeProvider(Cl.DeviceType deviceType)
-        {
-        }
+        private readonly Cl.Context _context;
+        private bool _disposed = false;
 
-        public ComputeProvider(params Cl.Device[] devices)
+        internal Cl.Context Context
         {
-        }
-
-        public override Brahma.Kernel<IEnumerable<TResult>> Compile<TResult>(System.Linq.Expressions.Expression<Func<IEnumerable<TResult>>> kernel)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override Brahma.Kernel<T, IEnumerable<TResult>> Compile<T, TResult>(System.Linq.Expressions.Expression<Func<Brahma.Buffer<T>, IEnumerable<TResult>>> kernel)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override Brahma.Kernel<T1, T2, IEnumerable<TResult>> Compile<T1, T2, TResult>(System.Linq.Expressions.Expression<Func<Brahma.Buffer<T1>, Brahma.Buffer<T2>, IEnumerable<TResult>>> kernel)
-        {
-            throw new NotImplementedException();
-        }
-    }
-
-    // Usage example
-    public static class Program
-    {
-        public struct Coefficients
-        {
-            public float a;
-            public float b;
-            public float factor;
+            get 
+            {
+                return _context;
+            }
         }
         
-        static void main()
+        public ComputeProvider(params Cl.Device[] devices)
         {
-            ComputeProvider provider = new ComputeProvider(Cl.DeviceType.Cpu);
-            CommandQueue queue = new CommandQueue(provider);
-            var coefficients = new Buffer<Coefficients>();
-            var coeffData = new Coefficients[10];
+            Cl.ErrorCode error;
+            _context = Cl.CreateContext(null, (uint)devices.Length, devices, null, IntPtr.Zero, out error);
+            
+            if (error != Cl.ErrorCode.Success)
+                throw new CLException(error);
+        }
 
-            queue.Add(
-                    coefficients.WriteAsync("write", 0, 10, coeffData),
-                    (WaitFor)"write" & provider.Compile<Coefficients, float>(coeffs => from c in coeffs select c.factor).Run(),
-                    coefficients.Read(0, 10, coeffData)
-                );
+        public override Brahma.Kernel<IEnumerable<TResult>> Compile<TResult>(Expression<Func<IEnumerable<TResult>>> kernel)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Brahma.Kernel<T, IEnumerable<TResult>> Compile<T, TResult>(Expression<Func<Brahma.Buffer<T>, IEnumerable<TResult>>> kernel)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Brahma.Kernel<T1, T2, IEnumerable<TResult>> Compile<T1, T2, TResult>(Expression<Func<Brahma.Buffer<T1>, Brahma.Buffer<T2>, IEnumerable<TResult>>> kernel)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Dispose()
+        {
+            if (!_disposed)
+            {
+                _context.Dispose();
+                _disposed = true;
+            }
         }
     }
 }
