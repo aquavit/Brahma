@@ -15,18 +15,25 @@
 // terms of the License.
 #endregion
 
-using System.Collections;
-using System.Collections.Generic;
+using System.Linq;
+using Brahma.OpenCL;
+using OpenCL.Net;
 
-namespace Brahma
+namespace Initialization
 {
-    public abstract class Image2D<T>: Mem<T>, IEnumerable<T> where T: struct, IImageFormat
+    class Program
     {
-        public abstract IEnumerator<T> GetEnumerator();
-
-        IEnumerator IEnumerable.GetEnumerator()
+        static void Main(string[] args)
         {
-            return GetEnumerator();
+            Cl.ErrorCode error;
+            var devices = (from dev in
+                               Cl.GetDeviceIDs(
+                                   (from platform in Cl.GetPlatformIDs(out error)
+                                    select platform).First(), Cl.DeviceType.Default, out error)
+                           select dev).ToArray();
+            var provider = new ComputeProvider(devices);
+
+            provider.Dispose(); // Remember to Dispose() everything! No finalizers!
         }
     }
 }

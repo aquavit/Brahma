@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Brahma.OpenCL</RootNamespace>
     <AssemblyName>Brahma.OpenCL</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
@@ -31,6 +31,7 @@
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -60,18 +61,22 @@
       <Link>Properties\SolutionInfo.cs</Link>
     </Compile>
     <Compile Include="Buffer.cs" />
-    <Compile Include="ClException.cs" />
+    <Compile Include="CLCodeGenerator.cs" />
+    <Compile Include="CLException.cs" />
     <Compile Include="CommandQueue.cs" />
     <Compile Include="ComputeProvider.cs" />
     <Compile Include="Image2D.cs" />
     <Compile Include="Image3D.cs" />
     <Compile Include="ImageFormats.cs" />
     <Compile Include="Kernel.cs" />
+    <Compile Include="NDRange.cs" />
+    <Compile Include="NDRangeDimension.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ReadBuffer.cs" />
-    <Compile Include="Run.cs" />
-    <Compile Include="WaitFor.cs" />
-    <Compile Include="WriteBuffer.cs" />
+    <Compile Include="Commands\ReadBuffer.cs" />
+    <Compile Include="Commands\Run.cs" />
+    <Compile Include="Translator.cs" />
+    <Compile Include="Commands\WaitFor.cs" />
+    <Compile Include="Commands\WriteBuffer.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Libraries\OpenCL.Net\OpenCL.Net\OpenCL.Net.csproj">

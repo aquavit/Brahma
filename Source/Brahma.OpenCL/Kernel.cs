@@ -1,42 +1,209 @@
-﻿using System;
+﻿#region License and Copyright Notice
+// Copyright (c) 2010 Ananth B.
+// All rights reserved.
+// 
+// The contents of this file are made available under the terms of the
+// Eclipse Public License v1.0 (the "License") which accompanies this
+// distribution, and is available at the following URL:
+// http://www.opensource.org/licenses/eclipse-1.0.php
+// 
+// Software distributed under the License is distributed on an "AS IS" basis,
+// WITHOUT WARRANTY OF ANY KIND, either expressed or implied. See the License for
+// the specific language governing rights and limitations under the License.
+// 
+// By using this software in any fashion, you are agreeing to be bound by the
+// terms of the License.
+#endregion
+
 using System.Collections.Generic;
-using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
+using Brahma.OpenCL.Commands;
+using OpenCL.Net;
 
 namespace Brahma.OpenCL
 {
-    public sealed class Kernel<TResult>: Brahma.Kernel<TResult>
+    internal interface ICLKernel
     {
+        StringBuilder Source
+        {
+            get;
+        }
+
+        IEnumerable<MemberExpression> Closures
+        {
+            get;
+            set;
+        }
+
+        IEnumerable<ParameterExpression> Parameters
+        {
+            get;
+            set;
+        }
+
+        Cl.Kernel ClKernel
+        {
+            get;
+            set;
+        }
+
+        int WorkDim
+        {
+            get;
+        }
     }
 
-    public sealed class Kernel<T, TResult>: Brahma.Kernel<T, TResult>
+    public sealed class Kernel<TRange, TResult>: Brahma.Kernel<TRange, TResult>, ICLKernel
+        where TRange: struct, Brahma.INDRangeDimension
     {
+        private static readonly TRange _range = new TRange();
+
+        private readonly StringBuilder _source = new StringBuilder();
+
+        StringBuilder ICLKernel.Source
+        {
+            get 
+            {
+                return _source;
+            }
+        }
+
+        IEnumerable<MemberExpression> ICLKernel.Closures
+        {
+            get;
+            set;
+        }
+
+        IEnumerable<ParameterExpression> ICLKernel.Parameters
+        {
+            get;
+            set;
+        }
+
+        Cl.Kernel ICLKernel.ClKernel
+        {
+            get;
+            set;
+        }
+
+        int ICLKernel.WorkDim
+        {
+            get
+            {
+                return (_range as INDRangeDimension).Dimensions;
+            }
+        }
     }
 
-    public sealed class Kernel<T1, T2, TResult>: Brahma.Kernel<T1, T2, TResult>
+    public sealed class Kernel<TRange, T, TResult>: Brahma.Kernel<TRange, T, TResult>, ICLKernel 
+        where TRange: struct, Brahma.INDRangeDimension
+        where T: IMem
     {
+        private static readonly TRange _range = new TRange();
+
+        private readonly StringBuilder _source = new StringBuilder();
+
+        StringBuilder ICLKernel.Source
+        {
+            get
+            {
+                return _source;
+            }
+        }
+
+        IEnumerable<MemberExpression> ICLKernel.Closures
+        {
+            get;
+            set;
+        }
+
+        IEnumerable<ParameterExpression> ICLKernel.Parameters
+        {
+            get;
+            set;
+        }
+
+        Cl.Kernel ICLKernel.ClKernel
+        {
+            get;
+            set;
+        }
+
+        int ICLKernel.WorkDim
+        {
+            get
+            {
+                return (_range as INDRangeDimension).Dimensions;
+            }
+        }
+    }
+
+    public sealed class Kernel<TRange, T1, T2, TResult>: Brahma.Kernel<TRange, T1, T2, TResult>, ICLKernel 
+        where TRange: struct, Brahma.INDRangeDimension
+        where T1: IMem 
+        where T2: IMem
+    {
+        private static readonly TRange _range = new TRange();
+        
+        private readonly StringBuilder _source = new StringBuilder();
+
+        StringBuilder ICLKernel.Source
+        {
+            get
+            {
+                return _source;
+            }
+        }
+
+        IEnumerable<MemberExpression> ICLKernel.Closures
+        {
+            get;
+            set;
+        }
+
+        IEnumerable<ParameterExpression> ICLKernel.Parameters
+        {
+            get;
+            set;
+        }
+
+        Cl.Kernel ICLKernel.ClKernel
+        {
+            get;
+            set;
+        }
+
+        int ICLKernel.WorkDim
+        {
+            get
+            {
+                return (_range as INDRangeDimension).Dimensions;
+            }
+        }
     }
 
     public static class KernelExtensions
     {
-        public static Run<TResult> Run<TResult>(this Brahma.Kernel<IEnumerable<TResult>> kernel) where TResult: struct
+        public static Run<TRange, Set[]> Run<TRange>(this Kernel<TRange, Set[]> kernel, TRange range)
+            where TRange: struct, Brahma.INDRangeDimension
         {
-            throw new NotImplementedException();
+            return new Run<TRange, Set[]>(kernel, range);
         }
 
-        public static Run<T, TResult> Run<T, TResult>(this Brahma.Kernel<T, IEnumerable<TResult>> kernel, Buffer<T> data)
-            where T : struct
-            where TResult : struct
+        public static Run<TRange, T, Set[]> Run<TRange, T>(this Kernel<TRange, T, Set[]> kernel, TRange range, T data) 
+            where TRange: struct, INDRangeDimension
+            where T: IMem
         {
-            throw new NotImplementedException();
+            return new Run<TRange, T, Set[]>(kernel, range, data);
         }
         
-        public static Run<T1, T2, TResult> Run<T1, T2, TResult>(this Brahma.Kernel<T1, T2, IEnumerable<TResult>> kernel, Buffer<T1> d1, Buffer<T2> d2) 
-            where T1: struct 
-            where T2: struct 
-            where TResult: struct
+        public static Run<TRange, T1, T2, Set[]> Run<TRange, T1, T2>(this Kernel<TRange, T1, T2, Set[]> kernel, TRange range, T1 d1, T2 d2) 
+            where TRange: struct, INDRangeDimension
+            where T1: IMem 
+            where T2: IMem
         {
-            throw new NotImplementedException();
+            return new Run<TRange, T1, T2, Set[]>(kernel, range, d1, d2);
         }
     }
 }

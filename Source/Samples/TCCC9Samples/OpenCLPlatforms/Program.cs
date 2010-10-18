@@ -15,18 +15,27 @@
 // terms of the License.
 #endregion
 
-using System.Collections;
-using System.Collections.Generic;
+using System;
+using OpenCL.Net;
 
-namespace Brahma
+namespace OpenCLPlatforms
 {
-    public abstract class Image2D<T>: Mem<T>, IEnumerable<T> where T: struct, IImageFormat
+    class Program
     {
-        public abstract IEnumerator<T> GetEnumerator();
-
-        IEnumerator IEnumerable.GetEnumerator()
+        static void Main(string[] args)
         {
-            return GetEnumerator();
+            // Error declaration
+            Cl.ErrorCode error;
+
+            foreach (var platform in Cl.GetPlatformIDs(out error))
+            {
+                Console.WriteLine("Name: {0}\tVendor: {1}",
+                    Cl.GetPlatformInfo(platform, Cl.PlatformInfo.Name, out error).ToString(),
+                    Cl.GetPlatformInfo(platform, Cl.PlatformInfo.Vendor, out error).ToString());
+
+                foreach (var device in Cl.GetDeviceIDs(platform, Cl.DeviceType.All, out error))
+                    Console.WriteLine("\tDevice name: {0}", Cl.GetDeviceInfo(device, Cl.DeviceInfo.Name, out error));
+            }
         }
     }
 }

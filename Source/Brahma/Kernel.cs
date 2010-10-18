@@ -1,38 +1,35 @@
 ﻿#region License and Copyright Notice
-
-//Brahma: Framework for streaming/parallel computing with an emphasis on GPGPU
-
-//Copyright (c) 2007 Ananth B.
-//All rights reserved.
-
-//The contents of this file are made available under the terms of the
-//Eclipse Public License v1.0 (the "License") which accompanies this
-//distribution, and is available at the following URL:
-//http://www.opensource.org/licenses/eclipse-1.0.php
-
-//Software distributed under the License is distributed on an "AS IS" basis,
-//WITHOUT WARRANTY OF ANY KIND, either expressed or implied. See the License for
-//the specific language governing rights and limitations under the License.
-
-//By using this software in any fashion, you are agreeing to be bound by the
-//terms of the License.
-
+// Copyright (c) 2010 Ananth B.
+// All rights reserved.
+// 
+// The contents of this file are made available under the terms of the
+// Eclipse Public License v1.0 (the "License") which accompanies this
+// distribution, and is available at the following URL:
+// http://www.opensource.org/licenses/eclipse-1.0.php
+// 
+// Software distributed under the License is distributed on an "AS IS" basis,
+// WITHOUT WARRANTY OF ANY KIND, either expressed or implied. See the License for
+// the specific language governing rights and limitations under the License.
+// 
+// By using this software in any fashion, you are agreeing to be bound by the
+// terms of the License.
 #endregion
-
-using System;
-using System.Collections.Generic;
 
 namespace Brahma
 {
-    public abstract class Kernel<TResult>
+    public abstract class Kernel
+    {
+    }
+    
+    public abstract class Kernel<TRange, TResult>: Kernel where TRange: struct, INDRangeDimension
     {
     }
 
-    public abstract class Kernel<T, TResult>
+    public abstract class Kernel<TRange, T, TResult>: Kernel where T: IMem where TRange: struct, INDRangeDimension
     {
     }
 
-    public abstract class Kernel<T1, T2, TResult>
+    public abstract class Kernel<TRange, T1, T2, TResult>: Kernel where T1: IMem where T2: IMem where TRange: struct, INDRangeDimension
     {
     }
 }

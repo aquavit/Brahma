@@ -1,3 +1,0 @@
-1. Supress extension method on IQueryable<T>
-2. Prevent extensive data-transformation on GetGPUData and SetGPUData calls
-3. Add RunAsync method (and locking mechanism) to Providers
