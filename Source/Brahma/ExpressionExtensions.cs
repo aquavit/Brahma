@@ -119,6 +119,23 @@ namespace Brahma
             return expression.Member.DeclaringType.Name.Contains("<>c__DisplayClass");
         }
 
+        public sealed class MemberExpressionComparer : IEqualityComparer<MemberExpression>
+        {
+            #region IEqualityComparer<MemberExpression> Members
+
+            public bool Equals(MemberExpression x, MemberExpression y)
+            {
+                return x.ToString() == y.ToString();
+            }
+
+            public int GetHashCode(MemberExpression obj)
+            {
+                return obj.ToString().GetHashCode();
+            }
+
+            #endregion
+        }
+
         public static IEnumerable<MemberExpression> Closures(this IEnumerable<Expression> flattened)
         {
             return (from expression in flattened
@@ -127,7 +144,7 @@ namespace Brahma
                     (memberExp.Type.Name.Contains("<>c__DisplayClass") ||
                     ((expression.NodeType == ExpressionType.MemberAccess) &&
                     (memberExp.Expression.NodeType == ExpressionType.Constant)))
-                    select memberExp).Distinct();
+                    select memberExp).Distinct(new MemberExpressionComparer());
         }
     }
 }

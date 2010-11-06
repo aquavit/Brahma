@@ -27,6 +27,9 @@ namespace Brahma.OpenCL
 {
     internal static class CLCodeGenerator
     {
+        private static readonly ExpressionExtensions.MemberExpressionComparer _memberExpressionComparer =
+            new ExpressionExtensions.MemberExpressionComparer();
+        
         public const string Error = "__error__";
         public const string KernelName = "main";
 
@@ -144,7 +147,7 @@ namespace Brahma.OpenCL
                     return member;
                 }
                 
-                if (_kernel.Closures.Contains(member))
+                if (_kernel.Closures.Contains(member, _memberExpressionComparer))
                 {
                     _kernel.Source.Append(member.Member.Name);
                     return member;
@@ -422,8 +425,8 @@ namespace Brahma.OpenCL
                     //    throw new NotSupportedException(string.Format("{0} cannot be used in a kernel! Types used inside a kernel must contain only public fields",
                     //        t));
 
-                    StringBuilder newType = new StringBuilder();
-                    newType.AppendLine("typedef struct {");
+                    var newType = new StringBuilder();
+                    newType.AppendLine("typedef struct __attribute__ ((__packed__)) {");
                     FieldInfo[] fields = t.GetFields(BindingFlags.Public | BindingFlags.Instance);
                     foreach (var field in fields)
                         newType.AppendLine(string.Format("{0} {1};", Translator<Type>.Translate(v, field.FieldType), field.Name));
@@ -511,7 +514,7 @@ namespace Brahma.OpenCL
 
             kernel.Source.Append("__kernel void main(");
             kernel.Source.Append((from parameter in lambda.Parameters
-                                  where !parameter.Type.DerivesFrom(typeof(Brahma.NDRange))
+                                  where !parameter.Type.DerivesFrom(typeof(NDRange))
                                   select string.Format("{0} {1}", Translator<Type>.Translate(visitor, parameter.Type), parameter.Name)).Join(", ", 
                                   noTrailingSeparator: closures.Count() == 0));
 
