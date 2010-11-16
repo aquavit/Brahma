@@ -27,28 +27,25 @@ namespace Brahma.OpenCL.Commands
     public sealed class Run<TRange, TResult> : Brahma.Commands.Run<TRange, TResult>
         where TRange: struct, Brahma.INDRangeDimension
     {
+        protected override void SetupArguments(object sender, uint index, IntPtr size, object value)
+        {
+            var kernel = Kernel as ICLKernel;
+            
+            Cl.ErrorCode error = Cl.SetKernelArg(kernel.ClKernel, index, size, value);
+            if (error != Cl.ErrorCode.Success)
+                throw new CLException(error);
+        }
+        
         internal Run(Kernel<TRange, TResult> kernel, TRange range)
-            : base(kernel)
+            : base(kernel, range)
         {
-            Kernel = kernel;
-            Range = range;
-        }
-
-        internal Kernel<TRange, TResult> Kernel
-        {
-            get;
-            private set;
-        }
-
-        internal TRange Range
-        {
-            get;
-            private set;
         }
 
         public override void EnqueueInto(object sender)
         {
-            CommandQueue queue = sender as CommandQueue;
+            base.EnqueueInto(sender);
+
+            var queue = sender as CommandQueue;
             var kernel = Kernel as ICLKernel;
             var range = Range as INDRangeDimension;
             var waitList = from name in WaitList
@@ -56,14 +53,8 @@ namespace Brahma.OpenCL.Commands
                            where ev != null
                            select ev.Value;
 
-            Cl.ErrorCode error;
-
-            // No kernel arguments to set up
-
-            // TODO: Add closure arguments
-
             Cl.Event eventID;
-            error = Cl.EnqueueNDRangeKernel(queue.Queue, kernel.ClKernel, (uint)kernel.WorkDim, null,
+            Cl.ErrorCode error = Cl.EnqueueNDRangeKernel(queue.Queue, kernel.ClKernel, (uint)kernel.WorkDim, null,
                 range.GlobalWorkSize, range.LocalWorkSize, (uint)waitList.Count(), waitList.Count() == 0 ? null : waitList.ToArray(), out eventID);
             if (error != Cl.ErrorCode.Success)
                 throw new CLException(error);
@@ -79,27 +70,20 @@ namespace Brahma.OpenCL.Commands
         where TRange: struct, Brahma.INDRangeDimension
         where T: IMem
     {
+        protected override void SetupArguments(object sender, uint index, IntPtr size, object value)
+        {
+            var kernel = Kernel as ICLKernel;
+            Cl.ErrorCode error = Cl.SetKernelArg(kernel.ClKernel, index, size, value);
+            if (error != Cl.ErrorCode.Success)
+                throw new CLException(error);
+        }
+        
         internal Run(Kernel<TRange, T, TResult> kernel, TRange range, T data)
-            : base(kernel, data)
+            : base(kernel, range, data)
         {
-            Kernel = kernel;
-            Data = data;
-            Range = range;
         }
 
-        internal Kernel<TRange, T, TResult> Kernel
-        {
-            get;
-            private set;
-        }
-
-        internal T Data
-        {
-            get;
-            private set;
-        }
-
-        internal TRange Range
+        new internal Kernel<TRange, T, TResult> Kernel
         {
             get;
             private set;
@@ -107,7 +91,9 @@ namespace Brahma.OpenCL.Commands
 
         public override void EnqueueInto(object sender)
         {
-            CommandQueue queue = sender as CommandQueue;
+            base.EnqueueInto(sender);
+
+            var queue = sender as CommandQueue;
             var kernel = Kernel as ICLKernel;
             var range = Range as INDRangeDimension;
             var waitList = from name in WaitList
@@ -115,18 +101,8 @@ namespace Brahma.OpenCL.Commands
                            where ev != null
                            select ev.Value;
 
-            Cl.ErrorCode error;
-            uint argIndex = 0;
-
-            // Set up kernel arguments
-            error = Cl.SetKernelArg(kernel.ClKernel, argIndex++, Data.Size, Data.Data);
-            if (error != Cl.ErrorCode.Success)
-                throw new CLException(error);
-
-            // TODO: Add closure arguments
-
             Cl.Event eventID;
-            error = Cl.EnqueueNDRangeKernel(queue.Queue, kernel.ClKernel, (uint)kernel.WorkDim, null,
+            Cl.ErrorCode error = Cl.EnqueueNDRangeKernel(queue.Queue, kernel.ClKernel, (uint)kernel.WorkDim, null,
                 range.GlobalWorkSize, range.LocalWorkSize, (uint)waitList.Count(), waitList.Count() == 0 ? null : waitList.ToArray(), out eventID);
             if (error != Cl.ErrorCode.Success)
                 throw new CLException(error);
@@ -143,34 +119,20 @@ namespace Brahma.OpenCL.Commands
         where T1: IMem 
         where T2: IMem
     {
+        protected override void SetupArguments(object sender, uint index, IntPtr size, object value)
+        {
+            var kernel = Kernel as ICLKernel;
+            Cl.ErrorCode error = Cl.SetKernelArg(kernel.ClKernel, index, size, value);
+            if (error != Cl.ErrorCode.Success)
+                throw new CLException(error);
+        }
+        
         internal Run(Kernel<TRange, T1, T2, TResult> kernel, TRange range, T1 d1, T2 d2)
-            : base(kernel, d1, d2)
+            : base(kernel, range, d1, d2)
         {
-            Kernel = kernel;
-            D1 = d1;
-            D2 = d2;
-            Range = range;
         }
 
-        internal Kernel<TRange, T1, T2, TResult> Kernel
-        {
-            get;
-            private set;
-        }
-
-        internal T1 D1
-        {
-            get;
-            private set;
-        }
-
-        internal T2 D2
-        {
-            get;
-            private set;
-        }
-
-        internal TRange Range
+        new internal Kernel<TRange, T1, T2, TResult> Kernel
         {
             get;
             private set;
@@ -178,7 +140,9 @@ namespace Brahma.OpenCL.Commands
 
         public override void EnqueueInto(object sender)
         {
-            CommandQueue queue = sender as CommandQueue;
+            base.EnqueueInto(sender);
+
+            var queue = sender as CommandQueue;
             var kernel = Kernel as ICLKernel;
             var range = Range as INDRangeDimension;
             var waitList = from name in WaitList
@@ -186,38 +150,109 @@ namespace Brahma.OpenCL.Commands
                            where ev != null
                            select ev.Value;
 
-            Cl.ErrorCode error;
-            uint argIndex = 0;
-
-            // Set up kernel arguments
-            error = Cl.SetKernelArg(kernel.ClKernel, argIndex++, D1.Size, D1.Data);
-            if (error != Cl.ErrorCode.Success)
-                throw new CLException(error);
-            error = Cl.SetKernelArg(kernel.ClKernel, argIndex++, D1.Size, D2.Data);
+            Cl.Event eventID;
+            Cl.ErrorCode error = Cl.EnqueueNDRangeKernel(queue.Queue, kernel.ClKernel, (uint)kernel.WorkDim, null,
+                range.GlobalWorkSize, range.LocalWorkSize, (uint)waitList.Count(), waitList.Count() == 0 ? null : waitList.ToArray(), out eventID);
             if (error != Cl.ErrorCode.Success)
                 throw new CLException(error);
 
-            object value = null;
+            if (Name == string.Empty)
+                eventID.Dispose();
+            else
+                CommandQueue.AddEvent(Name, eventID);
+        }
+    }
 
-            foreach (var memberExp in kernel.Closures)
-            {
-                switch (memberExp.Member.MemberType)
-                {
-                    case MemberTypes.Field:
-                        value = (memberExp.Member as FieldInfo).GetValue((memberExp.Expression as ConstantExpression).Value);
-                        break;
+    public sealed class Run<TRange, T1, T2, T3, TResult> : Brahma.Commands.Run<TRange, T1, T2, T3, TResult>
+        where TRange : struct, Brahma.INDRangeDimension
+        where T1 : IMem
+        where T2 : IMem
+        where T3 : IMem
+    {
+        protected override void SetupArguments(object sender, uint index, IntPtr size, object value)
+        {
+            var kernel = Kernel as ICLKernel;
+            Cl.ErrorCode error = Cl.SetKernelArg(kernel.ClKernel, index, size, value);
+            if (error != Cl.ErrorCode.Success)
+                throw new CLException(error);
+        }
 
-                    default:
-                        throw new NotSupportedException("Can only access a field from inside a kernel");
-                }
-                
-                error = Cl.SetKernelArg(kernel.ClKernel, argIndex++, (IntPtr)Marshal.SizeOf(value), value);
-                if (error != Cl.ErrorCode.Success)
-                    throw new CLException(error);
-            }
+        internal Run(Kernel<TRange, T1, T2, T3, TResult> kernel, TRange range, T1 d1, T2 d2, T3 d3)
+            : base(kernel, range, d1, d2, d3)
+        {
+        }
+
+        new internal Kernel<TRange, T1, T2, T3, TResult> Kernel
+        {
+            get;
+            private set;
+        }
+
+        public override void EnqueueInto(object sender)
+        {
+            base.EnqueueInto(sender);
+
+            var queue = sender as CommandQueue;
+            var kernel = Kernel as ICLKernel;
+            var range = Range as INDRangeDimension;
+            var waitList = from name in WaitList
+                           let ev = CommandQueue.FindEvent(name)
+                           where ev != null
+                           select ev.Value;
 
             Cl.Event eventID;
-            error = Cl.EnqueueNDRangeKernel(queue.Queue, kernel.ClKernel, (uint)kernel.WorkDim, null, 
+            Cl.ErrorCode error = Cl.EnqueueNDRangeKernel(queue.Queue, kernel.ClKernel, (uint)kernel.WorkDim, null,
+                range.GlobalWorkSize, range.LocalWorkSize, (uint)waitList.Count(), waitList.Count() == 0 ? null : waitList.ToArray(), out eventID);
+            if (error != Cl.ErrorCode.Success)
+                throw new CLException(error);
+
+            if (Name == string.Empty)
+                eventID.Dispose();
+            else
+                CommandQueue.AddEvent(Name, eventID);
+        }
+    }
+
+    public sealed class Run<TRange, T1, T2, T3, T4, TResult> : Brahma.Commands.Run<TRange, T1, T2, T3, T4, TResult>
+        where TRange : struct, Brahma.INDRangeDimension
+        where T1 : IMem
+        where T2 : IMem
+        where T3 : IMem
+        where T4: IMem
+    {
+        protected override void SetupArguments(object sender, uint index, IntPtr size, object value)
+        {
+            var kernel = Kernel as ICLKernel;
+            Cl.ErrorCode error = Cl.SetKernelArg(kernel.ClKernel, index, size, value);
+            if (error != Cl.ErrorCode.Success)
+                throw new CLException(error);
+        }
+
+        internal Run(Kernel<TRange, T1, T2, T3, T4, TResult> kernel, TRange range, T1 d1, T2 d2, T3 d3, T4 d4)
+            : base(kernel, range, d1, d2, d3, d4)
+        {
+        }
+
+        new internal Kernel<TRange, T1, T2, T3, T4, TResult> Kernel
+        {
+            get;
+            private set;
+        }
+
+        public override void EnqueueInto(object sender)
+        {
+            base.EnqueueInto(sender);
+
+            var queue = sender as CommandQueue;
+            var kernel = Kernel as ICLKernel;
+            var range = Range as INDRangeDimension;
+            var waitList = from name in WaitList
+                           let ev = CommandQueue.FindEvent(name)
+                           where ev != null
+                           select ev.Value;
+
+            Cl.Event eventID;
+            Cl.ErrorCode error = Cl.EnqueueNDRangeKernel(queue.Queue, kernel.ClKernel, (uint)kernel.WorkDim, null,
                 range.GlobalWorkSize, range.LocalWorkSize, (uint)waitList.Count(), waitList.Count() == 0 ? null : waitList.ToArray(), out eventID);
             if (error != Cl.ErrorCode.Success)
                 throw new CLException(error);

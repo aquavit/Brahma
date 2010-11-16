@@ -57,7 +57,7 @@ namespace Brahma.OpenCL
     public sealed class Kernel<TRange, TResult>: Brahma.Kernel<TRange, TResult>, ICLKernel
         where TRange: struct, Brahma.INDRangeDimension
     {
-        private static readonly TRange _range = new TRange();
+        private static readonly TRange _range;
 
         private readonly StringBuilder _source = new StringBuilder();
 
@@ -71,14 +71,26 @@ namespace Brahma.OpenCL
 
         IEnumerable<MemberExpression> ICLKernel.Closures
         {
-            get;
-            set;
+            get 
+            {
+                return Closures;
+            }
+            set
+            {
+                Closures = value;
+            }
         }
 
         IEnumerable<ParameterExpression> ICLKernel.Parameters
         {
-            get;
-            set;
+            get
+            {
+                return Parameters;
+            }
+            set
+            {
+                Parameters = value;
+            }
         }
 
         Cl.Kernel ICLKernel.ClKernel
@@ -91,7 +103,7 @@ namespace Brahma.OpenCL
         {
             get
             {
-                return (_range as INDRangeDimension).Dimensions;
+                return ((INDRangeDimension)_range).Dimensions;
             }
         }
     }
@@ -100,7 +112,7 @@ namespace Brahma.OpenCL
         where TRange: struct, Brahma.INDRangeDimension
         where T: IMem
     {
-        private static readonly TRange _range = new TRange();
+        private static readonly TRange _range;
 
         private readonly StringBuilder _source = new StringBuilder();
 
@@ -134,7 +146,7 @@ namespace Brahma.OpenCL
         {
             get
             {
-                return (_range as INDRangeDimension).Dimensions;
+                return ((INDRangeDimension)_range).Dimensions;
             }
         }
     }
@@ -144,7 +156,7 @@ namespace Brahma.OpenCL
         where T1: IMem 
         where T2: IMem
     {
-        private static readonly TRange _range = new TRange();
+        private static readonly TRange _range;
         
         private readonly StringBuilder _source = new StringBuilder();
 
@@ -158,14 +170,26 @@ namespace Brahma.OpenCL
 
         IEnumerable<MemberExpression> ICLKernel.Closures
         {
-            get;
-            set;
+            get
+            {
+                return Closures;
+            }
+            set
+            {
+                Closures = value;
+            }
         }
 
         IEnumerable<ParameterExpression> ICLKernel.Parameters
         {
-            get;
-            set;
+            get
+            {
+                return Parameters;
+            }
+            set
+            {
+                Parameters = value;
+            }
         }
 
         Cl.Kernel ICLKernel.ClKernel
@@ -178,7 +202,122 @@ namespace Brahma.OpenCL
         {
             get
             {
-                return (_range as INDRangeDimension).Dimensions;
+                return ((INDRangeDimension)_range).Dimensions;
+            }
+        }
+    }
+
+    public sealed class Kernel<TRange, T1, T2, T3, TResult> : Brahma.Kernel<TRange, T1, T2, T3, TResult>, ICLKernel
+        where TRange : struct, Brahma.INDRangeDimension
+        where T1 : IMem
+        where T2 : IMem
+        where T3: IMem
+    {
+        private static readonly TRange _range;
+
+        private readonly StringBuilder _source = new StringBuilder();
+
+        StringBuilder ICLKernel.Source
+        {
+            get
+            {
+                return _source;
+            }
+        }
+
+        IEnumerable<MemberExpression> ICLKernel.Closures
+        {
+            get
+            {
+                return Closures;
+            }
+            set
+            {
+                Closures = value;
+            }
+        }
+
+        IEnumerable<ParameterExpression> ICLKernel.Parameters
+        {
+            get
+            {
+                return Parameters;
+            }
+            set
+            {
+                Parameters = value;
+            }
+        }
+
+        Cl.Kernel ICLKernel.ClKernel
+        {
+            get;
+            set;
+        }
+
+        int ICLKernel.WorkDim
+        {
+            get
+            {
+                return ((INDRangeDimension)_range).Dimensions;
+            }
+        }
+    }
+
+    public sealed class Kernel<TRange, T1, T2, T3, T4, TResult> : Brahma.Kernel<TRange, T1, T2, T3, T4, TResult>, ICLKernel
+        where TRange : struct, Brahma.INDRangeDimension
+        where T1 : IMem
+        where T2 : IMem
+        where T3 : IMem
+        where T4 : IMem
+    {
+        private static readonly TRange _range;
+
+        private readonly StringBuilder _source = new StringBuilder();
+
+        StringBuilder ICLKernel.Source
+        {
+            get
+            {
+                return _source;
+            }
+        }
+
+        IEnumerable<MemberExpression> ICLKernel.Closures
+        {
+            get
+            {
+                return Closures;
+            }
+            set
+            {
+                Closures = value;
+            }
+        }
+
+        IEnumerable<ParameterExpression> ICLKernel.Parameters
+        {
+            get
+            {
+                return Parameters;
+            }
+            set
+            {
+                Parameters = value;
+            }
+        }
+
+        Cl.Kernel ICLKernel.ClKernel
+        {
+            get;
+            set;
+        }
+
+        int ICLKernel.WorkDim
+        {
+            get
+            {
+                return ((INDRangeDimension)_range).Dimensions;
             }
         }
     }
@@ -190,7 +329,7 @@ namespace Brahma.OpenCL
         {
             return new Run<TRange, Set[]>(kernel, range);
         }
-
+        
         public static Run<TRange, T, Set[]> Run<TRange, T>(this Kernel<TRange, T, Set[]> kernel, TRange range, T data) 
             where TRange: struct, INDRangeDimension
             where T: IMem
@@ -204,6 +343,25 @@ namespace Brahma.OpenCL
             where T2: IMem
         {
             return new Run<TRange, T1, T2, Set[]>(kernel, range, d1, d2);
+        }
+        
+        public static Run<TRange, T1, T2, T3, Set[]> Run<TRange, T1, T2, T3>(this Kernel<TRange, T1, T2, T3, Set[]> kernel, TRange range, T1 d1, T2 d2, T3 d3)
+            where TRange : struct, INDRangeDimension
+            where T1 : IMem
+            where T2 : IMem
+            where T3 : IMem
+        {
+            return new Run<TRange, T1, T2, T3, Set[]>(kernel, range, d1, d2, d3);
+        }
+
+        public static Run<TRange, T1, T2, T3, T4, Set[]> Run<TRange, T1, T2, T3, T4>(this Kernel<TRange, T1, T2, T3, T4, Set[]> kernel, TRange range, T1 d1, T2 d2, T3 d3, T4 d4)
+            where TRange : struct, INDRangeDimension
+            where T1 : IMem
+            where T2 : IMem
+            where T3 : IMem
+            where T4 : IMem
+        {
+            return new Run<TRange, T1, T2, T3, T4, Set[]>(kernel, range, d1, d2, d3, d4);
         }
     }
 }

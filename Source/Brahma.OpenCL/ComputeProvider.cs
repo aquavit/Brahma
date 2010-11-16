@@ -41,6 +41,8 @@ namespace Brahma.OpenCL
         {
             if (devices == null)
                 throw new ArgumentNullException("devices");
+            if (devices.Length == 0)
+                throw new ArgumentException("Need at least one device!");
             
             _devices = devices;
             
@@ -108,6 +110,44 @@ namespace Brahma.OpenCL
             return kernel;
         }
 
+        protected override Brahma.Kernel<TRange, T1, T2, T3, Set[]> CompileQuery<TRange, T1, T2, T3>(Expression<Func<Brahma.NDRange<TRange>, T1, T2, T3, IEnumerable<Set[]>>> query)
+        {
+            var lambda = query as LambdaExpression;
+            var kernel = new Kernel<TRange, T1, T2, T3, Set[]>();
+            lambda.GenerateKernel(kernel);
+
+            Cl.ErrorCode error;
+            using (Cl.Program program = Cl.CreateProgramWithSource(_context, 1, new[] { (kernel as ICLKernel).Source.ToString() }, null, out error))
+            {
+                error = Cl.BuildProgram(program, (uint)_devices.Length, _devices, string.Empty, null, IntPtr.Zero);
+                if (error != Cl.ErrorCode.Success)
+                    throw new Exception(string.Join("\n", from device in _devices
+                                                          select Cl.GetProgramBuildInfo(program, device, Cl.ProgramBuildInfo.Log, out error).ToString()));
+                (kernel as ICLKernel).ClKernel = Cl.CreateKernel(program, CLCodeGenerator.KernelName, out error);
+            }
+
+            return kernel;
+        }
+
+        protected override Brahma.Kernel<TRange, T1, T2, T3, T4, Set[]> CompileQuery<TRange, T1, T2, T3, T4>(Expression<Func<Brahma.NDRange<TRange>, T1, T2, T3, T4, IEnumerable<Set[]>>> query)
+        {
+            var lambda = query as LambdaExpression;
+            var kernel = new Kernel<TRange, T1, T2, T3, T4, Set[]>();
+            lambda.GenerateKernel(kernel);
+
+            Cl.ErrorCode error;
+            using (Cl.Program program = Cl.CreateProgramWithSource(_context, 1, new[] { (kernel as ICLKernel).Source.ToString() }, null, out error))
+            {
+                error = Cl.BuildProgram(program, (uint)_devices.Length, _devices, string.Empty, null, IntPtr.Zero);
+                if (error != Cl.ErrorCode.Success)
+                    throw new Exception(string.Join("\n", from device in _devices
+                                                          select Cl.GetProgramBuildInfo(program, device, Cl.ProgramBuildInfo.Log, out error).ToString()));
+                (kernel as ICLKernel).ClKernel = Cl.CreateKernel(program, CLCodeGenerator.KernelName, out error);
+            }
+
+            return kernel;
+        }
+
         public Kernel<TRange, Set[]> Compile<TRange>(Expression<Func<Brahma.NDRange<TRange>, IEnumerable<Set[]>>> query)
             where TRange : struct, INDRangeDimension
         {
@@ -118,7 +158,7 @@ namespace Brahma.OpenCL
             where TRange: struct, INDRangeDimension
             where T : IMem
         {
-            return CompileQuery<TRange, T>(query) as Kernel<TRange, T, Set[]>;
+            return CompileQuery(query) as Kernel<TRange, T, Set[]>;
         }
 
         public Kernel<TRange, T1, T2, Set[]> Compile<TRange, T1, T2>(Expression<Func<Brahma.NDRange<TRange>, T1, T2, IEnumerable<Set[]>>> query)
@@ -126,7 +166,26 @@ namespace Brahma.OpenCL
             where T1 : IMem
             where T2 : IMem
         {
-            return CompileQuery<TRange, T1, T2>(query) as Kernel<TRange, T1, T2, Set[]>;
+            return CompileQuery(query) as Kernel<TRange, T1, T2, Set[]>;
+        }
+
+        public Kernel<TRange, T1, T2, T3, Set[]> Compile<TRange, T1, T2, T3>(Expression<Func<Brahma.NDRange<TRange>, T1, T2, T3, IEnumerable<Set[]>>> query)
+            where TRange : struct, INDRangeDimension
+            where T1 : IMem
+            where T2 : IMem
+            where T3: IMem
+        {
+            return CompileQuery(query) as Kernel<TRange, T1, T2, T3, Set[]>;
+        }
+
+        public Kernel<TRange, T1, T2, T3, T4, Set[]> Compile<TRange, T1, T2, T3, T4>(Expression<Func<Brahma.NDRange<TRange>, T1, T2, T3, T4, IEnumerable<Set[]>>> query)
+            where TRange : struct, INDRangeDimension
+            where T1 : IMem
+            where T2 : IMem
+            where T3 : IMem
+            where T4: IMem
+        {
+            return CompileQuery(query) as Kernel<TRange, T1, T2, T3, T4, Set[]>;
         }
 
         public override void Dispose()

@@ -17,14 +17,47 @@
 
 using System;
 using System.Linq;
+using System.Runtime.InteropServices;
+using Brahma;
 using Brahma.OpenCL;
 using Brahma.Types;
 using OpenCL.Net;
+using CommandQueue = Brahma.OpenCL.CommandQueue;
+using ComputeProvider = Brahma.OpenCL.ComputeProvider;
 
 namespace SimpleMath
 {
     class Program
     {
+        [StructLayout(LayoutKind.Sequential)]
+        public struct Coefficients: IMem
+        {
+            private static readonly IntPtr _size = (IntPtr)Marshal.SizeOf(typeof (Coefficients));
+
+            public int intValue;
+            public float floatValue;
+            
+            #region IMem Members
+
+            IntPtr IMem.Size
+            {
+                get
+                {
+                    return _size;
+                }
+            }
+
+            object IMem.Data
+            {
+                get
+                {
+                    return this;
+                }
+            }
+
+            #endregion
+        }
+        
         static void Main(string[] args)
         {
             Cl.ErrorCode error;
@@ -45,15 +78,31 @@ namespace SimpleMath
             var outputData = (from index in Enumerable.Range(0, 100)
                               select (single)0f).ToArray();
 
-            var kernel = provider.Compile<_1D, Buffer<single>, Buffer<single>>(
+            var kernel = provider.Compile<_1D, Brahma.OpenCL.Buffer<single>, Brahma.OpenCL.Buffer<single>>(
                 (range, input, output) => from r in range
                                           select new[]
                                           {
                                               output[r.GlobalIDs.x] <= input[r.GlobalIDs.x]
                                           });
 
-            var inputBuffer = new Buffer<single>(provider, Operations.ReadOnly, false, 100);
-            var outputBuffer = new Buffer<single>(provider, Operations.WriteOnly, false, 100);
+            var kernelAddition = provider.Compile<_1D, Brahma.OpenCL.Buffer<int32>, Brahma.OpenCL.Buffer<int32>, Brahma.OpenCL.Buffer<int32>>(
+                (range, a, b, c) => from r in range
+                                    let index = r.GlobalIDs.x 
+                                    select new[]
+                                               {
+                                                   c[index] <= a[index] + b[index]
+                                               });
+
+            var kernelCoeffs = provider.Compile<_1D, Brahma.OpenCL.Buffer<int32>, Brahma.OpenCL.Buffer<int32>, Brahma.OpenCL.Buffer<int32>, Coefficients>(
+                (range, a, b, c, coeff) => from r in range
+                                    let index = r.GlobalIDs.x
+                                    select new[]
+                                               {
+                                                   c[index] <= a[index] + b[index] * coeff.intValue
+                                               });
+
+            var inputBuffer = new Brahma.OpenCL.Buffer<single>(provider, Operations.ReadOnly, false, 100);
+            var outputBuffer = new Brahma.OpenCL.Buffer<single>(provider, Operations.WriteOnly, false, 100);
 
             commandQueue.Add(
                 inputBuffer.Write(0, 100, inputData),

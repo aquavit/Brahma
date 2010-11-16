@@ -69,4 +69,12 @@ namespace Brahma.Commands
     public abstract class Command<T1, T2, T3> : Command
     {
     }
+
+    public abstract class Command<T1, T2, T3, T4>: Command
+    {
+    }
+
+    public abstract class Command<T1, T2, T3, T4, T5>: Command
+    {
+    }
 }

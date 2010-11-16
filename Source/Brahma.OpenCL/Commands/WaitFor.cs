@@ -25,12 +25,12 @@ namespace Brahma.OpenCL.Commands
 
         public override void EnqueueInto(object sender)
         {
-            CommandQueue commandQueue = sender as CommandQueue;
+            var commandQueue = sender as CommandQueue;
         }
         
         public static explicit operator WaitFor(string name)
         {
-            return new WaitFor() { Name = name };
+            return new WaitFor { Name = name };
         }
     }
 }

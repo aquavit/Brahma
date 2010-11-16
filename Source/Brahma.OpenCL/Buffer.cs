@@ -38,7 +38,7 @@ namespace Brahma.OpenCL
     
     public sealed class Buffer<T>: Brahma.Buffer<T> where T: struct, IMem
     {
-        private static IntPtr _intPtrSize = (IntPtr)Marshal.SizeOf(typeof(IntPtr));
+        private static readonly IntPtr _intPtrSize = (IntPtr)Marshal.SizeOf(typeof(IntPtr));
         private static readonly int _elementSize = Marshal.SizeOf(typeof(T));
         
         private Cl.Mem _mem;
@@ -57,7 +57,7 @@ namespace Brahma.OpenCL
         {
             Cl.ErrorCode error;
             _length = length;
-            IntPtr size = (IntPtr)(_length * _elementSize);
+            var size = (IntPtr)(_length * _elementSize);
             _mem = Cl.CreateBuffer(provider.Context, (Cl.MemFlags)operations | (hostAccessible ? Cl.MemFlags.AllocHostPtr : 0), size, null, out error);
 
             if (error != Cl.ErrorCode.Success)

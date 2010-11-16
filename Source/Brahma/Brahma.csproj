@@ -69,6 +69,7 @@
     <Compile Include="ComputeProvider.cs" />
     <Compile Include="Buffer.cs" />
     <Compile Include="ExpressionExtensions.cs" />
+    <Compile Include="ExpressionProcessor.cs" />
     <Compile Include="ExpressionVisitor.cs" />
     <Compile Include="Image2D.cs" />
     <Compile Include="Image3D.cs" />

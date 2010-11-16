@@ -34,6 +34,19 @@ namespace Brahma
             where TRange: struct, INDRangeDimension
             where T1 : IMem
             where T2 : IMem;
+
+        protected abstract Kernel<TRange, T1, T2, T3, Set[]> CompileQuery<TRange, T1, T2, T3>(Expression<Func<NDRange<TRange>, T1, T2, T3, IEnumerable<Set[]>>> query)
+            where TRange : struct, INDRangeDimension
+            where T1 : IMem
+            where T2 : IMem
+            where T3 : IMem;
+        
+        protected abstract Kernel<TRange, T1, T2, T3, T4, Set[]> CompileQuery<TRange, T1, T2, T3, T4>(Expression<Func<NDRange<TRange>, T1, T2, T3, T4, IEnumerable<Set[]>>> query)
+            where TRange : struct, INDRangeDimension
+            where T1 : IMem
+            where T2 : IMem
+            where T3 : IMem
+            where T4: IMem;
         
         public abstract void Dispose();
     }

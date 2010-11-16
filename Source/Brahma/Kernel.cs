@@ -15,21 +15,58 @@
 // terms of the License.
 #endregion
 
+using System.Collections.Generic;
+using System.Linq.Expressions;
+
 namespace Brahma
 {
     public abstract class Kernel
     {
+        protected internal IEnumerable<MemberExpression> Closures
+        {
+            get; 
+            set; 
+        }
+
+        protected internal IEnumerable<ParameterExpression> Parameters
+        {
+            get; 
+            set; 
+        }
     }
     
-    public abstract class Kernel<TRange, TResult>: Kernel where TRange: struct, INDRangeDimension
+    public abstract class Kernel<TRange, TResult>: Kernel 
+        where TRange: struct, INDRangeDimension
     {
     }
 
-    public abstract class Kernel<TRange, T, TResult>: Kernel where T: IMem where TRange: struct, INDRangeDimension
+    public abstract class Kernel<TRange, T, TResult>: Kernel 
+        where T: IMem 
+        where TRange: struct, INDRangeDimension
     {
     }
 
-    public abstract class Kernel<TRange, T1, T2, TResult>: Kernel where T1: IMem where T2: IMem where TRange: struct, INDRangeDimension
+    public abstract class Kernel<TRange, T1, T2, TResult>: Kernel 
+        where T1: IMem 
+        where T2: IMem 
+        where TRange: struct, INDRangeDimension
+    {
+    }
+
+    public abstract class Kernel<TRange, T1, T2, T3, TResult>: Kernel
+        where T1: IMem 
+        where T2: IMem 
+        where T3: IMem
+        where TRange: struct, INDRangeDimension
+    {
+    }
+
+    public abstract class Kernel<TRange, T1, T2, T3, T4, TResult> : Kernel
+        where T1 : IMem
+        where T2 : IMem
+        where T3 : IMem
+        where T4: IMem
+        where TRange : struct, INDRangeDimension
     {
     }
 }

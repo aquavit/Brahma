@@ -48,6 +48,21 @@ namespace Brahma.Types
             return new int32 { _value = a._value - b._value };
         }
 
+        public static int32 operator /(int32 a, int32 b)
+        {
+            return new int32
+            {
+                _value = a._value / b._value
+            };
+        }
+
+        public static int32 operator *(int32 a, int32 b)
+        {
+            return new int32
+            {
+                _value = a._value * b._value
+            };
+        }
         public static Set<int32> operator <=(int32 lhs, int32 rhs)
         {
             return new Set<int32>(lhs, rhs);

@@ -22,14 +22,14 @@ namespace Brahma
 {
     public static class StringExtensions
     {
-        private static readonly char[] _invalidCharacters = new[] 
+        private static readonly char[] InvalidCharacters = new[] 
         { '<', '>', '`', '.' };
-        private const char _placeHolderCharacter = '_';
+        private const char PlaceHolderCharacter = '_';
         
         public static string MakeValidIdentifier(this string name)
         {
             return new string((from c in name
-                   select _invalidCharacters.Contains(c) ? _placeHolderCharacter : c).ToArray());
+                   select InvalidCharacters.Contains(c) ? PlaceHolderCharacter : c).ToArray());
         }
 
         public static string Join(this IEnumerable<string> strings, string separator, bool noTrailingSeparator = true)

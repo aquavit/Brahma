@@ -22,22 +22,22 @@ namespace Brahma.OpenCL
 {
     internal static class Translator<T>
     {
-        private static readonly List<KeyValuePair<Func<T, bool>, Func<CLCodeGenerator.Visitor, T, string>>> _translators = 
-            new List<KeyValuePair<Func<T, bool>, Func<CLCodeGenerator.Visitor, T, string>>>();
-        private static Func<CLCodeGenerator.Visitor, T, string> _default = null;
+        private static readonly List<KeyValuePair<Func<T, bool>, Func<CLCodeGenerator.ExpressionProcessor, T, string>>> _translators = 
+            new List<KeyValuePair<Func<T, bool>, Func<CLCodeGenerator.ExpressionProcessor, T, string>>>();
+        private static Func<CLCodeGenerator.ExpressionProcessor, T, string> _default = null;
 
-        public static void Register(Func<T, bool> matcher, Func<CLCodeGenerator.Visitor, T, string> translator)
+        public static void Register(Func<T, bool> matcher, Func<CLCodeGenerator.ExpressionProcessor, T, string> translator)
         {
-            _translators.Add(new KeyValuePair<Func<T, bool>, Func<CLCodeGenerator.Visitor, T, string>>(matcher, translator));
+            _translators.Add(new KeyValuePair<Func<T, bool>, Func<CLCodeGenerator.ExpressionProcessor, T, string>>(matcher, translator));
         }
 
-        public static void Register(IEnumerable<KeyValuePair<Func<T, bool>, Func<CLCodeGenerator.Visitor, T, string>>> translators)
+        public static void Register(IEnumerable<KeyValuePair<Func<T, bool>, Func<CLCodeGenerator.ExpressionProcessor, T, string>>> translators)
         {
             foreach (var translator in translators)
                 _translators.Add(translator);
         }
 
-        public static void RegisterDefault(Func<CLCodeGenerator.Visitor, T, string> defaultTranslator)
+        public static void RegisterDefault(Func<CLCodeGenerator.ExpressionProcessor, T, string> defaultTranslator)
         {
             _default = defaultTranslator;
         }
@@ -51,7 +51,7 @@ namespace Brahma.OpenCL
             return false;
         }
 
-        public static string Translate(CLCodeGenerator.Visitor visitor, T obj)
+        public static string Translate(CLCodeGenerator.ExpressionProcessor visitor, T obj)
         {
             foreach (var translator in _translators)
                 if (translator.Key(obj))
@@ -60,7 +60,7 @@ namespace Brahma.OpenCL
             return (_default== null) ? string.Empty : _default(visitor, obj);
         }
 
-        public static Func<CLCodeGenerator.Visitor, T, string> Default
+        public static Func<CLCodeGenerator.ExpressionProcessor, T, string> Default
         {
             get
             {
