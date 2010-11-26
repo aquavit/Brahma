@@ -17,9 +17,6 @@
 
 using System;
 using System.Linq;
-using System.Linq.Expressions;
-using System.Reflection;
-using System.Runtime.InteropServices;
 using OpenCL.Net;
 
 namespace Brahma.OpenCL.Commands
@@ -83,12 +80,6 @@ namespace Brahma.OpenCL.Commands
         {
         }
 
-        new internal Kernel<TRange, T, TResult> Kernel
-        {
-            get;
-            private set;
-        }
-
         public override void EnqueueInto(object sender)
         {
             base.EnqueueInto(sender);
@@ -130,12 +121,6 @@ namespace Brahma.OpenCL.Commands
         internal Run(Kernel<TRange, T1, T2, TResult> kernel, TRange range, T1 d1, T2 d2)
             : base(kernel, range, d1, d2)
         {
-        }
-
-        new internal Kernel<TRange, T1, T2, TResult> Kernel
-        {
-            get;
-            private set;
         }
 
         public override void EnqueueInto(object sender)
@@ -182,12 +167,6 @@ namespace Brahma.OpenCL.Commands
         {
         }
 
-        new internal Kernel<TRange, T1, T2, T3, TResult> Kernel
-        {
-            get;
-            private set;
-        }
-
         public override void EnqueueInto(object sender)
         {
             base.EnqueueInto(sender);
@@ -231,12 +210,6 @@ namespace Brahma.OpenCL.Commands
         internal Run(Kernel<TRange, T1, T2, T3, T4, TResult> kernel, TRange range, T1 d1, T2 d2, T3 d3, T4 d4)
             : base(kernel, range, d1, d2, d3, d4)
         {
-        }
-
-        new internal Kernel<TRange, T1, T2, T3, T4, TResult> Kernel
-        {
-            get;
-            private set;
         }
 
         public override void EnqueueInto(object sender)
