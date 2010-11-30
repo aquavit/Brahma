@@ -275,9 +275,9 @@ namespace Brahma.OpenCL
                 { t => t == typeof(int), (v, t) => "int" },
                 { t => t == typeof(float), (v, t) => "float" },
                 { t => t == typeof(int32), (v, t) => "int" },
-                { t => t == typeof(single), (v, t) => "float" },
+                { t => t == typeof(float32), (v, t) => "float" },
                 { t => t == typeof(Buffer<int32>), (v, t) => "global int*" },
-                { t => t == typeof(Buffer<single>), (v, t) => "global float*" },
+                { t => t == typeof(Buffer<float32>), (v, t) => "global float*" },
                 { t => t.IsConcreteGenericOf(typeof(Buffer<>)), (v, t) => string.Format("global {0}*", Translator<Type>.Default(v, t.GetGenericArguments()[0])) }
             });
 
@@ -377,7 +377,7 @@ namespace Brahma.OpenCL
                            select string.Format("{0} {1}", 
                            Translator<Type>.Translate(expressionProcessor, closure.Type), closure.Member.Name);
 
-            kernel.Source.Append("__kernel void main(");
+            kernel.Source.Append(string.Format("__kernel void {0}(", KernelName));
             kernel.Source.Append((from parameter in lambda.Parameters
                                   where !parameter.Type.DerivesFrom(typeof(NDRange))
                                   select string.Format("{0} {1}", Translator<Type>.Translate(expressionProcessor, parameter.Type), parameter.Name)).Join(", ", 
@@ -412,6 +412,8 @@ namespace Brahma.OpenCL
             }
 
             kernel.Source.AppendLine("}");
+
+            // http://www.khronos.org/registry/cl/sdk/1.0/docs/man/xhtml/cl_khr_byte_addressable_store.html
             kernel.Source.Insert(0, "#pragma OPENCL EXTENSION cl_khr_byte_addressable_store: enable\n\n"); // Always (for now)
         }
     }

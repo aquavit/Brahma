@@ -25,7 +25,7 @@ namespace Brahma.Types
 
         public static implicit operator int32(int value)
         {
-            return new int32() { _value = value };
+            return new int32 { _value = value };
         }
 
         public override bool Equals(object obj)

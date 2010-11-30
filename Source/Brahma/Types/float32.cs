@@ -19,23 +19,23 @@ using System;
 
 namespace Brahma.Types
 {
-    public struct single: IMem
+    public struct float32: IMem
     {
         private float _value;
 
-        public static implicit operator single(float value)
+        public static implicit operator float32(float value)
         {
-            return new single() { _value = value };
+            return new float32 { _value = value };
         }
 
-        public static explicit operator single(int value)
+        public static explicit operator float32(int value)
         {
-            return new single() { _value = value };
+            return new float32 { _value = value };
         }
 
         public override bool Equals(object obj)
         {
-            return obj is single ? ((single)obj)._value == _value : false;
+            return obj is float32 ? ((float32)obj)._value == _value : false;
         }
 
         public override int GetHashCode()
@@ -43,42 +43,42 @@ namespace Brahma.Types
             return _value.GetHashCode();
         }
 
-        public static single operator /(single a, single b)
+        public static float32 operator /(float32 a, float32 b)
         {
-            return new single { _value = a._value / b._value };
+            return new float32 { _value = a._value / b._value };
         }
 
-        public static single operator *(single a, single b)
+        public static float32 operator *(float32 a, float32 b)
         {
-            return new single { _value = a._value * b._value };
+            return new float32 { _value = a._value * b._value };
         }
 
-        public static single operator +(single a, single b)
+        public static float32 operator +(float32 a, float32 b)
         {
-            return new single { _value = a._value + b._value };
+            return new float32 { _value = a._value + b._value };
         }
 
-        public static single operator -(single a, single b)
+        public static float32 operator -(float32 a, float32 b)
         {
-            return new single { _value = a._value - b._value };
+            return new float32 { _value = a._value - b._value };
         }
 
-        public static Set<single> operator <=(single lhs, single rhs)
+        public static Set<float32> operator <=(float32 lhs, float32 rhs)
         {
-            return new Set<single>(lhs, rhs);
+            return new Set<float32>(lhs, rhs);
         }
 
-        public static Set<single> operator >=(single lhs, single rhs)
+        public static Set<float32> operator >=(float32 lhs, float32 rhs)
         {
             throw new NotSupportedException();
         }
 
-        public static bool operator ==(single lhs, single rhs)
+        public static bool operator ==(float32 lhs, float32 rhs)
         {
             return lhs._value == rhs._value;
         }
         
-        public static bool operator !=(single lhs, single rhs)
+        public static bool operator !=(float32 lhs, float32 rhs)
         {
             return lhs._value != rhs._value;
         }

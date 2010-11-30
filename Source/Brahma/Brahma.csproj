@@ -31,7 +31,7 @@
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
-    <TargetFrameworkProfile />
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -88,7 +88,7 @@
     <Compile Include="StringExtensions.cs" />
     <Compile Include="TypeExtensions.cs" />
     <Compile Include="Types\int32.cs" />
-    <Compile Include="Types\single.cs" />
+    <Compile Include="Types\float32.cs" />
     <Compile Include="Commands\WaitFor.cs" />
     <Compile Include="Commands\WriteBuffer.cs" />
   </ItemGroup>

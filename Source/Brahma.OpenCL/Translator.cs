@@ -22,19 +22,19 @@ namespace Brahma.OpenCL
 {
     internal static class Translator<T>
     {
-        private static readonly List<KeyValuePair<Func<T, bool>, Func<CLCodeGenerator.ExpressionProcessor, T, string>>> _translators = 
+        private static readonly List<KeyValuePair<Func<T, bool>, Func<CLCodeGenerator.ExpressionProcessor, T, string>>> Translators = 
             new List<KeyValuePair<Func<T, bool>, Func<CLCodeGenerator.ExpressionProcessor, T, string>>>();
         private static Func<CLCodeGenerator.ExpressionProcessor, T, string> _default = null;
 
         public static void Register(Func<T, bool> matcher, Func<CLCodeGenerator.ExpressionProcessor, T, string> translator)
         {
-            _translators.Add(new KeyValuePair<Func<T, bool>, Func<CLCodeGenerator.ExpressionProcessor, T, string>>(matcher, translator));
+            Translators.Add(new KeyValuePair<Func<T, bool>, Func<CLCodeGenerator.ExpressionProcessor, T, string>>(matcher, translator));
         }
 
         public static void Register(IEnumerable<KeyValuePair<Func<T, bool>, Func<CLCodeGenerator.ExpressionProcessor, T, string>>> translators)
         {
             foreach (var translator in translators)
-                _translators.Add(translator);
+                Translators.Add(translator);
         }
 
         public static void RegisterDefault(Func<CLCodeGenerator.ExpressionProcessor, T, string> defaultTranslator)
@@ -44,7 +44,7 @@ namespace Brahma.OpenCL
 
         public static bool CanTranslate(T obj)
         {
-            foreach (var translator in _translators)
+            foreach (var translator in Translators)
                 if (translator.Key(obj))
                     return true;
 
@@ -53,11 +53,11 @@ namespace Brahma.OpenCL
 
         public static string Translate(CLCodeGenerator.ExpressionProcessor visitor, T obj)
         {
-            foreach (var translator in _translators)
+            foreach (var translator in Translators)
                 if (translator.Key(obj))
                     return translator.Value(visitor, obj);
 
-            return (_default== null) ? string.Empty : _default(visitor, obj);
+            return (_default == null) ? string.Empty : _default(visitor, obj);
         }
 
         public static Func<CLCodeGenerator.ExpressionProcessor, T, string> Default
