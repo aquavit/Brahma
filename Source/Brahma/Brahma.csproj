@@ -69,7 +69,6 @@
     <Compile Include="ComputeProvider.cs" />
     <Compile Include="Buffer.cs" />
     <Compile Include="ExpressionExtensions.cs" />
-    <Compile Include="ExpressionProcessor.cs" />
     <Compile Include="ExpressionVisitor.cs" />
     <Compile Include="Image2D.cs" />
     <Compile Include="Image3D.cs" />
@@ -78,6 +77,8 @@
     <Compile Include="Kernel.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="KernelCallableAttribute.cs" />
+    <Compile Include="Math.cs" />
     <Compile Include="Mem.cs" />
     <Compile Include="NDRange.cs" />
     <Compile Include="NDRangeDimension.cs" />
@@ -91,6 +92,7 @@
     <Compile Include="Types\float32.cs" />
     <Compile Include="Commands\WaitFor.cs" />
     <Compile Include="Commands\WriteBuffer.cs" />
+    <Compile Include="Types\IPrimitiveType.cs" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">

@@ -36,7 +36,7 @@ namespace Brahma.OpenCL
         Host = Cl.MemFlags.UseHostPtr
     }
     
-    public sealed class Buffer<T>: Brahma.Buffer<T> where T: struct, IMem
+    public class Buffer<T>: Brahma.Buffer<T> where T: struct, IMem
     {
         private static readonly IntPtr _intPtrSize = (IntPtr)Marshal.SizeOf(typeof(IntPtr));
         private static readonly int _elementSize = Marshal.SizeOf(typeof(T));
@@ -45,12 +45,19 @@ namespace Brahma.OpenCL
         private bool _disposed = false;
         private readonly int _length;
 
+        public readonly Operations Operations;
+        public readonly Memory Memory;
+
         internal Cl.Mem Mem
         {
             get
             {
                 return _mem;
             }
+        }
+
+        private Buffer()
+        {
         }
         
         public Buffer(ComputeProvider provider, Operations operations, bool hostAccessible, int length) // Create, no data
@@ -62,28 +69,49 @@ namespace Brahma.OpenCL
 
             if (error != Cl.ErrorCode.Success)
                 throw new CLException(error);
+
+            Operations = operations;
+            Memory = Memory.Device;
         }
 
         public Buffer(ComputeProvider provider, Operations operations, Memory memory, T[] data) // Create and copy/use data from host
         {
             Cl.ErrorCode error;
             _length = data.Length;
+            
             _mem = Cl.CreateBuffer(provider.Context, (Cl.MemFlags)operations | (memory == Memory.Host ? Cl.MemFlags.UseHostPtr : (Cl.MemFlags)memory | Cl.MemFlags.CopyHostPtr),
                 (IntPtr)(_elementSize * data.Length), data, out error);
 
             if (error != Cl.ErrorCode.Success)
                 throw new CLException(error);
+
+            Operations = operations;
+            Memory = memory;
         }
 
-        public override T this[int index]
+        public Buffer(ComputeProvider provider, Operations operations, Memory memory, IntPtr data, int length) // Create and copy/use data from host
         {
-            get 
+            Cl.ErrorCode error;
+            _length = length;
+            _mem = Cl.CreateBuffer(provider.Context, (Cl.MemFlags)operations | (memory == Memory.Host ? Cl.MemFlags.UseHostPtr : (Cl.MemFlags)memory | (data != IntPtr.Zero ? Cl.MemFlags.CopyHostPtr : 0)),
+                (IntPtr)(_elementSize * _length), data, out error);
+
+            if (error != Cl.ErrorCode.Success)
+                throw new CLException(error);
+
+            Operations = operations;
+            Memory = memory;
+        }
+
+        public override T this[Types.int32 index]
+        {
+            get
             {
-                throw new NotSupportedException("Cannot index into a buffer");
+                throw new InvalidOperationException("Can only index into a buffer inside a kernel");
             }
             set
             {
-                throw new NotSupportedException("Cannot index into a buffer");
+                throw new InvalidOperationException("Can only index into a buffer inside a kernel");
             }
         }
 

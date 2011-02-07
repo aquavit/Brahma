@@ -16,6 +16,7 @@
 #endregion
 
 using System;
+using Brahma.Types;
 
 namespace Brahma
 {
@@ -23,7 +24,8 @@ namespace Brahma
     {
         public abstract void Dispose();
 
-        public abstract T this[int index]
+        [KernelCallable]
+        public abstract T this[int32 index]
         {
             get;
             set;

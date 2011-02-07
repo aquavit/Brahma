@@ -43,6 +43,7 @@ namespace Brahma.OpenCL
                 _x = x;
             }
             
+            [KernelCallable]
             public int x
             {
                 get
@@ -61,19 +62,21 @@ namespace Brahma.OpenCL
             _localIDs = new IDs_1D(localWorkSize);
         }
 
-        public IDs_1D GlobalIDs
+        [KernelCallable]
+        public int GlobalID0
         {
             get
             {
-                return _globalIDs;
+                return _globalIDs.x;
             }
         }
 
-        public IDs_1D LocalIDs
+        [KernelCallable]
+        public int LocalID0
         {
             get
             {
-                return _localIDs;
+                return _localIDs.x;
             }
         }
 
@@ -115,6 +118,7 @@ namespace Brahma.OpenCL
                 _y = y;
             }
             
+            [KernelCallable]
             public int x
             {
                 get
@@ -123,6 +127,7 @@ namespace Brahma.OpenCL
                 }
             }
 
+            [KernelCallable]
             public int y
             {
                 get
@@ -142,19 +147,39 @@ namespace Brahma.OpenCL
             _localIDs = new IDs_2D(localWorkSizeX, localWorkSizeY);
         }
 
-        public IDs_2D GlobalIDs
+        [KernelCallable]
+        public int GlobalID0
         {
             get
             {
-                return _globalIDs;
+                return _globalIDs.x;
             }
         }
 
-        public IDs_2D LocalIDs
+        [KernelCallable]
+        public int GlobalID1
         {
             get
             {
-                return _localIDs;
+                return _globalIDs.y;
+            }
+        }
+
+        [KernelCallable]
+        public int LocalID0
+        {
+            get
+            {
+                return _localIDs.x;
+            }
+        }
+
+        [KernelCallable]
+        public int LocalID1
+        {
+            get
+            {
+                return _localIDs.y;
             }
         }
 
@@ -197,28 +222,31 @@ namespace Brahma.OpenCL
                 _y = y;
                 _z = z;
             }
-            
+
+            [KernelCallable]
             public int x
             {
                 get
                 {
-                    return x;
+                    return _x;
                 }
             }
 
+            [KernelCallable]
             public int y
             {
                 get
                 {
-                    return y;
+                    return _y;
                 }
             }
 
+            [KernelCallable]
             public int z
             {
                 get
                 {
-                    return z;
+                    return _z;
                 }
             }
         }
@@ -233,19 +261,57 @@ namespace Brahma.OpenCL
             _localIDs = new IDs_3D(localSizeX, localSizeY, localSizeZ);
         }
 
-        public IDs_3D GlobalIDs
+        [KernelCallable]
+        public int GlobalID0
         {
             get
             {
-                return _globalIDs;
+                return _globalIDs.x;
             }
         }
 
-        public IDs_3D LocalIDs
+        [KernelCallable]
+        public int GlobalID1
         {
             get
             {
-                return _localIDs;
+                return _globalIDs.y;
+            }
+        }
+        
+        [KernelCallable]
+        public int GlobalID2
+        {
+            get
+            {
+                return _globalIDs.z;
+            }
+        }
+
+        [KernelCallable]
+        public int LocalID0
+        {
+            get
+            {
+                return _localIDs.x;
+            }
+        }
+
+        [KernelCallable]
+        public int LocalID1
+        {
+            get
+            {
+                return _localIDs.y;
+            }
+        }
+
+        [KernelCallable]
+        public int LocalID2
+        {
+            get
+            {
+                return _localIDs.z;
             }
         }
 
@@ -270,7 +336,7 @@ namespace Brahma.OpenCL
         {
             get
             {
-                return new[] { (IntPtr)_localIDs.x, (IntPtr)_localIDs.y, (IntPtr)_globalIDs.z };
+                return new[] { (IntPtr)_localIDs.x, (IntPtr)_localIDs.y, (IntPtr)_localIDs.z };
             }
         }
     }

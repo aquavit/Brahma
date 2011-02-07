@@ -22,7 +22,11 @@ namespace Brahma
 {
     public abstract class CommandQueue: IDisposable
     {
-        public abstract void Add(params Command[] commands);
+        public abstract CommandQueue Add(params Command[] commands);
+
+        public abstract CommandQueue Finish();
+
+        public abstract CommandQueue Barrier();
 
         public abstract void Dispose();
     }

@@ -15,10 +15,14 @@
 // terms of the License.
 #endregion
 
-namespace Brahma.OpenCL.Tests
-{
-    public static class Categories
-    {
-        public const string Correctness = "Correctness";
-    }
-}
+using System.Reflection;
+using System.Runtime.InteropServices;
+
+//General assembly information
+
+[assembly: AssemblyTitle("Brahma.Samples.MatrixMultiply")]
+[assembly: AssemblyDescription("Matrix multiplication sample (brute force) that shows how to use nested loops in Brahma")]
+
+// GUID for the ID of the typelib if this project is exposed to COM
+
+[assembly: Guid("6966c8e7-e240-4d09-826e-80d285efbc8e")]

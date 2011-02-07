@@ -16,6 +16,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -40,17 +41,29 @@ namespace Brahma.Commands
             foreach (var memberExp in Kernel.Closures)
             {
                 object value;
+                IntPtr size;
+
+                // TODO: Is this check redundant? I mean, CLCodeGenerator already does this (as does UnwindClosureAccess)
                 switch (memberExp.Member.MemberType)
                 {
                     case MemberTypes.Field:
-                        value = (memberExp.Member as FieldInfo).GetValue((memberExp.Expression as ConstantExpression).Value);
+                        value = memberExp.GetClosureValue();
+                        var mem = value as IMem;
+                        if (mem != null)
+                        {
+                            value = mem.Data;
+                            size = mem.Size;
+                        }
+                        else
+                            size = (IntPtr)Marshal.SizeOf(value);
+
                         break;
 
                     default:
                         throw new NotSupportedException("Can only access a field from inside a kernel");
                 }
 
-                SetupArguments(sender, index++, (IntPtr)Marshal.SizeOf(value), value);
+                SetupArguments(sender, index++, size, value);
             }
         }
 
@@ -89,17 +102,29 @@ namespace Brahma.Commands
             foreach (var memberExp in Kernel.Closures)
             {
                 object value;
+                IntPtr size;
+
+                // TODO: Is this check redundant? I mean, CLCodeGenerator already does this (as does UnwindClosureAccess)
                 switch (memberExp.Member.MemberType)
                 {
                     case MemberTypes.Field:
-                        value = (memberExp.Member as FieldInfo).GetValue((memberExp.Expression as ConstantExpression).Value);
+                        value = memberExp.GetClosureValue();
+                        var mem = value as IMem;
+                        if (mem != null)
+                        {
+                            value = mem.Data;
+                            size = mem.Size;
+                        }
+                        else
+                            size = (IntPtr)Marshal.SizeOf(value);
+
                         break;
 
                     default:
                         throw new NotSupportedException("Can only access a field from inside a kernel");
                 }
 
-                SetupArguments(sender, index++, (IntPtr)Marshal.SizeOf(value), value);
+                SetupArguments(sender, index++, size, value);
             }
         }
 
@@ -147,17 +172,29 @@ namespace Brahma.Commands
             foreach (var memberExp in Kernel.Closures)
             {
                 object value;
+                IntPtr size;
+
+                // TODO: Is this check redundant? I mean, CLCodeGenerator already does this (as does UnwindClosureAccess)
                 switch (memberExp.Member.MemberType)
                 {
                     case MemberTypes.Field:
-                        value = (memberExp.Member as FieldInfo).GetValue((memberExp.Expression as ConstantExpression).Value);
+                        value = memberExp.GetClosureValue();
+                        var mem = value as IMem;
+                        if (mem != null)
+                        {
+                            value = mem.Data;
+                            size = mem.Size;
+                        }
+                        else
+                            size = (IntPtr)Marshal.SizeOf(value);
+
                         break;
 
                     default:
                         throw new NotSupportedException("Can only access a field from inside a kernel");
                 }
 
-                SetupArguments(sender, index++, (IntPtr)Marshal.SizeOf(value), value);
+                SetupArguments(sender, index++, size, value);
             }
         }
 
@@ -214,17 +251,29 @@ namespace Brahma.Commands
             foreach (var memberExp in Kernel.Closures)
             {
                 object value;
+                IntPtr size;
+                
+                // TODO: Is this check redundant? I mean, CLCodeGenerator already does this (as does UnwindClosureAccess)
                 switch (memberExp.Member.MemberType)
                 {
                     case MemberTypes.Field:
-                        value = (memberExp.Member as FieldInfo).GetValue((memberExp.Expression as ConstantExpression).Value);
+                        value = memberExp.GetClosureValue();
+                        var mem = value as IMem;
+                        if (mem != null)
+                        {
+                            value = mem.Data;
+                            size = mem.Size;
+                        }
+                        else
+                            size = (IntPtr) Marshal.SizeOf(value);
+
                         break;
 
                     default:
                         throw new NotSupportedException("Can only access a field from inside a kernel");
                 }
 
-                SetupArguments(sender, index++, (IntPtr)Marshal.SizeOf(value), value);
+                SetupArguments(sender, index++, size, value);
             }
         }
 
@@ -290,17 +339,29 @@ namespace Brahma.Commands
             foreach (var memberExp in Kernel.Closures)
             {
                 object value;
+                IntPtr size;
+
+                // TODO: Is this check redundant? I mean, CLCodeGenerator already does this (as does UnwindClosureAccess)
                 switch (memberExp.Member.MemberType)
                 {
                     case MemberTypes.Field:
-                        value = (memberExp.Member as FieldInfo).GetValue((memberExp.Expression as ConstantExpression).Value);
+                        value = memberExp.GetClosureValue();
+                        var mem = value as IMem;
+                        if (mem != null)
+                        {
+                            value = mem.Data;
+                            size = mem.Size;
+                        }
+                        else
+                            size = (IntPtr)Marshal.SizeOf(value);
+
                         break;
 
                     default:
                         throw new NotSupportedException("Can only access a field from inside a kernel");
                 }
 
-                SetupArguments(sender, index++, (IntPtr)Marshal.SizeOf(value), value);
+                SetupArguments(sender, index++, size, value);
             }
         }
 
@@ -338,6 +399,42 @@ namespace Brahma.Commands
         {
             get;
             private set;
+        }
+    }
+
+    internal static class MemberExpressionExtensions
+    {
+        private static object UnwindClosureAccess(Expression expression, Stack<MemberExpression> access)
+        {
+            if (expression is ConstantExpression)
+                return (expression as ConstantExpression).Value;
+
+            if (expression.NodeType == ExpressionType.MemberAccess)
+            {
+                var member = expression as MemberExpression;
+                if (!(member.Member is FieldInfo))
+                    throw new InvalidOperationException("Cannot access methods/properties inside a kernel!");
+
+                access.Push(member);
+
+                if (member.Expression == null)
+                    return null;
+
+                return UnwindClosureAccess(member.Expression, access);
+            }
+
+            throw new InvalidOperationException(string.Format("Unknown/Invalid expression in closure access: {0}", expression.NodeType));
+        }
+
+        public static object GetClosureValue(this MemberExpression expression)
+        {
+            var accessStack = new Stack<MemberExpression>();
+            var constant = UnwindClosureAccess(expression, accessStack);
+
+            foreach (var member in accessStack)
+                constant = ((FieldInfo)member.Member).GetValue(constant);
+
+            return constant;
         }
     }
 }

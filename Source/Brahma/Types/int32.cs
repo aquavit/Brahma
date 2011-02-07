@@ -19,33 +19,64 @@ using System;
 
 namespace Brahma.Types
 {
-    public struct int32: IMem
+    public struct int32: IPrimitiveType, IMem, IComparable<int32>
     {
         private int _value;
+
+        // TODO: Define all implicit conversions (http://msdn.microsoft.com/en-us/library/y5b434w4.aspx)
 
         public static implicit operator int32(int value)
         {
             return new int32 { _value = value };
         }
-
-        public override bool Equals(object obj)
+        
+        public static implicit operator int(int32 value)
         {
-            return obj is int32 ? ((int32)obj)._value == _value : false;
+            return value._value;
         }
 
-        public override int GetHashCode()
-        {
-            return _value.GetHashCode();
-        }
+        // TODO: Define all explicit conversion (http://msdn.microsoft.com/en-us/library/yht2cx7b%28v=VS.100%29.aspx)
 
         public static int32 operator +(int32 a, int32 b)
         {
             return new int32 { _value = a._value + b._value };
         }
 
+        public static int32 operator >>(int32 a, int b)
+        {
+            return new int32
+            {
+                _value = a._value >> b
+            };
+        }
+
+        public static int32 operator <<(int32 a, int b)
+        {
+            return new int32
+            {
+                _value = a._value << b
+            };
+        }
+
         public static int32 operator -(int32 a, int32 b)
         {
             return new int32 { _value = a._value - b._value };
+        }
+
+        public static int32 operator |(int32 a, int32 b)
+        {
+            return new int32
+            {
+                _value = a._value | b._value
+            };
+        }
+
+        public static int32 operator &(int32 a, int32 b)
+        {
+            return new int32
+            {
+                _value = a._value & b._value
+            };
         }
 
         public static int32 operator /(int32 a, int32 b)
@@ -63,6 +94,7 @@ namespace Brahma.Types
                 _value = a._value * b._value
             };
         }
+
         public static Set<int32> operator <=(int32 lhs, int32 rhs)
         {
             return new Set<int32>(lhs, rhs);
@@ -72,6 +104,18 @@ namespace Brahma.Types
         {
             throw new NotSupportedException();
         }
+
+        public static bool operator ==(int32 lhs, int32 rhs)
+        {
+            return lhs._value == rhs._value;
+        }
+
+        public static bool operator !=(int32 lhs, int32 rhs)
+        {
+            return lhs._value != rhs._value;
+        }
+
+        #region IMem Members
 
         IntPtr IMem.Size
         {
@@ -87,6 +131,32 @@ namespace Brahma.Types
             {
                 return _value;
             }
+        }
+
+        #endregion
+
+        #region IComparable<int32> Members
+
+        public int CompareTo(int32 other)
+        {
+            return System.Math.Sign(_value - other._value);
+        }
+
+        #endregion
+
+        public override bool Equals(object obj)
+        {
+            return obj is int32 ? ((int32)obj)._value == _value : false;
+        }
+
+        public override int GetHashCode()
+        {
+            return _value.GetHashCode();
+        }
+
+        public override string ToString()
+        {
+            return _value.ToString();
         }
     }
 }

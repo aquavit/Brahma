@@ -45,14 +45,14 @@ namespace Brahma.OpenCL.Commands
             var queue = sender as CommandQueue;
             var kernel = Kernel as ICLKernel;
             var range = Range as INDRangeDimension;
-            var waitList = from name in WaitList
-                           let ev = CommandQueue.FindEvent(name)
-                           where ev != null
-                           select ev.Value;
+            var waitList = (from name in WaitList
+                            let ev = CommandQueue.FindEvent(name)
+                            where ev != null
+                            select ev.Value).ToArray();
 
             Cl.Event eventID;
             Cl.ErrorCode error = Cl.EnqueueNDRangeKernel(queue.Queue, kernel.ClKernel, (uint)kernel.WorkDim, null,
-                range.GlobalWorkSize, range.LocalWorkSize, (uint)waitList.Count(), waitList.Count() == 0 ? null : waitList.ToArray(), out eventID);
+                range.GlobalWorkSize, range.LocalWorkSize, (uint)waitList.Length, waitList.Length == 0 ? null : waitList.ToArray(), out eventID);
             if (error != Cl.ErrorCode.Success)
                 throw new CLException(error);
 
@@ -87,14 +87,14 @@ namespace Brahma.OpenCL.Commands
             var queue = sender as CommandQueue;
             var kernel = Kernel as ICLKernel;
             var range = Range as INDRangeDimension;
-            var waitList = from name in WaitList
-                           let ev = CommandQueue.FindEvent(name)
-                           where ev != null
-                           select ev.Value;
+            var waitList = (from name in WaitList
+                            let ev = CommandQueue.FindEvent(name)
+                            where ev != null
+                            select ev.Value).ToArray();
 
             Cl.Event eventID;
             Cl.ErrorCode error = Cl.EnqueueNDRangeKernel(queue.Queue, kernel.ClKernel, (uint)kernel.WorkDim, null,
-                range.GlobalWorkSize, range.LocalWorkSize, (uint)waitList.Count(), waitList.Count() == 0 ? null : waitList.ToArray(), out eventID);
+                range.GlobalWorkSize, range.LocalWorkSize, (uint)waitList.Length, waitList.Length == 0 ? null : waitList.ToArray(), out eventID);
             if (error != Cl.ErrorCode.Success)
                 throw new CLException(error);
 
@@ -130,14 +130,15 @@ namespace Brahma.OpenCL.Commands
             var queue = sender as CommandQueue;
             var kernel = Kernel as ICLKernel;
             var range = Range as INDRangeDimension;
-            var waitList = from name in WaitList
-                           let ev = CommandQueue.FindEvent(name)
-                           where ev != null
-                           select ev.Value;
+
+            var waitList = (from name in WaitList
+                            let ev = CommandQueue.FindEvent(name)
+                            where ev != null
+                            select ev.Value).ToArray();
 
             Cl.Event eventID;
             Cl.ErrorCode error = Cl.EnqueueNDRangeKernel(queue.Queue, kernel.ClKernel, (uint)kernel.WorkDim, null,
-                range.GlobalWorkSize, range.LocalWorkSize, (uint)waitList.Count(), waitList.Count() == 0 ? null : waitList.ToArray(), out eventID);
+                range.GlobalWorkSize, range.LocalWorkSize, (uint)waitList.Length, waitList.Length == 0 ? null : waitList.ToArray(), out eventID);
             if (error != Cl.ErrorCode.Success)
                 throw new CLException(error);
 
@@ -174,14 +175,14 @@ namespace Brahma.OpenCL.Commands
             var queue = sender as CommandQueue;
             var kernel = Kernel as ICLKernel;
             var range = Range as INDRangeDimension;
-            var waitList = from name in WaitList
-                           let ev = CommandQueue.FindEvent(name)
-                           where ev != null
-                           select ev.Value;
+            var waitList = (from name in WaitList
+                            let ev = CommandQueue.FindEvent(name)
+                            where ev != null
+                            select ev.Value).ToArray();
 
             Cl.Event eventID;
             Cl.ErrorCode error = Cl.EnqueueNDRangeKernel(queue.Queue, kernel.ClKernel, (uint)kernel.WorkDim, null,
-                range.GlobalWorkSize, range.LocalWorkSize, (uint)waitList.Count(), waitList.Count() == 0 ? null : waitList.ToArray(), out eventID);
+                range.GlobalWorkSize, range.LocalWorkSize, (uint)waitList.Length, waitList.Length == 0 ? null : waitList.ToArray(), out eventID);
             if (error != Cl.ErrorCode.Success)
                 throw new CLException(error);
 
@@ -219,14 +220,14 @@ namespace Brahma.OpenCL.Commands
             var queue = sender as CommandQueue;
             var kernel = Kernel as ICLKernel;
             var range = Range as INDRangeDimension;
-            var waitList = from name in WaitList
-                           let ev = CommandQueue.FindEvent(name)
-                           where ev != null
-                           select ev.Value;
+            var waitList = (from name in WaitList
+                            let ev = CommandQueue.FindEvent(name)
+                            where ev != null
+                            select ev.Value).ToArray();
 
             Cl.Event eventID;
             Cl.ErrorCode error = Cl.EnqueueNDRangeKernel(queue.Queue, kernel.ClKernel, (uint)kernel.WorkDim, null,
-                range.GlobalWorkSize, range.LocalWorkSize, (uint)waitList.Count(), waitList.Count() == 0 ? null : waitList.ToArray(), out eventID);
+                range.GlobalWorkSize, range.LocalWorkSize, (uint)waitList.Length, waitList.Length == 0 ? null : waitList.ToArray(), out eventID);
             if (error != Cl.ErrorCode.Success)
                 throw new CLException(error);
 

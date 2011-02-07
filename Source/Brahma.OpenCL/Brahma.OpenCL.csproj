@@ -51,6 +51,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.CSharp" />
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
@@ -69,12 +70,13 @@
     <Compile Include="Image3D.cs" />
     <Compile Include="ImageFormats.cs" />
     <Compile Include="Kernel.cs" />
+    <Compile Include="KernelCallableAttribute.cs" />
     <Compile Include="NDRange.cs" />
     <Compile Include="NDRangeDimension.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Commands\ReadBuffer.cs" />
     <Compile Include="Commands\Run.cs" />
-    <Compile Include="Translator.cs" />
+    <Compile Include="Range.cs" />
     <Compile Include="Commands\WaitFor.cs" />
     <Compile Include="Commands\WriteBuffer.cs" />
   </ItemGroup>

@@ -30,391 +30,415 @@ namespace Brahma.OpenCL
         private static readonly ExpressionExtensions.MemberExpressionComparer _memberExpressionComparer =
             new ExpressionExtensions.MemberExpressionComparer();
         
-        public const string Error = "__error__";
-        public const string KernelName = "main";
+        public const string KernelName = "brahmaKernel";
 
-        internal sealed class ExpressionProcessor : Brahma.ExpressionProcessor
+        private sealed class CodeGenerator : ExpressionVisitor
         {
-            private readonly Stack<object> _stack = new Stack<object>();
-            private readonly List<Type> _declaredTypes = new List<Type>();
+            private readonly LambdaExpression _lambda;
 
-            protected override Expression VisitUnary(UnaryExpression unary)
+            private readonly List<MemberExpression> _closures = new List<MemberExpression>();
+            private readonly StringBuilder _code = new StringBuilder();
+
+            private readonly List<string> _declaredMembers = new List<string>();
+
+            private static string TranslateType(Type type)
             {
-                if (unary.NodeType == ExpressionType.Convert)
-                {
-                    if (unary.Type.IsConcreteGenericOf(typeof(Set<>)))
-                    {
-                        return unary;
-                    }
-                    
-                    Kernel.Source.Append("(");
-                    Kernel.Source.Append(Translator<Type>.Translate(this, unary.Type));
-                    Kernel.Source.Append(")(");
-                    Visit(unary.Operand);
-                    Kernel.Source.Append(")");
-                }
+                if ((type == typeof(int32)) || (type == typeof(int)))
+                    return "int";
+                if ((type == typeof(uint)))
+                    return "uint";
+                if ((type == typeof(float32)) || (type == typeof(float)))
+                    return "float";
                 
-                return unary;
+                if ((type.IsConcreteGenericOf(typeof(Brahma.Buffer<>))) ||
+                    (type.IsConcreteGenericOf(typeof(Buffer<>))))
+                {
+                    string genericParameterType = TranslateType(type.GetGenericArguments()[0]);
+                    return "__global " + genericParameterType + "*"; // TODO: Take into account different kinds of variables later
+                }
+
+                throw new InvalidOperationException(string.Format("Cannot use the type {0} inside a kernel", type));
             }
 
-            protected override Expression VisitBinary(BinaryExpression binaryExpression)
+            private static void UnwindMemberAccess(Expression expression, StringBuilder builder)
             {
-                Kernel.Source.Append("("); // Always add braces
-                Visit(binaryExpression.Left);
+                if ((expression == null) || (expression.NodeType == ExpressionType.Constant))
+                    return;
 
-                switch (binaryExpression.NodeType)
+                if (expression.NodeType == ExpressionType.MemberAccess)
                 {
-                    case ExpressionType.Add:
-                        Kernel.Source.Append(" + ");
-                        break;
+                    var member = expression as MemberExpression;
+                    if (!(member.Member is FieldInfo))
+                        throw new InvalidOperationException("Cannot access methods/properties inside a kernel!");
 
-                    case ExpressionType.Subtract:
-                        Kernel.Source.Append(" - ");
-                        break;
+                    builder.Append(member.Member.Name);
 
-                    case ExpressionType.Multiply:
-                        Kernel.Source.Append(" * ");
-                        break;
-
-                    case ExpressionType.Divide:
-                        Kernel.Source.Append(" / ");
-                        break;
-
-                    case ExpressionType.GreaterThan:
-                        Kernel.Source.Append(" > ");
-                        break;
-
-                    case ExpressionType.LessThan:
-                        Kernel.Source.Append(" < ");
-                        break;
-
-                    case ExpressionType.GreaterThanOrEqual:
-                        Kernel.Source.Append(" >= ");
-                        break;
-
-                    case ExpressionType.LessThanOrEqual:
-                        Kernel.Source.Append(" <= ");
-                        break;
-
-                    case ExpressionType.Equal:
-                        Kernel.Source.Append(" == ");
-                        break;
-
-                    case ExpressionType.NotEqual:
-                        Kernel.Source.Append(" != ");
-                        break;
-
-                    case ExpressionType.Modulo:
-                        Kernel.Source.Append(" % ");
-                        break;
-
-                    case ExpressionType.OrElse:
-                        Kernel.Source.Append(" || ");
-                        break;
-
-                    case ExpressionType.AndAlso:
-                        Kernel.Source.Append(" && ");
-                        break;
-
-                    default:
-                        throw new NotSupportedException(string.Format("Cannot use the operator '{0}' in queries at this time",
-                                                                      binaryExpression.NodeType));
+                    UnwindMemberAccess(member.Expression, builder);
                 }
-
-                Visit(binaryExpression.Right);
-                Kernel.Source.Append(")");
-
-                return binaryExpression;
             }
 
-            protected override Expression VisitMemberAccess(MemberExpression member)
+            private static ParameterExpression GetLoopVar(LambdaExpression expression)
             {
-                if (member.Type.Implements(typeof(INDRangeDimension)))
-                    return member;
+                ParameterExpression loopRange = expression.Parameters[0];
+                var call = expression.Body as MethodCallExpression;
+                do
+                {
+                    if (call.Arguments[0] == loopRange)
+                        return ((LambdaExpression)call.Arguments[1]).Parameters[0];
 
-                if (member.Member.DeclaringType.Implements(typeof(IMem)))
-                {
-                    Kernel.Source.Append(Translator<MemberExpression>.Translate(this, member));
-                    Visit(member.Expression);
-                    Kernel.Source.Append("." + member.Member.Name);
-                    return member;
-                }
-                
-                if (member.Member.DeclaringType.IsAnonymous())
-                {
-                    Kernel.Source.Append(member.Member.Name);
-                    return member;
-                }
-                
-                if (Kernel.Closures.Contains(member, _memberExpressionComparer))
-                {
-                    Kernel.Source.Append(member.Member.Name);
-                    return member;
-                }
+                    call = call.Arguments[0] as MethodCallExpression;
+                } while (call != null);
 
-                Kernel.Source.Append(Translator<MemberExpression>.Translate(this, member));
-                Visit(member.Expression);
-                
-                return member;
+                // TODO: Will this ever happen?
+                throw new InvalidExpressionTreeException("Don't know how to get the loop variable from the given expression", expression);
             }
 
-            protected override Expression VisitParameter(ParameterExpression parameter)
+            private static string GetClosureAccessName(MemberExpression member)
             {
-                if (parameter.Type.Implements(typeof(INDRangeDimension)))
-                    return parameter;    
-                    
-                Kernel.Source.Append(parameter.Name);
-                
-                return parameter;
+                var result = new StringBuilder();
+                UnwindMemberAccess(member, result);
+
+                return result.ToString();
             }
 
             protected override Expression VisitConstant(ConstantExpression constant)
             {
-                Kernel.Source.Append(constant.Value.ToString());
+                _code.Append("((" + TranslateType(constant.Type) + ")");
+                _code.Append(constant + ")");
+
+                return constant;
+            }
+
+            protected override Expression VisitMemberAccess(MemberExpression member)
+            {
+                switch (member.Member.Name)
+                {
+                    case "GlobalID0":
+                        _code.Append("get_global_id(0)");
+                        return member;
+                    case "GlobalID1":
+                        _code.Append("get_global_id(1)");
+                        return member;
+                    case "GlobalID2":
+                        _code.Append("get_global_id(2)");
+                        return member;
+                    case "LocalID0":
+                        _code.Append("get_local_id(0)");
+                        return member;
+                    case "LocalID1":
+                        _code.Append("get_local_id(1)");
+                        return member;
+                    case "LocalID2":
+                        _code.Append("get_local_id(2)");
+                        return member;
+                }
+
+                if (member.Member.DeclaringType.IsAnonymous())
+                {
+                    _code.Append(member.Member.Name);
+
+                    return member;
+                }
+
+                if (member.IsClosureAccess() || member.IsConstantAccess())
+                {
+                    _code.Append(GetClosureAccessName(member));
+
+                    if (!_closures.Contains(member, _memberExpressionComparer))
+                        _closures.Add(member);
+
+                    return member;
+                }
+
+                return member;
+            }
+
+            protected override Expression VisitUnary(UnaryExpression unary)
+            {
+                if (unary.NodeType == ExpressionType.Convert)
+                    Visit(unary.Operand);
+
+                return unary;
+            }
+
+            protected override Expression VisitConditional(ConditionalExpression conditional)
+            {
+                _code.Append("(");
+                Visit(conditional.Test);
+                _code.Append(" ? ");
+                Visit(conditional.IfTrue);
+                _code.Append(" : ");
+                Visit(conditional.IfFalse);
                 
-                return base.VisitConstant(constant);
+                _code.Append(")");
+                
+                return conditional;
+            }
+
+            protected override Expression VisitParameter(ParameterExpression parameter)
+            {
+                _code.Append(parameter.Name);
+
+                return parameter;
+            }
+
+            protected override NewExpression VisitNew(NewExpression newExpression)
+            {
+                if (newExpression.Type.IsAnonymous())
+                {
+                    for (int i = 0; i < newExpression.Arguments.Count; i++)
+                    {
+                        if (newExpression.Members[i].Name == newExpression.Arguments[i].ToString())
+                            continue; // Trivial assignment
+
+                        // Loop
+                        if ((newExpression.Arguments[i].Type == typeof(Func<int, IEnumerable<Set[]>>)) ||
+                            (newExpression.Arguments[i].Type == typeof(Func<IEnumerable<int>, IEnumerable<Set[]>>)))
+                        {
+                            Visit(newExpression.Arguments[i]);
+                            continue;
+                        }
+
+                        if (!_declaredMembers.Contains(newExpression.Members[i].Name))
+                        {
+                            _code.Append(TranslateType(((PropertyInfo) newExpression.Members[i]).PropertyType) + " ");
+                            _declaredMembers.Add(newExpression.Members[i].Name);
+                        }
+                        _code.Append(newExpression.Members[i].Name + " = ");
+
+                        Visit(newExpression.Arguments[i]);
+                    }
+                }
+
+                return newExpression;
+            }
+
+            protected override Expression VisitBinary(BinaryExpression binary)
+            {
+                bool isResultAssignment = false; // TODO: Remove this and move it one level up
+                
+                _code.Append("(");
+                Visit(binary.Left);
+
+                switch (binary.NodeType)
+                {
+                    case ExpressionType.LessThanOrEqual:
+                        if (binary.Type.IsConcreteGenericOf(typeof(Set<>)))
+                        {
+                            _code.Append(" = ");
+                            isResultAssignment = true;
+                        }
+                        else
+                            _code.Append(" <= ");
+                        break;
+
+                    case ExpressionType.Add:
+                        _code.Append(" + ");
+                        break;
+                    case ExpressionType.Subtract:
+                        _code.Append(" - ");
+                        break;
+                    case ExpressionType.Multiply:
+                        _code.Append(" * ");
+                        break;
+                    case ExpressionType.Divide:
+                        _code.Append(" / ");
+                        break;
+                    case ExpressionType.Modulo:
+                        _code.Append(" % ");
+                        break;
+
+                    case ExpressionType.NotEqual:
+                        _code.Append(" != ");
+                        break;
+
+                    case ExpressionType.Equal:
+                        _code.Append(" == ");
+                        break;
+
+                    case ExpressionType.LessThan:
+                        _code.Append(" < ");
+                        break;
+                    
+                    case ExpressionType.GreaterThan:
+                        _code.Append(" > ");
+                        break;
+
+                    case ExpressionType.And:
+                        _code.Append(" & ");
+                        break;
+                    
+                    case ExpressionType.Or:
+                        _code.Append(" | ");
+                        break;
+
+                    case ExpressionType.LeftShift:
+                        _code.Append(" << ");
+                        break;
+
+                    case ExpressionType.RightShift:
+                        _code.Append(" >> ");
+                        break;
+                }
+
+                Visit(binary.Right);
+                _code.Append(")");
+
+                if (isResultAssignment)
+                    _code.Append(";");
+
+                return binary;
             }
 
             protected override Expression VisitMethodCall(MethodCallExpression method)
             {
-                if (method.Method.Name == "get_Item")
+                switch (method.Method.Name)
                 {
-                    Visit(method.Object);
-                    Kernel.Source.Append("[");
-                    for (int i = 0; i < method.Arguments.Count; i++)
-                    {
-                        Visit(method.Arguments[i]);
-                        if (i < method.Arguments.Count - 1)
-                            Kernel.Source.Append(", ");
-                    }
-                    Kernel.Source.Append("]");
+                    case "get_Item":
+                        Visit(method.Object);
+                        _code.Append("[");
+                        Visit(method.Arguments[0]);
+                        _code.Append("]");
+
+                        break;
+
+                    case "Loop":
+                        ParameterExpression loopVar = null;
+
+                        // Figure out what kind of loop body this is
+                        var loopBody = method.Arguments[2] as LambdaExpression;
+
+                        if (loopBody.Parameters[0].Type == typeof(IEnumerable<int>)) // Looks brittle, but is based on the method signature
+                            loopVar = GetLoopVar(loopBody);
+                        if (loopBody.Parameters[0].Type == typeof(int))
+                            loopVar = loopBody.Parameters[0];
+
+                        _code.Append(string.Format("for (int {0} = ", loopVar.Name));
+                        Visit(method.Arguments[0]);
+                        _code.Append(string.Format("; {0} < ", loopVar.Name));
+                        Visit(method.Arguments[1]);
+                        _code.AppendLine(string.Format("; {0}++) {{", loopVar.Name));
+
+                        Visit(method.Arguments[2]);
+                        _code.AppendLine(";");
+
+                        _code.AppendLine("}");
+
+                        break;
+
+                    case "Select":
+                        if (!(method.Arguments[0] is ParameterExpression))
+                        {
+                            Visit(method.Arguments[0]);
+                        }
+                        Visit(method.Arguments[1]);
+                        _code.AppendLine(";");
+
+                        break;
                     
-                    return method;
+                    case "Abs":
+                        _code.Append("fabs(");
+                        Visit(method.Arguments[0]);
+                        _code.Append(")");
+
+                        break;
+
+                    case "Log10":
+                        _code.Append("native_log10(");
+                        Visit(method.Arguments[0]);
+                        _code.Append(")");
+
+                        break;
+
+                    case "Log2":
+                        _code.Append("native_log2(");
+                        Visit(method.Arguments[0]);
+                        _code.Append(")");
+
+                        break;
+
+                    case "Powr":
+                        _code.Append("native_powr(");
+                        Visit(method.Arguments[0]);
+                        _code.Append(", ");
+                        Visit(method.Arguments[1]);
+                        _code.Append(")");
+
+                        break;
+
+                    case "Min":
+                        _code.Append("min(");
+                        Visit(method.Arguments[0]);
+                        _code.Append(", ");
+                        Visit(method.Arguments[1]);
+                        _code.Append(")");
+
+                        break;
+                    
+                    case "Max":
+                        _code.Append("max(");
+                        Visit(method.Arguments[0]);
+                        _code.Append(", ");
+                        Visit(method.Arguments[1]);
+                        _code.Append(")");
+
+                        break;
+
+                    case "reinterpretAsFloat32":
+                        _code.Append("as_float(");
+                        Visit(method.Arguments[0]);
+                        _code.Append(")");
+
+                        break;
                 }
 
                 return method;
             }
 
-            protected override Expression VisitConditional(ConditionalExpression conditional)
+            public CodeGenerator(LambdaExpression lambda)
             {
-                Kernel.Source.Append("(");
-                Kernel.Source.Append("(");
-                Visit(conditional.Test);
-                Kernel.Source.Append(") ? ");
-                Visit(conditional.IfTrue);
-                Kernel.Source.Append(" : ");
-                Visit(conditional.IfFalse);
-                Kernel.Source.Append(")");
-
-                return conditional;
+                _lambda = lambda;
             }
 
-            protected override NewExpression VisitNew(NewExpression newExpression)
+            public string Generate()
             {
-                if (!_declaredTypes.Contains(newExpression.Type))
-                    throw new NotSupportedException(string.Format("Cannot new {0} inside a kernel!", newExpression.Type.Name));
+                Visit(_lambda.Body);
 
-                if (newExpression.Arguments.Count == 0)
+                var parameters = new StringBuilder();
+                foreach (var parameter in _lambda.Parameters)
                 {
-                    // Initialize everything to default(T). How?
+                    if (parameter.Type.DerivesFrom(typeof(NDRange)))
+                        continue;
+
+                    parameters.Append(string.Format("{0} {1},", TranslateType(parameter.Type), parameter.Name));
                 }
 
-                Kernel.Source.Append(string.Format("make_{0}(", newExpression.Type.Name));
-                for (int i = 0; i < newExpression.Arguments.Count; i++)
-                {
-                    Visit(newExpression.Arguments[i]);
-                    if (i < newExpression.Arguments.Count - 1)
-                        Kernel.Source.Append(", ");
-                }
-                Kernel.Source.Append(")");
+                foreach (var closure in _closures)
+                    parameters.Append(string.Format("{0} {1},", TranslateType(closure.Type), GetClosureAccessName(closure)));
 
-                return newExpression;
+                if (parameters[parameters.Length - 1] == ',')
+                    parameters.Remove(parameters.Length - 1, 1);
+
+                var kernelSource = new StringBuilder();
+                kernelSource.AppendLine(string.Format("__kernel void {0}({1}) {{", KernelName, parameters));
+                kernelSource.Append(_code.ToString());
+                kernelSource.AppendLine("}");
+
+                return kernelSource.ToString();
             }
 
-            public ExpressionProcessor(ICLKernel kernel, LambdaExpression lambda)
-                : base(kernel as Kernel, lambda)
+            public IEnumerable<MemberExpression> Closures
             {
-            }
-
-            new public Expression Visit(Expression expression)
-            {
-                return base.Visit(expression);
-            }
-
-            new public ICLKernel Kernel
-            {
-                get
-                {
-                    return base.Kernel as ICLKernel;
-                }
-            }
-
-            public Stack<object> Stack
-            {
-                get
-                {
-                    return _stack;
-                }
-            }
-
-            public List<Type> DeclaredTypes
-            {
-                get
-                {
-                    return _declaredTypes;
-                }
+                get { return _closures; }
             }
         }
 
-        static CLCodeGenerator()
-        {
-            // Initialize conversions
-            Translator<Type>.Register(new Dictionary<Func<Type, bool>, Func<ExpressionProcessor, Type, string>>
-            {
-                { t => t == typeof(byte), (v, t) => "uchar" },
-                { t => t == typeof(int), (v, t) => "int" },
-                { t => t == typeof(float), (v, t) => "float" },
-                { t => t == typeof(int32), (v, t) => "int" },
-                { t => t == typeof(float32), (v, t) => "float" },
-                { t => t == typeof(Buffer<int32>), (v, t) => "global int*" },
-                { t => t == typeof(Buffer<float32>), (v, t) => "global float*" },
-                { t => t.IsConcreteGenericOf(typeof(Buffer<>)), (v, t) => string.Format("global {0}*", Translator<Type>.Default(v, t.GetGenericArguments()[0])) }
-            });
-
-            Translator<Type>.RegisterDefault(
-                (v, t) =>
-                {
-                    if (v.DeclaredTypes.Contains(t))
-                        return t.Name;
-
-                    if (!t.IsValueType && !t.IsPrimitive && !t.IsEnum && t.Implements(typeof(IMem)))
-                        throw new NotSupportedException(string.Format("Cannot use type \"{0}\" inside a kernel, type should be a struct and implement IMem", t.FullName));
-
-                    var newType = new StringBuilder();
-                    newType.AppendLine("typedef struct __attribute__ ((__packed__)) {");
-                    FieldInfo[] fields = t.GetFields(BindingFlags.Public | BindingFlags.Instance);
-                    foreach (var field in fields)
-                        newType.AppendLine(string.Format("{0} {1};", Translator<Type>.Translate(v, field.FieldType), field.Name));
-
-                    newType.AppendLine(string.Format("}} {0};", t.Name));
-                    
-                    // Make_XXX function
-                    newType.AppendLine(string.Format("{0} make_{0}({1}) {{",
-                        t.Name,
-                        (from field in fields
-                         let fieldType = Translator<Type>.Translate(v, field.FieldType)
-                         select string.Format("{0} _{1}", fieldType, field.Name)).Join(", ")));
-                    newType.AppendLine(string.Format("{0} result;", t.Name));
-                    newType.AppendLine((from field in fields
-                                        select string.Format("result.{0} = _{0};", field.Name)).Join("\n", false));
-                    newType.AppendLine("return result;");
-                    newType.AppendLine("}");
-
-
-                    v.Kernel.Source.Insert(0, newType.ToString());
-
-                    v.DeclaredTypes.Add(t);
-
-                    return t.Name;
-                });
-
-            Translator<MemberExpression>.Register(new Dictionary<Func<MemberExpression, bool>, Func<ExpressionProcessor, MemberExpression, string>>
-            {
-                { 
-                    m => m.Member.DeclaringType == typeof(_1D.IDs_1D), 
-                    (v, m) => 
-                    {
-                        v.Stack.Push(m.Member.Name == "x" ? "0" : Error);
-                        return string.Empty;
-                    }
-                },
-                {
-                    m => m.Member.DeclaringType == typeof(_2D.IDs_2D), 
-                    (v, m) => 
-                    {
-                        v.Stack.Push(m.Member.Name == "x" ? "0" : 
-                            m.Member.Name == "y" ? "1" : 
-                            Error);
-                        
-                        return string.Empty;
-                    }
-                },
-                {
-                    m => m.Member.DeclaringType == typeof(_3D.IDs_3D), 
-                    (v, m) => 
-                    {
-                        v.Stack.Push(m.Member.Name == "x" ? "0" :
-                            m.Member.Name == "y" ? "1" :
-                            m.Member.Name == "z" ? "2" :
-                            Error);
-                        return string.Empty;
-                    }
-                },
-                {
-                    m => m.Member.Name == "GlobalIDs",
-                    (v, m) => 
-                    {
-                        return "get_global_id(" + v.Stack.Pop() + ")";
-                    }
-                },
-                {
-                    m => m.Member.Name == "LocalIDs",
-                    (v, m) => 
-                    {
-                        return "get_local_id(" + v.Stack.Pop() + ")";
-                    }
-                }
-            });
-        }
-        
         public static void GenerateKernel(this LambdaExpression lambda, ICLKernel kernel)
         {
-            var expressionProcessor = new ExpressionProcessor(kernel, lambda);
-
-            kernel.Source.Clear();
-
-            var closures = from closure in expressionProcessor.Closures
-                           select string.Format("{0} {1}", 
-                           Translator<Type>.Translate(expressionProcessor, closure.Type), closure.Member.Name);
-
-            kernel.Source.Append(string.Format("__kernel void {0}(", KernelName));
-            kernel.Source.Append((from parameter in lambda.Parameters
-                                  where !parameter.Type.DerivesFrom(typeof(NDRange))
-                                  select string.Format("{0} {1}", Translator<Type>.Translate(expressionProcessor, parameter.Type), parameter.Name)).Join(", ", 
-                                  noTrailingSeparator: closures.Count() == 0));
-
-            kernel.Source.Append(closures.Join(", "));
-
-            kernel.Source.AppendLine(")");
-            kernel.Source.AppendLine("{");
-
-            // Write "let"s
-            foreach (var let in expressionProcessor.Lets)
-            {
-                Type memberType = let.Member.MemberType == MemberTypes.Property ?
-                    (let.Member as PropertyInfo).PropertyType :
-                        let.Member.MemberType == MemberTypes.Field ?
-                            (let.Member as FieldInfo).FieldType :
-                            null;
-                
-                kernel.Source.Append(string.Format("{0} {1} = ", Translator<Type>.Translate(expressionProcessor, memberType), let.Member.Name));
-                expressionProcessor.Visit(let.Value);
-                kernel.Source.AppendLine(";");
-            }
-
-            // Write results
-            foreach (var result in expressionProcessor.Results)
-            {
-                expressionProcessor.Visit(result.Lhs);
-                kernel.Source.Append(" = ");
-                expressionProcessor.Visit(result.Rhs);
-                kernel.Source.AppendLine(";");
-            }
-
-            kernel.Source.AppendLine("}");
-
-            // http://www.khronos.org/registry/cl/sdk/1.0/docs/man/xhtml/cl_khr_byte_addressable_store.html
-            kernel.Source.Insert(0, "#pragma OPENCL EXTENSION cl_khr_byte_addressable_store: enable\n\n"); // Always (for now)
+            var codeGenerator = new CodeGenerator(lambda);
+            kernel.Source.Append(codeGenerator.Generate());
+            kernel.Closures = codeGenerator.Closures;
+            kernel.Parameters = lambda.Parameters;
         }
     }
 }

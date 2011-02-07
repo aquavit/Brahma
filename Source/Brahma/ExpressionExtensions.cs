@@ -19,6 +19,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 
 namespace Brahma
 {
@@ -114,9 +115,26 @@ namespace Brahma
             return parameter.Name.StartsWith("<>h__TransparentIdentifier");
         }
 
+        public static bool IsConstantAccess(this MemberExpression member)
+        {
+            if (!(member.Member is FieldInfo))
+                return true;
+
+            if (member.Expression == null)
+                return true;
+
+            if (member.Expression.NodeType == ExpressionType.Constant)
+                return true;
+
+            if (member.Expression is MemberExpression)
+                return IsConstantAccess(member.Expression as MemberExpression);
+
+            return false;
+        }
+
         public static bool IsClosureAccess(this MemberExpression expression)
         {
-            return expression.Member.DeclaringType.Name.Contains("<>c__DisplayClass");
+            return expression.ToString().Contains("<>c__DisplayClass");
         }
 
         public sealed class MemberExpressionComparer : IEqualityComparer<MemberExpression>

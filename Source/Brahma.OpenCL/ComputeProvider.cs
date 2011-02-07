@@ -23,11 +23,22 @@ using OpenCL.Net;
 
 namespace Brahma.OpenCL
 {
+    [Flags]
+    public enum CompileOptions
+    {
+        UseNativeFunctions,
+        FastRelaxedMath,
+        FusedMultiplyAdd
+    }
+    
     public sealed class ComputeProvider: Brahma.ComputeProvider
     {
+        public const CompileOptions CompileForSpeed = CompileOptions.UseNativeFunctions | CompileOptions.FusedMultiplyAdd | CompileOptions.FastRelaxedMath;
+        public const CompileOptions CompileForAccuracy = 0;
+        
         private readonly Cl.Context _context;
         private readonly Cl.Device[] _devices;
-        private bool _disposed = false;
+        private bool _disposed;
 
         internal Cl.Context Context
         {
@@ -148,20 +159,20 @@ namespace Brahma.OpenCL
             return kernel;
         }
 
-        public Kernel<TRange, Set[]> Compile<TRange>(Expression<Func<Brahma.NDRange<TRange>, IEnumerable<Set[]>>> query)
+        public Kernel<TRange, Set[]> Compile<TRange>(Expression<Func<Brahma.NDRange<TRange>, IEnumerable<Set[]>>> query, CompileOptions options = CompileForSpeed)
             where TRange : struct, INDRangeDimension
         {
-            return CompileQuery<TRange>(query) as Kernel<TRange, Set[]>;
+            return CompileQuery(query) as Kernel<TRange, Set[]>;
         }
 
-        public Kernel<TRange, T, Set[]> Compile<TRange, T>(Expression<Func<Brahma.NDRange<TRange>, T, IEnumerable<Set[]>>> query)
+        public Kernel<TRange, T, Set[]> Compile<TRange, T>(Expression<Func<Brahma.NDRange<TRange>, T, IEnumerable<Set[]>>> query, CompileOptions options = CompileForSpeed)
             where TRange: struct, INDRangeDimension
             where T : IMem
         {
             return CompileQuery(query) as Kernel<TRange, T, Set[]>;
         }
 
-        public Kernel<TRange, T1, T2, Set[]> Compile<TRange, T1, T2>(Expression<Func<Brahma.NDRange<TRange>, T1, T2, IEnumerable<Set[]>>> query)
+        public Kernel<TRange, T1, T2, Set[]> Compile<TRange, T1, T2>(Expression<Func<Brahma.NDRange<TRange>, T1, T2, IEnumerable<Set[]>>> query, CompileOptions options = CompileForSpeed)
             where TRange: struct, INDRangeDimension
             where T1 : IMem
             where T2 : IMem
@@ -169,7 +180,7 @@ namespace Brahma.OpenCL
             return CompileQuery(query) as Kernel<TRange, T1, T2, Set[]>;
         }
 
-        public Kernel<TRange, T1, T2, T3, Set[]> Compile<TRange, T1, T2, T3>(Expression<Func<Brahma.NDRange<TRange>, T1, T2, T3, IEnumerable<Set[]>>> query)
+        public Kernel<TRange, T1, T2, T3, Set[]> Compile<TRange, T1, T2, T3>(Expression<Func<Brahma.NDRange<TRange>, T1, T2, T3, IEnumerable<Set[]>>> query, CompileOptions options = CompileForSpeed)
             where TRange : struct, INDRangeDimension
             where T1 : IMem
             where T2 : IMem
@@ -178,7 +189,7 @@ namespace Brahma.OpenCL
             return CompileQuery(query) as Kernel<TRange, T1, T2, T3, Set[]>;
         }
 
-        public Kernel<TRange, T1, T2, T3, T4, Set[]> Compile<TRange, T1, T2, T3, T4>(Expression<Func<Brahma.NDRange<TRange>, T1, T2, T3, T4, IEnumerable<Set[]>>> query)
+        public Kernel<TRange, T1, T2, T3, T4, Set[]> Compile<TRange, T1, T2, T3, T4>(Expression<Func<Brahma.NDRange<TRange>, T1, T2, T3, T4, IEnumerable<Set[]>>> query, CompileOptions options = CompileForSpeed)
             where TRange : struct, INDRangeDimension
             where T1 : IMem
             where T2 : IMem
@@ -188,12 +199,33 @@ namespace Brahma.OpenCL
             return CompileQuery(query) as Kernel<TRange, T1, T2, T3, T4, Set[]>;
         }
 
+        [KernelCallable]
+        public Func<int, IEnumerable<Set[]>> Loop(int startValue, int count, Func<IEnumerable<int>, IEnumerable<Set[]>> body)
+        {
+            throw new NotSupportedException("Cannot call this method from code, only inside a kernel");
+        }
+
+        [KernelCallable]
+        public Func<int, IEnumerable<Set[]>> Loop(int startValue, int count, Func<int, IEnumerable<Set>> body)
+        {
+            throw new NotSupportedException("Cannot call this method from code, only inside a kernel");
+        }
+
         public override void Dispose()
         {
             if (!_disposed)
             {
                 _context.Dispose();
                 _disposed = true;
+            }
+        }
+
+        public IEnumerable<Cl.Device> Devices
+        {
+            get
+            {
+                for (int i = 0; i < _devices.Length; i++)
+                    yield return _devices[i];
             }
         }
     }

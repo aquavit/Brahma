@@ -75,10 +75,32 @@ namespace Brahma.OpenCL
                 throw new CLException(error);
         }
 
-        public override void Add(params Command[] commands)
+        public override Brahma.CommandQueue Add(params Command[] commands)
         {
             foreach (var command in commands)
                 command.EnqueueInto(this);
+
+            return this;
+        }
+
+        public override Brahma.CommandQueue Finish()
+        {
+            Cl.ErrorCode error = Cl.Finish(_queue);
+
+            if (error != Cl.ErrorCode.Success)
+                throw new CLException(error);
+
+            return this;
+        }
+
+        public override Brahma.CommandQueue Barrier()
+        {
+            Cl.ErrorCode error = Cl.EnqueueBarrier(_queue);
+            
+            if (error != Cl.ErrorCode.Success)
+                throw new CLException(error);
+
+            return this;
         }
 
         public override void Dispose()

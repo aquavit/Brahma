@@ -17,40 +17,39 @@
 
 using System;
 using System.Linq;
+using Brahma.Types;
 using NUnit.Framework;
 using OpenCL.Net;
 
 namespace Brahma.OpenCL.Tests
 {
     [TestFixture]
-    public sealed class ComputeProviderTests
+    public sealed class CompileQueryTests
     {
         public object[] GetPlatforms()
         {
             Cl.ErrorCode error;
             return (from platform in Cl.GetPlatformIDs(out error)
-                    select (object) platform).ToArray();
+                    select (object)platform).ToArray();
         }
 
-        [Test] 
+        [Test]
         [TestCaseSource("GetPlatforms")]
         [Category(Categories.Correctness)]
-        [Description("Creates (and disposes) one ComputeProvider for each platform found")]
-        [ExpectedException]
-        public void CreateComputeProvider(Cl.Platform platform)
+        [Description("Compiles the identity query for all platforms")]
+        public void IdentityQuery(Cl.Platform platform)
         {
             Cl.ErrorCode error;
 
-            // Test invalid values
-            Assert.Throws<ArgumentNullException>(() => new ComputeProvider());
-            Assert.Throws<ArgumentException>(() => new ComputeProvider(new Cl.Device[]{ }));
-            Assert.Throws<CLException>(() =>new ComputeProvider(new Cl.Device()));
-
             Console.WriteLine("Creating compute provider for {0}",
                               Cl.GetPlatformInfo(platform, Cl.PlatformInfo.Name, out error));
+
             using (var provider = new ComputeProvider(Cl.GetDeviceIDs(platform, Cl.DeviceType.All, out error)))
             {
-                // Do nothing
+                var query = provider.Compile<_1D, Buffer<int32>, Buffer<int32>>(
+                    (range, input, output) => from r in range
+                                              let index = r.GlobalID0
+                                              select new[] { output[index] <= input[index] });
             }
         }
     }

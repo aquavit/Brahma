@@ -15,21 +15,40 @@
 // terms of the License.
 #endregion
 
+using System;
+using System.Collections.Generic;
+
 namespace Brahma
 {
     public abstract class Set
     {
+        public static IEnumerable<Set[]> Void
+        {
+            get
+            {
+                yield return new Set[] { };
+            }
+        }
     }
 
-    public sealed class Set<T> : Set where T : struct
+    public enum Comparison
+    {
+        GreaterThanEquals,
+        LessThanEquals
+    }
+
+    public sealed class Set<T> : Set where T : struct, IComparable<T>
     {
         private readonly T _lhs;
         private readonly T _rhs;
+        private readonly Comparison _comparison;
 
-        public Set(T lhs, T rhs)
+        public Set(T lhs, T rhs, Comparison comparison = Comparison.LessThanEquals)
         {
             _lhs = lhs;
             _rhs = rhs;
+
+            _comparison = comparison;
         }
 
         public T Lhs
@@ -45,6 +64,29 @@ namespace Brahma
             get
             {
                 return _rhs;
+            }
+        }
+
+        public Comparison Comparison
+        {
+            get
+            {
+                return _comparison;
+            }
+        }
+
+        public static implicit operator bool (Set<T> set)
+        {
+            switch (set._comparison)
+            {
+                case Comparison.LessThanEquals:
+                    return set._lhs.CompareTo(set._rhs) <= 0;
+
+                case Comparison.GreaterThanEquals:
+                    return set._lhs.CompareTo(set._rhs) >= 0;
+
+                default:
+                    throw new NotSupportedException();
             }
         }
     }

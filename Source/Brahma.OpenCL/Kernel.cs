@@ -71,26 +71,14 @@ namespace Brahma.OpenCL
 
         IEnumerable<MemberExpression> ICLKernel.Closures
         {
-            get 
-            {
-                return Closures;
-            }
-            set
-            {
-                Closures = value;
-            }
+            get { return Closures; }
+            set { Closures = value; }
         }
 
         IEnumerable<ParameterExpression> ICLKernel.Parameters
         {
-            get
-            {
-                return Parameters;
-            }
-            set
-            {
-                Parameters = value;
-            }
+            get { return Parameters; }
+            set { Parameters = value; }
         }
 
         Cl.Kernel ICLKernel.ClKernel
@@ -126,14 +114,26 @@ namespace Brahma.OpenCL
 
         IEnumerable<MemberExpression> ICLKernel.Closures
         {
-            get;
-            set;
+            get
+            {
+                return Closures;
+            }
+            set
+            {
+                Closures = value;
+            }
         }
 
         IEnumerable<ParameterExpression> ICLKernel.Parameters
         {
-            get;
-            set;
+            get
+            {
+                return Parameters;
+            }
+            set
+            {
+                Parameters = value;
+            }
         }
 
         Cl.Kernel ICLKernel.ClKernel

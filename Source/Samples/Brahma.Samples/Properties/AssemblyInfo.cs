@@ -15,25 +15,14 @@
 // terms of the License.
 #endregion
 
-using System.Linq;
-using Brahma.OpenCL;
-using OpenCL.Net;
+using System.Reflection;
+using System.Runtime.InteropServices;
 
-namespace Initialization
-{
-    class Program
-    {
-        static void Main(string[] args)
-        {
-            Cl.ErrorCode error;
-            var devices = (from dev in
-                               Cl.GetDeviceIDs(
-                                   (from platform in Cl.GetPlatformIDs(out error)
-                                    select platform).First(), Cl.DeviceType.Default, out error)
-                           select dev).ToArray();
-            var provider = new ComputeProvider(devices);
+//General assembly information
 
-            provider.Dispose(); // Remember to Dispose() everything! No finalizers!
-        }
-    }
-}
+[assembly: AssemblyTitle("Brahma.Samples")]
+[assembly: AssemblyDescription("Provides utility, base classes and interfaces that are shared across samples")]
+
+// GUID for the ID of the typelib if this project is exposed to COM
+
+[assembly: Guid("ddf09ae9-9233-45ef-b25c-3cf21d8f39fe")]

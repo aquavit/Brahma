@@ -65,6 +65,11 @@ namespace Brahma
             return type.GetGenericTypeDefinition() == openGeneric;
         }
 
+        public static bool IsAssignableTo(this Type type, Type baseType)
+        {
+            return baseType.IsAssignableFrom(type);
+        }
+
         public static bool IsSet(this Type type)
         {
             bool done = false;
