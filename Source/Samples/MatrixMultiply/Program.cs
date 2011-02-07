@@ -17,6 +17,7 @@
 
 using System;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
@@ -76,7 +77,7 @@ namespace Brahma.Samples.MatrixMultiply
             Cl.DeviceType deviceType = Cl.DeviceType.Default;
 
             args.Process(() => Console.WriteLine("Usage is {0} platform=<platform name> device=<Cpu or Gpu or Default (default = Default)> rows=<rows (default = 100)> cols=<columns (default = 100)> localWorkSize=<local work size (default = 10)> iterations=<Number of iterations to run for each (default = 100)>",
-                Assembly.GetEntryAssembly().CodeBase),
+                Path.GetFileNameWithoutExtension(Assembly.GetEntryAssembly().CodeBase)),
                 new CommandLine.Switch("platform", v => platformName = v.First()),
                 new CommandLine.Switch("device", v => deviceType = (Cl.DeviceType)Enum.Parse(typeof(Cl.DeviceType), v.First())),
                 new CommandLine.Switch("rows", v => rows = int.Parse(v.First(), CultureInfo.CurrentCulture)),

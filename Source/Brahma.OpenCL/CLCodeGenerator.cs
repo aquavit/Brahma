@@ -34,6 +34,7 @@ namespace Brahma.OpenCL
 
         private sealed class CodeGenerator : ExpressionVisitor
         {
+            private readonly ComputeProvider _provider;
             private readonly LambdaExpression _lambda;
 
             private readonly List<MemberExpression> _closures = new List<MemberExpression>();
@@ -99,6 +100,14 @@ namespace Brahma.OpenCL
                 UnwindMemberAccess(member, result);
 
                 return result.ToString();
+            }
+
+            private string NativeMethodPrefix
+            {
+                get 
+                {
+                   return (_provider.CompileOptions & CompileOptions.UseNativeFunctions) == CompileOptions.UseNativeFunctions ? "native_" : string.Empty;
+                }
             }
 
             protected override Expression VisitConstant(ConstantExpression constant)
@@ -336,7 +345,7 @@ namespace Brahma.OpenCL
 
                         break;
                     
-                    case "Abs":
+                    case "Fabs":
                         _code.Append("fabs(");
                         Visit(method.Arguments[0]);
                         _code.Append(")");
@@ -344,21 +353,21 @@ namespace Brahma.OpenCL
                         break;
 
                     case "Log10":
-                        _code.Append("native_log10(");
+                        _code.Append(string.Format("{0}log10(", NativeMethodPrefix));
                         Visit(method.Arguments[0]);
                         _code.Append(")");
 
                         break;
 
                     case "Log2":
-                        _code.Append("native_log2(");
+                        _code.Append(string.Format("{0}_log2(", NativeMethodPrefix));
                         Visit(method.Arguments[0]);
                         _code.Append(")");
 
                         break;
 
                     case "Powr":
-                        _code.Append("native_powr(");
+                        _code.Append(string.Format("{0}_powr(", NativeMethodPrefix));
                         Visit(method.Arguments[0]);
                         _code.Append(", ");
                         Visit(method.Arguments[1]);
@@ -395,8 +404,9 @@ namespace Brahma.OpenCL
                 return method;
             }
 
-            public CodeGenerator(LambdaExpression lambda)
+            public CodeGenerator(ComputeProvider provider, LambdaExpression lambda)
             {
+                _provider = provider;
                 _lambda = lambda;
             }
 
@@ -433,9 +443,9 @@ namespace Brahma.OpenCL
             }
         }
 
-        public static void GenerateKernel(this LambdaExpression lambda, ICLKernel kernel)
+        public static void GenerateKernel(this LambdaExpression lambda, ComputeProvider provider, ICLKernel kernel)
         {
-            var codeGenerator = new CodeGenerator(lambda);
+            var codeGenerator = new CodeGenerator(provider, lambda);
             kernel.Source.Append(codeGenerator.Generate());
             kernel.Closures = codeGenerator.Closures;
             kernel.Parameters = lambda.Parameters;

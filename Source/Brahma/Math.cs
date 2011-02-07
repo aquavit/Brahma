@@ -30,8 +30,7 @@ namespace Brahma
         }
 
         [KernelCallable]
-        public static T Abs<T>(T value)
-            where T : struct, IPrimitiveType, IMem
+        public static float32 Fabs(float32 value)
         {
             throw new NotSupportedException("Can only call this method from inside a kernel");
         }

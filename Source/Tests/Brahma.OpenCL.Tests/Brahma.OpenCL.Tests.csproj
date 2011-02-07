@@ -45,6 +45,7 @@
     </Compile>
     <Compile Include="Categories.cs" />
     <Compile Include="CompileQueryTests.cs" />
+    <Compile Include="ComputeProviderTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

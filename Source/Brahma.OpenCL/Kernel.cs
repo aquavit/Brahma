@@ -57,7 +57,7 @@ namespace Brahma.OpenCL
     public sealed class Kernel<TRange, TResult>: Brahma.Kernel<TRange, TResult>, ICLKernel
         where TRange: struct, Brahma.INDRangeDimension
     {
-        private static readonly TRange _range;
+        private static readonly TRange _range = new TRange();
 
         private readonly StringBuilder _source = new StringBuilder();
 
@@ -100,7 +100,7 @@ namespace Brahma.OpenCL
         where TRange: struct, Brahma.INDRangeDimension
         where T: IMem
     {
-        private static readonly TRange _range;
+        private static readonly TRange _range = new TRange();
 
         private readonly StringBuilder _source = new StringBuilder();
 
@@ -156,7 +156,7 @@ namespace Brahma.OpenCL
         where T1: IMem 
         where T2: IMem
     {
-        private static readonly TRange _range;
+        private static readonly TRange _range = new TRange();
         
         private readonly StringBuilder _source = new StringBuilder();
 
@@ -213,7 +213,7 @@ namespace Brahma.OpenCL
         where T2 : IMem
         where T3: IMem
     {
-        private static readonly TRange _range;
+        private static readonly TRange _range = new TRange();
 
         private readonly StringBuilder _source = new StringBuilder();
 
@@ -271,7 +271,7 @@ namespace Brahma.OpenCL
         where T3 : IMem
         where T4 : IMem
     {
-        private static readonly TRange _range;
+        private static readonly TRange _range = new TRange();
 
         private readonly StringBuilder _source = new StringBuilder();
 
