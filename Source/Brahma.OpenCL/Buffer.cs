@@ -56,10 +56,6 @@ namespace Brahma.OpenCL
             }
         }
 
-        private Buffer()
-        {
-        }
-        
         public Buffer(ComputeProvider provider, Operations operations, bool hostAccessible, int length) // Create, no data
         {
             Cl.ErrorCode error;

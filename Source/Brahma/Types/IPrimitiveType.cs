@@ -15,9 +15,9 @@
 // terms of the License.
 #endregion
 
-namespace Brahma
+namespace Brahma.Types
 {
-    public abstract class Image3D<T>: Mem<T> where T: struct, IImageFormat
+    public interface IPrimitiveType
     {
     }
 }

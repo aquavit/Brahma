@@ -307,6 +307,11 @@ namespace Brahma.OpenCL
                         Visit(method.Object);
                         _code.Append("[");
                         Visit(method.Arguments[0]);
+                        for (int i = 1; i < method.Arguments.Count; i++)
+                        {
+                            _code.Append(", ");
+                            Visit(method.Arguments[i]);
+                        }
                         _code.Append("]");
 
                         break;
@@ -317,7 +322,7 @@ namespace Brahma.OpenCL
                         // Figure out what kind of loop body this is
                         var loopBody = method.Arguments[2] as LambdaExpression;
 
-                        if (loopBody.Parameters[0].Type == typeof(IEnumerable<int>)) // Looks brittle, but is based on the method signature
+                        if (loopBody.Parameters[0].Type == typeof(IEnumerable<int>))
                             loopVar = GetLoopVar(loopBody);
                         if (loopBody.Parameters[0].Type == typeof(int))
                             loopVar = loopBody.Parameters[0];
@@ -360,14 +365,14 @@ namespace Brahma.OpenCL
                         break;
 
                     case "Log2":
-                        _code.Append(string.Format("{0}_log2(", NativeMethodPrefix));
+                        _code.Append(string.Format("{0}log2(", NativeMethodPrefix));
                         Visit(method.Arguments[0]);
                         _code.Append(")");
 
                         break;
 
                     case "Powr":
-                        _code.Append(string.Format("{0}_powr(", NativeMethodPrefix));
+                        _code.Append(string.Format("{0}powr(", NativeMethodPrefix));
                         Visit(method.Arguments[0]);
                         _code.Append(", ");
                         Visit(method.Arguments[1]);

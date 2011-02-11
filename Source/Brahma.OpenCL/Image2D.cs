@@ -26,13 +26,13 @@ namespace Brahma.OpenCL
         private static readonly T _imageFormat = new T();
         
         private readonly Cl.Mem _image;
-        private readonly int _width = 0;
-        private readonly int _height = 0;
+        private readonly int _width;
+        private readonly int _height;
         private readonly int _rowPitch = -1;
 
         public Image2D(ComputeProvider provider, Operations operations, bool hostAccessible, int width, int height, int rowPitch = -1) // Create, no data
         {
-            Cl.ErrorCode error = Cl.ErrorCode.Success;
+            Cl.ErrorCode error;
             _image = Cl.CreateImage2D(provider.Context, (Cl.MemFlags)operations | (hostAccessible ? Cl.MemFlags.AllocHostPtr : 0),
                 new Cl.ImageFormat(_imageFormat.ChannelOrder, _imageFormat.ChannelType.ChannelType), (IntPtr)width, (IntPtr)height,
                 rowPitch == -1 ? (IntPtr)(width * _imageFormat.ComponentCount * _imageFormat.ChannelType.Size) : (IntPtr)rowPitch,
@@ -62,11 +62,6 @@ namespace Brahma.OpenCL
             _rowPitch = rowPitch;
         }
         
-        public override IEnumerator<T> GetEnumerator()
-        {
-            throw new NotImplementedException();
-        }
-
         public int Width
         {
             get

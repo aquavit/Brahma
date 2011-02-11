@@ -26,14 +26,14 @@ namespace Brahma.OpenCL
     [Flags]
     public enum CompileOptions
     {
-        UseNativeFunctions,
-        FastRelaxedMath,
-        FusedMultiplyAdd,
-        DisableOptimizations,
-        StrictAliasing,
-        NoSignedZeros,
-        UnsafeMathOptimizations,
-        FiniteMathOnly
+        UseNativeFunctions = 1 << 0,
+        FastRelaxedMath = 1 << 1,
+        FusedMultiplyAdd = 1 << 2,
+        DisableOptimizations = 1 << 3,
+        StrictAliasing = 1 << 4,
+        NoSignedZeros = 1 << 5,
+        UnsafeMathOptimizations = 1 << 6,
+        FiniteMathOnly = 1 << 7
     }
     
     public sealed class ComputeProvider: Brahma.ComputeProvider

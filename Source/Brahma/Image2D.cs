@@ -15,18 +15,9 @@
 // terms of the License.
 #endregion
 
-using System.Collections;
-using System.Collections.Generic;
-
 namespace Brahma
 {
-    public abstract class Image2D<T>: Mem<T>, IEnumerable<T> where T: struct, IImageFormat
+    public abstract class Image2D<T>: Mem<T> where T: struct, IImageFormat
     {
-        public abstract IEnumerator<T> GetEnumerator();
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
     }
 }
