@@ -44,7 +44,7 @@ namespace Brahma.Commands
             }
         }
 
-        public abstract void EnqueueInto(object sender);
+        public abstract void Execute(object sender);
 
         public static Command operator <=(string name, Command command)
         {
@@ -58,23 +58,54 @@ namespace Brahma.Commands
         }
     }
 
-    public abstract class Command<T> : Command
+    public interface ICommand
+    {
+        
+    }
+
+    public interface ICommand<TRange>: ICommand
+        where TRange: INDRangeDimension
     {
     }
 
-    public abstract class Command<T1, T2> : Command
+    public interface ICommand<TRange, T>: ICommand
+        where TRange: INDRangeDimension
     {
     }
 
-    public abstract class Command<T1, T2, T3> : Command
+    public interface ICommand<TRange, T1, T2>: ICommand
+        where TRange: INDRangeDimension
     {
     }
 
-    public abstract class Command<T1, T2, T3, T4>: Command
+    public interface ICommand<TRange, T1, T2, T3>: ICommand
+        where TRange: INDRangeDimension
     {
     }
 
-    public abstract class Command<T1, T2, T3, T4, T5>: Command
+    public interface ICommand<TRange, T1, T2, T3, T4>: ICommand
+        where TRange: INDRangeDimension
+
+    {
+    }
+
+    public interface ICommand<TRange, T1, T2, T3, T4, T5>: ICommand
+        where TRange: INDRangeDimension
+    {
+    }
+
+    public interface ICommand<TRange, T1, T2, T3, T4, T5, T6>: ICommand
+        where TRange: INDRangeDimension
+    {
+    }
+
+    public interface ICommand<TRange, T1, T2, T3, T4, T5, T6, T7>: ICommand
+        where TRange: INDRangeDimension
+    {
+    }
+
+    public interface ICommand<TRange, T1, T2, T3, T4, T5, T6, T7, T8>: ICommand
+        where TRange: INDRangeDimension
     {
     }
 }

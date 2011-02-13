@@ -78,7 +78,7 @@ namespace Brahma.OpenCL
         public override Brahma.CommandQueue Add(params Command[] commands)
         {
             foreach (var command in commands)
-                command.EnqueueInto(this);
+                command.Execute(this);
 
             return this;
         }

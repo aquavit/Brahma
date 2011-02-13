@@ -21,14 +21,14 @@ using OpenCL.Net;
 
 namespace Brahma.OpenCL.Commands
 {
-    public sealed class ReadBuffer<T> : Brahma.Commands.ReadBuffer<T> where T : struct, IMem
+    public sealed class ReadBuffer<T> : Brahma.Commands.Command
+        where T : struct, IMem
     {
         internal ReadBuffer(Buffer<T> buffer,
                           bool blocking,
                           int offset,
                           int count,
                           T[] data)
-            : base(buffer, blocking, offset, count, data)
         {
             Buffer = buffer;
             Blocking = blocking;
@@ -42,7 +42,6 @@ namespace Brahma.OpenCL.Commands
                           int offset,
                           int count,
                           IntPtr data)
-            : base(buffer, blocking, offset, count, data)
         {
             Buffer = buffer;
             Blocking = blocking;
@@ -87,9 +86,9 @@ namespace Brahma.OpenCL.Commands
             private set;
         }
 
-        public override void EnqueueInto(object sender)
+        public override void Execute(object sender)
         {
-            CommandQueue commandQueue = sender as CommandQueue;
+            var commandQueue = sender as CommandQueue;
 
             var waitList = from name in WaitList
                            let ev = CommandQueue.FindEvent(name)

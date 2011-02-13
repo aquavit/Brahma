@@ -23,39 +23,40 @@ using System.Runtime.InteropServices;
 
 namespace Brahma.Commands
 {
-    public abstract class Run<TRange, TResult> : Command<TResult> 
+    public abstract class Run<TRange>: Command, ICommand<TRange>
         where TRange: struct, INDRangeDimension
     {
-        protected Run(Kernel<TRange, TResult> kernel, TRange range)
+        protected Run(IKernel kernel, TRange range)
         {
             Kernel = kernel;
             Range = range;
         }
 
-        protected abstract void SetupArguments(object sender, uint index, IntPtr size, object value);
-
-        public override void EnqueueInto(object sender)
+        protected abstract IEnumerable<IMem> Arguments
         {
-            uint index = 0;
+            get;
+        }
+
+        protected abstract void SetupArgument(object sender, int index, IMem argument);
+
+        public override void Execute(object sender)
+        {
+            int index = 0;
+
+            foreach (var argument in Arguments)
+                SetupArgument(sender, index++, argument);
 
             foreach (var memberExp in Kernel.Closures)
             {
-                object value;
-                IntPtr size;
+                IMem argument;
 
                 // TODO: Is this check redundant? I mean, CLCodeGenerator already does this (as does UnwindClosureAccess)
                 switch (memberExp.Member.MemberType)
                 {
                     case MemberTypes.Field:
-                        value = memberExp.GetClosureValue();
-                        var mem = value as IMem;
-                        if (mem != null)
-                        {
-                            value = mem.Data;
-                            size = mem.Size;
-                        }
-                        else
-                            size = (IntPtr)Marshal.SizeOf(value);
+                        argument = memberExp.GetClosureValue() as IMem;
+                        if (argument == null)
+                            throw new ArgumentNullException(string.Format("{0} is not IMem. Did you use a non-Brahma type in your query? Try a cast, if it is supported", memberExp));
 
                         break;
 
@@ -63,7 +64,7 @@ namespace Brahma.Commands
                         throw new NotSupportedException("Can only access a field from inside a kernel");
                 }
 
-                SetupArguments(sender, index++, size, value);
+                SetupArgument(sender, index++, argument);
             }
         }
 
@@ -73,368 +74,10 @@ namespace Brahma.Commands
             private set;
         }
 
-        public Kernel<TRange, TResult> Kernel
+        public IKernel Kernel
         {
             get;
             private set;
-        }
-    }
-
-    public abstract class Run<TRange, T, TResult> : Command<T, TResult> 
-        where T: IMem 
-        where TRange: struct, INDRangeDimension
-    {
-        protected Run(Kernel<TRange, T, TResult> kernel, TRange range, T data)
-        {
-            Range = range;
-            Kernel = kernel;
-            Data = data;
-        }
-
-        protected abstract void SetupArguments(object sender, uint index, IntPtr size, object value);
-
-        public override void EnqueueInto(object sender)
-        {
-            uint index = 0;
-
-            SetupArguments(sender, index++, Data.Size, Data.Data);
-
-            foreach (var memberExp in Kernel.Closures)
-            {
-                object value;
-                IntPtr size;
-
-                // TODO: Is this check redundant? I mean, CLCodeGenerator already does this (as does UnwindClosureAccess)
-                switch (memberExp.Member.MemberType)
-                {
-                    case MemberTypes.Field:
-                        value = memberExp.GetClosureValue();
-                        var mem = value as IMem;
-                        if (mem != null)
-                        {
-                            value = mem.Data;
-                            size = mem.Size;
-                        }
-                        else
-                            size = (IntPtr)Marshal.SizeOf(value);
-
-                        break;
-
-                    default:
-                        throw new NotSupportedException("Can only access a field from inside a kernel");
-                }
-
-                SetupArguments(sender, index++, size, value);
-            }
-        }
-
-        public TRange Range
-        {
-            get;
-            private set;
-        }
-
-        protected internal Kernel Kernel
-        {
-            get;
-            private set;
-        }
-
-        public T Data
-        {
-            get;
-            private set;
-        }
-    }
-
-    public abstract class Run<TRange, T1, T2, TResult> : Command<T1, T2, TResult> 
-        where T1: IMem 
-        where T2: IMem 
-        where TRange: struct, INDRangeDimension
-    {
-        protected Run(Kernel<TRange, T1, T2, TResult> kernel, TRange range, T1 d1, T2 d2)
-        {
-            Range = range;
-            Kernel = kernel;
-            D1 = d1;
-            D2 = d2;
-        }
-
-        protected abstract void SetupArguments(object sender, uint index, IntPtr size, object value);
-
-        public override void EnqueueInto(object sender)
-        {
-            uint index = 0;
-
-            SetupArguments(sender, index++, D1.Size, D1.Data);
-            SetupArguments(sender, index++, D2.Size, D2.Data);
-
-            foreach (var memberExp in Kernel.Closures)
-            {
-                object value;
-                IntPtr size;
-
-                // TODO: Is this check redundant? I mean, CLCodeGenerator already does this (as does UnwindClosureAccess)
-                switch (memberExp.Member.MemberType)
-                {
-                    case MemberTypes.Field:
-                        value = memberExp.GetClosureValue();
-                        var mem = value as IMem;
-                        if (mem != null)
-                        {
-                            value = mem.Data;
-                            size = mem.Size;
-                        }
-                        else
-                            size = (IntPtr)Marshal.SizeOf(value);
-
-                        break;
-
-                    default:
-                        throw new NotSupportedException("Can only access a field from inside a kernel");
-                }
-
-                SetupArguments(sender, index++, size, value);
-            }
-        }
-
-        public TRange Range
-        {
-            get;
-            private set;
-        }
-
-        protected internal Kernel Kernel
-        {
-            get;
-            private set;
-        }
-
-        public T1 D1
-        {
-            get; 
-            private set; 
-        }
-
-        public T2 D2
-        {
-            get;
-            private set;
-        }
-    }
-    
-    public abstract class Run<TRange, T1, T2, T3, TResult> : Command<T1, T2, T3, TResult>
-        where T1 : IMem
-        where T2 : IMem
-        where T3: IMem
-        where TRange : struct, INDRangeDimension
-    {
-        protected Run(Kernel<TRange, T1, T2, T3, TResult> kernel, TRange range, T1 d1, T2 d2, T3 d3)
-        {
-            Range = range;
-            Kernel = kernel;
-            D1 = d1;
-            D2 = d2;
-            D3 = d3;
-        }
-
-        protected abstract void SetupArguments(object sender, uint index, IntPtr size, object value);
-
-        public override void EnqueueInto(object sender)
-        {
-            uint index = 0;
-
-            SetupArguments(sender, index++, D1.Size, D1.Data);
-            SetupArguments(sender, index++, D2.Size, D2.Data);
-            SetupArguments(sender, index++, D3.Size, D3.Data);
-
-            foreach (var memberExp in Kernel.Closures)
-            {
-                object value;
-                IntPtr size;
-                
-                // TODO: Is this check redundant? I mean, CLCodeGenerator already does this (as does UnwindClosureAccess)
-                switch (memberExp.Member.MemberType)
-                {
-                    case MemberTypes.Field:
-                        value = memberExp.GetClosureValue();
-                        var mem = value as IMem;
-                        if (mem != null)
-                        {
-                            value = mem.Data;
-                            size = mem.Size;
-                        }
-                        else
-                            size = (IntPtr) Marshal.SizeOf(value);
-
-                        break;
-
-                    default:
-                        throw new NotSupportedException("Can only access a field from inside a kernel");
-                }
-
-                SetupArguments(sender, index++, size, value);
-            }
-        }
-
-        public TRange Range
-        {
-            get;
-            private set;
-        }
-
-        protected internal Kernel Kernel
-        {
-            get;
-            private set;
-        }
-
-        public T1 D1
-        {
-            get;
-            private set;
-        }
-
-        public T2 D2
-        {
-            get;
-            private set;
-        }
-
-        public T3 D3
-        {
-            get;
-            private set;
-        }
-    }
-
-    public abstract class Run<TRange, T1, T2, T3, T4, TResult> : Command<T1, T2, T3, T4, TResult>
-        where T1 : IMem
-        where T2 : IMem
-        where T3 : IMem
-        where T4: IMem
-        where TRange : struct, INDRangeDimension
-    {
-        protected Run(Kernel<TRange, T1, T2, T3, T4, TResult> kernel, TRange range, T1 d1, T2 d2, T3 d3, T4 d4)
-        {
-            Range = range;
-            Kernel = kernel;
-            D1 = d1;
-            D2 = d2;
-            D3 = d3;
-            D4 = d4;
-        }
-
-        protected abstract void SetupArguments(object sender, uint index, IntPtr size, object value);
-
-        public override void EnqueueInto(object sender)
-        {
-            uint index = 0;
-
-            SetupArguments(sender, index++, D1.Size, D1.Data);
-            SetupArguments(sender, index++, D2.Size, D2.Data);
-            SetupArguments(sender, index++, D3.Size, D3.Data);
-            SetupArguments(sender, index++, D4.Size, D4.Data);
-
-            foreach (var memberExp in Kernel.Closures)
-            {
-                object value;
-                IntPtr size;
-
-                // TODO: Is this check redundant? I mean, CLCodeGenerator already does this (as does UnwindClosureAccess)
-                switch (memberExp.Member.MemberType)
-                {
-                    case MemberTypes.Field:
-                        value = memberExp.GetClosureValue();
-                        var mem = value as IMem;
-                        if (mem != null)
-                        {
-                            value = mem.Data;
-                            size = mem.Size;
-                        }
-                        else
-                            size = (IntPtr)Marshal.SizeOf(value);
-
-                        break;
-
-                    default:
-                        throw new NotSupportedException("Can only access a field from inside a kernel");
-                }
-
-                SetupArguments(sender, index++, size, value);
-            }
-        }
-
-        public TRange Range
-        {
-            get;
-            private set;
-        }
-
-        protected internal Kernel Kernel
-        {
-            get;
-            private set;
-        }
-
-        public T1 D1
-        {
-            get;
-            private set;
-        }
-
-        public T2 D2
-        {
-            get;
-            private set;
-        }
-
-        public T3 D3
-        {
-            get;
-            private set;
-        }
-
-        public T4 D4
-        {
-            get;
-            private set;
-        }
-    }
-
-    internal static class MemberExpressionExtensions
-    {
-        private static object UnwindClosureAccess(Expression expression, Stack<MemberExpression> access)
-        {
-            if (expression is ConstantExpression)
-                return (expression as ConstantExpression).Value;
-
-            if (expression.NodeType == ExpressionType.MemberAccess)
-            {
-                var member = expression as MemberExpression;
-                if (!(member.Member is FieldInfo))
-                    throw new InvalidOperationException("Cannot access methods/properties inside a kernel!");
-
-                access.Push(member);
-
-                if (member.Expression == null)
-                    return null;
-
-                return UnwindClosureAccess(member.Expression, access);
-            }
-
-            throw new InvalidOperationException(string.Format("Unknown/Invalid expression in closure access: {0}", expression.NodeType));
-        }
-
-        public static object GetClosureValue(this MemberExpression expression)
-        {
-            var accessStack = new Stack<MemberExpression>();
-            var constant = UnwindClosureAccess(expression, accessStack);
-
-            foreach (var member in accessStack)
-                constant = ((FieldInfo)member.Member).GetValue(constant);
-
-            return constant;
         }
     }
 }

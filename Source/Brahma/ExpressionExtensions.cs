@@ -137,23 +137,6 @@ namespace Brahma
             return expression.ToString().Contains("<>c__DisplayClass");
         }
 
-        public sealed class MemberExpressionComparer : IEqualityComparer<MemberExpression>
-        {
-            #region IEqualityComparer<MemberExpression> Members
-
-            public bool Equals(MemberExpression x, MemberExpression y)
-            {
-                return x.ToString() == y.ToString();
-            }
-
-            public int GetHashCode(MemberExpression obj)
-            {
-                return obj.ToString().GetHashCode();
-            }
-
-            #endregion
-        }
-
         public static IEnumerable<MemberExpression> Closures(this IEnumerable<Expression> flattened)
         {
             return (from expression in flattened
@@ -163,6 +146,42 @@ namespace Brahma
                     ((expression.NodeType == ExpressionType.MemberAccess) &&
                     (memberExp.Expression.NodeType == ExpressionType.Constant)))
                     select memberExp).Distinct(new MemberExpressionComparer());
+        }
+    }
+
+    internal static class MemberExpressionExtensions
+    {
+        private static object UnwindClosureAccess(Expression expression, Stack<MemberExpression> access)
+        {
+            if (expression is ConstantExpression)
+                return (expression as ConstantExpression).Value;
+
+            if (expression.NodeType == ExpressionType.MemberAccess)
+            {
+                var member = expression as MemberExpression;
+                if (!(member.Member is FieldInfo))
+                    throw new InvalidOperationException("Cannot access methods/properties inside a kernel!");
+
+                access.Push(member);
+
+                if (member.Expression == null)
+                    return null;
+
+                return UnwindClosureAccess(member.Expression, access);
+            }
+
+            throw new InvalidOperationException(string.Format("Unknown/Invalid expression in closure access: {0}", expression.NodeType));
+        }
+
+        public static object GetClosureValue(this MemberExpression expression)
+        {
+            var accessStack = new Stack<MemberExpression>();
+            var constant = UnwindClosureAccess(expression, accessStack);
+
+            foreach (var member in accessStack)
+                constant = ((FieldInfo)member.Member).GetValue(constant);
+
+            return constant;
         }
     }
 }

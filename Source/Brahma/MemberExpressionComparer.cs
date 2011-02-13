@@ -15,26 +15,25 @@
 // terms of the License.
 #endregion
 
-using System;
+using System.Collections.Generic;
+using System.Linq.Expressions;
 
-namespace Brahma.Commands
+namespace Brahma
 {
-    public abstract class ReadBuffer<T>: Command where T: struct, IMem
+    public sealed class MemberExpressionComparer : IEqualityComparer<MemberExpression>
     {
-        protected ReadBuffer(Buffer<T> buffer,
-                             bool blocking,
-                             int offset,
-                             int count,
-                             T[] data)
+        #region IEqualityComparer<MemberExpression> Members
+
+        public bool Equals(MemberExpression x, MemberExpression y)
         {
+            return x.ToString() == y.ToString();
         }
-        
-        protected ReadBuffer(Buffer<T> buffer,
-                             bool blocking,
-                             int offset,
-                             int count,
-                             IntPtr data)
+
+        public int GetHashCode(MemberExpression obj)
         {
+            return obj.ToString().GetHashCode();
         }
+
+        #endregion
     }
 }

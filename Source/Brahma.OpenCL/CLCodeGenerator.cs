@@ -27,8 +27,7 @@ namespace Brahma.OpenCL
 {
     internal static class CLCodeGenerator
     {
-        private static readonly ExpressionExtensions.MemberExpressionComparer _memberExpressionComparer =
-            new ExpressionExtensions.MemberExpressionComparer();
+        private static readonly MemberExpressionComparer _memberExpressionComparer = new MemberExpressionComparer();
         
         public const string KernelName = "brahmaKernel";
 
@@ -164,8 +163,30 @@ namespace Brahma.OpenCL
 
             protected override Expression VisitUnary(UnaryExpression unary)
             {
-                if (unary.NodeType == ExpressionType.Convert)
-                    Visit(unary.Operand);
+                switch (unary.NodeType)
+                {
+                    case ExpressionType.Convert:
+                        var srcType = TranslateType(unary.Operand.Type);
+                        var destType = TranslateType(unary.Type);
+
+                        if (srcType == destType)
+                            Visit(unary.Operand);
+                        else
+                        {
+                            _code.AppendFormat("convert_{0}(", destType);
+                            Visit(unary.Operand);
+                            _code.Append(")");
+                        }
+
+                        break;
+
+                    case ExpressionType.Negate:
+                        _code.Append("-(");
+                        Visit(unary.Operand);
+                        _code.Append(")");
+
+                        break;
+                }
 
                 return unary;
             }
@@ -327,11 +348,11 @@ namespace Brahma.OpenCL
                         if (loopBody.Parameters[0].Type == typeof(int))
                             loopVar = loopBody.Parameters[0];
 
-                        _code.Append(string.Format("for (int {0} = ", loopVar.Name));
+                        _code.AppendFormat("for (int {0} = ", loopVar.Name);
                         Visit(method.Arguments[0]);
-                        _code.Append(string.Format("; {0} < ", loopVar.Name));
+                        _code.AppendFormat("; {0} < ", loopVar.Name);
                         Visit(method.Arguments[1]);
-                        _code.AppendLine(string.Format("; {0}++) {{", loopVar.Name));
+                        _code.AppendFormat("; {0}++) {{", loopVar.Name);
 
                         Visit(method.Arguments[2]);
                         _code.AppendLine(";");
@@ -358,21 +379,21 @@ namespace Brahma.OpenCL
                         break;
 
                     case "Log10":
-                        _code.Append(string.Format("{0}log10(", NativeMethodPrefix));
+                        _code.AppendFormat("{0}log10(", NativeMethodPrefix);
                         Visit(method.Arguments[0]);
                         _code.Append(")");
 
                         break;
 
                     case "Log2":
-                        _code.Append(string.Format("{0}log2(", NativeMethodPrefix));
+                        _code.AppendFormat("{0}log2(", NativeMethodPrefix);
                         Visit(method.Arguments[0]);
                         _code.Append(")");
 
                         break;
 
                     case "Powr":
-                        _code.Append(string.Format("{0}powr(", NativeMethodPrefix));
+                        _code.AppendFormat("{0}powr(", NativeMethodPrefix);
                         Visit(method.Arguments[0]);
                         _code.Append(", ");
                         Visit(method.Arguments[1]);
@@ -400,6 +421,27 @@ namespace Brahma.OpenCL
 
                     case "reinterpretAsFloat32":
                         _code.Append("as_float(");
+                        Visit(method.Arguments[0]);
+                        _code.Append(")");
+
+                        break;
+
+                    case "Floor":
+                        _code.Append("floor(");
+                        Visit(method.Arguments[0]);
+                        _code.Append(")");
+                        
+                        break;
+
+                    case "Sin":
+                        _code.AppendFormat("{0}sin(", NativeMethodPrefix);
+                        Visit(method.Arguments[0]);
+                        _code.Append(")");
+                        
+                        break;
+
+                    case "Cos":
+                        _code.AppendFormat("{0}cos(", NativeMethodPrefix);
                         Visit(method.Arguments[0]);
                         _code.Append(")");
 
@@ -452,8 +494,8 @@ namespace Brahma.OpenCL
         {
             var codeGenerator = new CodeGenerator(provider, lambda);
             kernel.Source.Append(codeGenerator.Generate());
-            kernel.Closures = codeGenerator.Closures;
-            kernel.Parameters = lambda.Parameters;
+            kernel.SetClosures(codeGenerator.Closures);
+            kernel.SetParameters(lambda.Parameters);
         }
     }
 }

@@ -20,40 +20,38 @@ using System.Linq.Expressions;
 
 namespace Brahma
 {
-    public abstract class Kernel
+    public interface IKernel
     {
-        protected internal IEnumerable<MemberExpression> Closures
+        IEnumerable<MemberExpression> Closures
         {
-            get; 
-            set; 
+            get;
         }
 
-        protected internal IEnumerable<ParameterExpression> Parameters
+        IEnumerable<ParameterExpression> Parameters
         {
-            get; 
-            set; 
+            get;
         }
+    }
+
+    public interface IKernel<TRange>: IKernel
+        where TRange : struct, INDRangeDimension
+    {
     }
     
-    public abstract class Kernel<TRange, TResult>: Kernel 
-        where TRange: struct, INDRangeDimension
-    {
-    }
-
-    public abstract class Kernel<TRange, T, TResult>: Kernel 
+    public interface IKernel<TRange, T>: IKernel
         where T: IMem 
         where TRange: struct, INDRangeDimension
     {
     }
 
-    public abstract class Kernel<TRange, T1, T2, TResult>: Kernel 
+    public interface IKernel<TRange, T1, T2>: IKernel
         where T1: IMem 
         where T2: IMem 
         where TRange: struct, INDRangeDimension
     {
     }
 
-    public abstract class Kernel<TRange, T1, T2, T3, TResult>: Kernel
+    public interface IKernel<TRange, T1, T2, T3>: IKernel
         where T1: IMem 
         where T2: IMem 
         where T3: IMem
@@ -61,11 +59,57 @@ namespace Brahma
     {
     }
 
-    public abstract class Kernel<TRange, T1, T2, T3, T4, TResult> : Kernel
+    public interface IKernel<TRange, T1, T2, T3, T4>: IKernel
         where T1 : IMem
         where T2 : IMem
         where T3 : IMem
         where T4: IMem
+        where TRange : struct, INDRangeDimension
+    {
+    }
+
+    public interface IKernel<TRange, T1, T2, T3, T4, T5>: IKernel
+        where T1 : IMem
+        where T2 : IMem
+        where T3 : IMem
+        where T4 : IMem
+        where T5 : IMem
+        where TRange : struct, INDRangeDimension
+    {
+    }
+
+    public interface IKernel<TRange, T1, T2, T3, T4, T5, T6>: IKernel
+        where T1 : IMem
+        where T2 : IMem
+        where T3 : IMem
+        where T4 : IMem
+        where T5 : IMem
+        where T6 : IMem
+        where TRange : struct, INDRangeDimension
+    {
+    }
+
+    public interface IKernel<TRange, T1, T2, T3, T4, T5, T6, T7>: IKernel
+        where T1 : IMem
+        where T2 : IMem
+        where T3 : IMem
+        where T4 : IMem
+        where T5 : IMem
+        where T6 : IMem
+        where T7 : IMem
+        where TRange : struct, INDRangeDimension
+    {
+    }
+
+    public interface IKernel<TRange, T1, T2, T3, T4, T5, T6, T7, T8>: IKernel
+        where T1 : IMem
+        where T2 : IMem
+        where T3 : IMem
+        where T4 : IMem
+        where T5 : IMem
+        where T6 : IMem
+        where T7 : IMem
+        where T8 : IMem
         where TRange : struct, INDRangeDimension
     {
     }

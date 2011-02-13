@@ -15,32 +15,33 @@
 // terms of the License.
 #endregion
 
-using System;
+using System.Collections.Generic;
 using System.Linq;
+using Brahma.Commands;
 using OpenCL.Net;
 
 namespace Brahma.OpenCL.Commands
 {
-    public sealed class Run<TRange, TResult> : Brahma.Commands.Run<TRange, TResult>
-        where TRange: struct, Brahma.INDRangeDimension
+    public abstract class RunBase<TRange> : Brahma.Commands.Run<TRange>
+        where TRange: struct, INDRangeDimension
     {
-        protected override void SetupArguments(object sender, uint index, IntPtr size, object value)
+        protected override void SetupArgument(object sender, int index, IMem argument)
         {
             var kernel = Kernel as ICLKernel;
             
-            Cl.ErrorCode error = Cl.SetKernelArg(kernel.ClKernel, index, size, value);
+            Cl.ErrorCode error = Cl.SetKernelArg(kernel.ClKernel, (uint)index, argument.Size, argument.Data);
             if (error != Cl.ErrorCode.Success)
                 throw new CLException(error);
         }
         
-        internal Run(Kernel<TRange, TResult> kernel, TRange range)
+        protected RunBase(IKernel kernel, TRange range)
             : base(kernel, range)
         {
         }
 
-        public override void EnqueueInto(object sender)
+        public override void Execute(object sender)
         {
-            base.EnqueueInto(sender);
+            base.Execute(sender);
 
             var queue = sender as CommandQueue;
             var kernel = Kernel as ICLKernel;
@@ -63,178 +64,436 @@ namespace Brahma.OpenCL.Commands
         }
     }
 
-    public sealed class Run<TRange, T, TResult> : Brahma.Commands.Run<TRange, T, TResult> 
-        where TRange: struct, Brahma.INDRangeDimension
-        where T: IMem
+    public sealed class Run<TRange>: RunBase<TRange>, ICommand<TRange>
+        where TRange: struct, INDRangeDimension
     {
-        protected override void SetupArguments(object sender, uint index, IntPtr size, object value)
+        protected override IEnumerable<IMem> Arguments
         {
-            var kernel = Kernel as ICLKernel;
-            Cl.ErrorCode error = Cl.SetKernelArg(kernel.ClKernel, index, size, value);
-            if (error != Cl.ErrorCode.Success)
-                throw new CLException(error);
+            get
+            {
+                yield break;
+            }
         }
         
-        internal Run(Kernel<TRange, T, TResult> kernel, TRange range, T data)
-            : base(kernel, range, data)
+        internal Run(IKernel kernel, TRange range)
+            : base(kernel, range)
         {
-        }
-
-        public override void EnqueueInto(object sender)
-        {
-            base.EnqueueInto(sender);
-
-            var queue = sender as CommandQueue;
-            var kernel = Kernel as ICLKernel;
-            var range = Range as INDRangeDimension;
-            var waitList = (from name in WaitList
-                            let ev = CommandQueue.FindEvent(name)
-                            where ev != null
-                            select ev.Value).ToArray();
-
-            Cl.Event eventID;
-            Cl.ErrorCode error = Cl.EnqueueNDRangeKernel(queue.Queue, kernel.ClKernel, (uint)kernel.WorkDim, null,
-                range.GlobalWorkSize, range.LocalWorkSize, (uint)waitList.Length, waitList.Length == 0 ? null : waitList.ToArray(), out eventID);
-            if (error != Cl.ErrorCode.Success)
-                throw new CLException(error);
-
-            if (Name == string.Empty)
-                eventID.Dispose();
-            else
-                CommandQueue.AddEvent(Name, eventID);
         }
     }
 
-    public sealed class Run<TRange, T1, T2, TResult> : Brahma.Commands.Run<TRange, T1, T2, TResult> 
-        where TRange: struct, Brahma.INDRangeDimension
-        where T1: IMem 
-        where T2: IMem
+    public sealed class Run<TRange, T1> : RunBase<TRange>, ICommand<TRange, T1>
+        where TRange : struct, INDRangeDimension
+        where T1: IMem
     {
-        protected override void SetupArguments(object sender, uint index, IntPtr size, object value)
+        protected override IEnumerable<IMem> Arguments
         {
-            var kernel = Kernel as ICLKernel;
-            Cl.ErrorCode error = Cl.SetKernelArg(kernel.ClKernel, index, size, value);
-            if (error != Cl.ErrorCode.Success)
-                throw new CLException(error);
-        }
-        
-        internal Run(Kernel<TRange, T1, T2, TResult> kernel, TRange range, T1 d1, T2 d2)
-            : base(kernel, range, d1, d2)
-        {
+            get
+            {
+                yield return D1;
+            }
         }
 
-        public override void EnqueueInto(object sender)
+        internal Run(IKernel kernel, TRange range)
+            : base(kernel, range)
         {
-            base.EnqueueInto(sender);
+        }
 
-            var queue = sender as CommandQueue;
-            var kernel = Kernel as ICLKernel;
-            var range = Range as INDRangeDimension;
-
-            var waitList = (from name in WaitList
-                            let ev = CommandQueue.FindEvent(name)
-                            where ev != null
-                            select ev.Value).ToArray();
-
-            Cl.Event eventID;
-            Cl.ErrorCode error = Cl.EnqueueNDRangeKernel(queue.Queue, kernel.ClKernel, (uint)kernel.WorkDim, null,
-                range.GlobalWorkSize, range.LocalWorkSize, (uint)waitList.Length, waitList.Length == 0 ? null : waitList.ToArray(), out eventID);
-            if (error != Cl.ErrorCode.Success)
-                throw new CLException(error);
-
-            if (Name == string.Empty)
-                eventID.Dispose();
-            else
-                CommandQueue.AddEvent(Name, eventID);
+        public T1 D1
+        {
+            get;
+            internal set;
         }
     }
 
-    public sealed class Run<TRange, T1, T2, T3, TResult> : Brahma.Commands.Run<TRange, T1, T2, T3, TResult>
-        where TRange : struct, Brahma.INDRangeDimension
+    public sealed class Run<TRange, T1, T2> : RunBase<TRange>, ICommand<TRange, T1, T2>
+        where TRange : struct, INDRangeDimension
+        where T1 : IMem
+        where T2 : IMem
+    {
+        protected override IEnumerable<IMem> Arguments
+        {
+            get
+            {
+                yield return D1;
+                yield return D2;
+            }
+        }
+
+        internal Run(IKernel kernel, TRange range)
+            : base(kernel, range)
+        {
+        }
+
+        public T1 D1
+        {
+            get;
+            internal set;
+        }
+
+        public T2 D2
+        {
+            get;
+            internal set;
+        }
+    }
+
+    public sealed class Run<TRange, T1, T2, T3> : RunBase<TRange>, ICommand<TRange, T1, T2, T3>
+        where TRange : struct, INDRangeDimension
         where T1 : IMem
         where T2 : IMem
         where T3 : IMem
     {
-        protected override void SetupArguments(object sender, uint index, IntPtr size, object value)
+        protected override IEnumerable<IMem> Arguments
         {
-            var kernel = Kernel as ICLKernel;
-            Cl.ErrorCode error = Cl.SetKernelArg(kernel.ClKernel, index, size, value);
-            if (error != Cl.ErrorCode.Success)
-                throw new CLException(error);
+            get
+            {
+                yield return D1;
+                yield return D2;
+                yield return D3;
+            }
         }
 
-        internal Run(Kernel<TRange, T1, T2, T3, TResult> kernel, TRange range, T1 d1, T2 d2, T3 d3)
-            : base(kernel, range, d1, d2, d3)
+        internal Run(IKernel kernel, TRange range)
+            : base(kernel, range)
         {
         }
 
-        public override void EnqueueInto(object sender)
+        public T1 D1
         {
-            base.EnqueueInto(sender);
+            get;
+            internal set;
+        }
 
-            var queue = sender as CommandQueue;
-            var kernel = Kernel as ICLKernel;
-            var range = Range as INDRangeDimension;
-            var waitList = (from name in WaitList
-                            let ev = CommandQueue.FindEvent(name)
-                            where ev != null
-                            select ev.Value).ToArray();
+        public T2 D2
+        {
+            get;
+            internal set;
+        }
 
-            Cl.Event eventID;
-            Cl.ErrorCode error = Cl.EnqueueNDRangeKernel(queue.Queue, kernel.ClKernel, (uint)kernel.WorkDim, null,
-                range.GlobalWorkSize, range.LocalWorkSize, (uint)waitList.Length, waitList.Length == 0 ? null : waitList.ToArray(), out eventID);
-            if (error != Cl.ErrorCode.Success)
-                throw new CLException(error);
-
-            if (Name == string.Empty)
-                eventID.Dispose();
-            else
-                CommandQueue.AddEvent(Name, eventID);
+        public T3 D3
+        {
+            get;
+            internal set;
         }
     }
 
-    public sealed class Run<TRange, T1, T2, T3, T4, TResult> : Brahma.Commands.Run<TRange, T1, T2, T3, T4, TResult>
-        where TRange : struct, Brahma.INDRangeDimension
+    public sealed class Run<TRange, T1, T2, T3, T4> : RunBase<TRange>, ICommand<TRange, T1, T2, T3, T4>
+        where TRange : struct, INDRangeDimension
         where T1 : IMem
         where T2 : IMem
         where T3 : IMem
-        where T4: IMem
+        where T4 : IMem
     {
-        protected override void SetupArguments(object sender, uint index, IntPtr size, object value)
+        protected override IEnumerable<IMem> Arguments
         {
-            var kernel = Kernel as ICLKernel;
-            Cl.ErrorCode error = Cl.SetKernelArg(kernel.ClKernel, index, size, value);
-            if (error != Cl.ErrorCode.Success)
-                throw new CLException(error);
+            get
+            {
+                yield return D1;
+                yield return D2;
+                yield return D3;
+                yield return D4;
+            }
         }
 
-        internal Run(Kernel<TRange, T1, T2, T3, T4, TResult> kernel, TRange range, T1 d1, T2 d2, T3 d3, T4 d4)
-            : base(kernel, range, d1, d2, d3, d4)
+        internal Run(IKernel kernel, TRange range)
+            : base(kernel, range)
         {
         }
 
-        public override void EnqueueInto(object sender)
+        public T1 D1
         {
-            base.EnqueueInto(sender);
+            get;
+            internal set;
+        }
 
-            var queue = sender as CommandQueue;
-            var kernel = Kernel as ICLKernel;
-            var range = Range as INDRangeDimension;
-            var waitList = (from name in WaitList
-                            let ev = CommandQueue.FindEvent(name)
-                            where ev != null
-                            select ev.Value).ToArray();
+        public T2 D2
+        {
+            get;
+            internal set;
+        }
 
-            Cl.Event eventID;
-            Cl.ErrorCode error = Cl.EnqueueNDRangeKernel(queue.Queue, kernel.ClKernel, (uint)kernel.WorkDim, null,
-                range.GlobalWorkSize, range.LocalWorkSize, (uint)waitList.Length, waitList.Length == 0 ? null : waitList.ToArray(), out eventID);
-            if (error != Cl.ErrorCode.Success)
-                throw new CLException(error);
+        public T3 D3
+        {
+            get;
+            internal set;
+        }
 
-            if (Name == string.Empty)
-                eventID.Dispose();
-            else
-                CommandQueue.AddEvent(Name, eventID);
+        public T4 D4
+        {
+            get;
+            internal set;
+        }
+    }
+
+    public sealed class Run<TRange, T1, T2, T3, T4, T5> : RunBase<TRange>, ICommand<TRange, T1, T2, T3, T4, T5>
+        where TRange : struct, INDRangeDimension
+        where T1 : IMem
+        where T2 : IMem
+        where T3 : IMem
+        where T4 : IMem
+        where T5 : IMem
+    {
+        protected override IEnumerable<IMem> Arguments
+        {
+            get
+            {
+                yield return D1;
+                yield return D2;
+                yield return D3;
+                yield return D4;
+                yield return D5;
+            }
+        }
+
+        internal Run(IKernel kernel, TRange range)
+            : base(kernel, range)
+        {
+        }
+
+        public T1 D1
+        {
+            get;
+            internal set;
+        }
+
+        public T2 D2
+        {
+            get;
+            internal set;
+        }
+
+        public T3 D3
+        {
+            get;
+            internal set;
+        }
+
+        public T4 D4
+        {
+            get;
+            internal set;
+        }
+
+        public T5 D5
+        {
+            get;
+            internal set;
+        }
+    }
+
+    public sealed class Run<TRange, T1, T2, T3, T4, T5, T6> : RunBase<TRange>, ICommand<TRange, T1, T2, T3, T4, T5, T6>
+        where TRange : struct, INDRangeDimension
+        where T1 : IMem
+        where T2 : IMem
+        where T3 : IMem
+        where T4 : IMem
+        where T5 : IMem
+        where T6 : IMem
+    {
+        protected override IEnumerable<IMem> Arguments
+        {
+            get
+            {
+                yield return D1;
+                yield return D2;
+                yield return D3;
+                yield return D4;
+                yield return D5;
+                yield return D6;
+            }
+        }
+
+        internal Run(IKernel kernel, TRange range)
+            : base(kernel, range)
+        {
+        }
+
+        public T1 D1
+        {
+            get;
+            internal set;
+        }
+
+        public T2 D2
+        {
+            get;
+            internal set;
+        }
+
+        public T3 D3
+        {
+            get;
+            internal set;
+        }
+
+        public T4 D4
+        {
+            get;
+            internal set;
+        }
+
+        public T5 D5
+        {
+            get;
+            internal set;
+        }
+
+        public T6 D6
+        {
+            get;
+            internal set;
+        }
+    }
+
+    public sealed class Run<TRange, T1, T2, T3, T4, T5, T6, T7> : RunBase<TRange>, ICommand<TRange, T1, T2, T3, T4, T5, T6, T7>
+        where TRange : struct, INDRangeDimension
+        where T1 : IMem
+        where T2 : IMem
+        where T3 : IMem
+        where T4 : IMem
+        where T5 : IMem
+        where T6 : IMem
+        where T7 : IMem
+    {
+        protected override IEnumerable<IMem> Arguments
+        {
+            get
+            {
+                yield return D1;
+                yield return D2;
+                yield return D3;
+                yield return D4;
+                yield return D5;
+                yield return D6;
+                yield return D7;
+            }
+        }
+
+        internal Run(IKernel kernel, TRange range)
+            : base(kernel, range)
+        {
+        }
+
+        public T1 D1
+        {
+            get;
+            internal set;
+        }
+
+        public T2 D2
+        {
+            get;
+            internal set;
+        }
+
+        public T3 D3
+        {
+            get;
+            internal set;
+        }
+
+        public T4 D4
+        {
+            get;
+            internal set;
+        }
+
+        public T5 D5
+        {
+            get;
+            internal set;
+        }
+
+        public T6 D6
+        {
+            get;
+            internal set;
+        }
+
+        public T7 D7
+        {
+            get;
+            internal set;
+        }
+    }
+
+    public sealed class Run<TRange, T1, T2, T3, T4, T5, T6, T7, T8> : RunBase<TRange>, ICommand<TRange, T1, T2, T3, T4, T5, T6, T7, T8>
+        where TRange : struct, INDRangeDimension
+        where T1 : IMem
+        where T2 : IMem
+        where T3 : IMem
+        where T4 : IMem
+        where T5 : IMem
+        where T6 : IMem
+        where T7 : IMem
+        where T8 : IMem
+    {
+        protected override IEnumerable<IMem> Arguments
+        {
+            get
+            {
+                yield return D1;
+                yield return D2;
+                yield return D3;
+                yield return D4;
+                yield return D5;
+                yield return D6;
+                yield return D7;
+                yield return D8;
+            }
+        }
+
+        internal Run(IKernel kernel, TRange range)
+            : base(kernel, range)
+        {
+        }
+
+        public T1 D1
+        {
+            get;
+            internal set;
+        }
+
+        public T2 D2
+        {
+            get;
+            internal set;
+        }
+
+        public T3 D3
+        {
+            get;
+            internal set;
+        }
+
+        public T4 D4
+        {
+            get;
+            internal set;
+        }
+
+        public T5 D5
+        {
+            get;
+            internal set;
+        }
+
+        public T6 D6
+        {
+            get;
+            internal set;
+        }
+
+        public T7 D7
+        {
+            get;
+            internal set;
+        }
+
+        public T8 D8
+        {
+            get;
+            internal set;
         }
     }
 }

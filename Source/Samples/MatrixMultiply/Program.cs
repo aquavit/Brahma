@@ -21,21 +21,23 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
-using Brahma.OpenCL;
+
 using Brahma.Types;
+using Brahma.Samples;
+
 using OpenCL.Net;
 
-namespace Brahma.Samples.MatrixMultiply
+namespace Brahma.OpenCL.Samples.MatrixMultiply
 {
     class Program
     {
-        private static readonly Random _random = new Random();
+        private static readonly Random Random = new Random();
         
         private static float32[] MakeMatrix(int rows, int cols)
         {
             var result = new float32[rows * cols];
             for (int i = 0; i < rows * cols; i++)
-                result[i] = (float32)_random.NextDouble();
+                result[i] = (float32)Random.NextDouble();
 
             return result;
         }
@@ -70,13 +72,13 @@ namespace Brahma.Samples.MatrixMultiply
         {
             string platformName = "*";
 
-            int rows = 100;
-            int columns = 100;
-            int localWorkSize = 10;
-            int iterations = 100;
+            int32 rows = 100;
+            int32 columns = 100;
+            int32 localWorkSize = 10;
+            int32 iterations = 100;
             Cl.DeviceType deviceType = Cl.DeviceType.Default;
 
-            args.Process(() => Console.WriteLine("Usage is {0} platform=<platform name> device=<Cpu or Gpu or Default (default = Default)> rows=<rows (default = 100)> cols=<columns (default = 100)> localWorkSize=<local work size (default = 10)> iterations=<Number of iterations to run for each (default = 100)>",
+            args.Process(() => Console.WriteLine("Usage is {0} platform=<platform name with wildcards (*)> device=<Cpu/Gpu/Default localWorkSize=<local work size (10)> iterations=<Number of iterations to run (100)> (Default)> rows=<rows (100)> cols=<columns (100)>",
                 Path.GetFileNameWithoutExtension(Assembly.GetEntryAssembly().CodeBase)),
                 new CommandLine.Switch("platform", v => platformName = v.First()),
                 new CommandLine.Switch("device", v => deviceType = (Cl.DeviceType)Enum.Parse(typeof(Cl.DeviceType), v.First())),
@@ -102,7 +104,7 @@ namespace Brahma.Samples.MatrixMultiply
             }
 
             var compatibleDevices = from device in Cl.GetDeviceIDs(currentPlatform.Value, deviceType, out error)
-                                   select device;
+                                    select device;
             if (compatibleDevices.Count() == 0)
             {
                 Console.WriteLine("Could not find a device with type {0} on platform {1}", 
@@ -114,16 +116,16 @@ namespace Brahma.Samples.MatrixMultiply
                               Cl.GetPlatformInfo(currentPlatform.Value, Cl.PlatformInfo.Name, out error),
                               deviceType);
 
-            var provider = new OpenCL.ComputeProvider(compatibleDevices.ToArray().First());
-            var commandQueue = new OpenCL.CommandQueue(provider, provider.Devices.First());
+            var provider = new ComputeProvider(compatibleDevices.ToArray().First());
+            var commandQueue = new CommandQueue(provider, provider.Devices.First());
 
             var aValues = MakeMatrix(rows, columns);
             var bValues = MakeMatrix(rows, columns);
             var cParallel = new float32[rows * columns];
 
-            var aBuffer = new OpenCL.Buffer<float32>(provider, Operations.ReadOnly, Memory.Device, aValues);
-            var bBuffer = new OpenCL.Buffer<float32>(provider, Operations.ReadOnly, Memory.Device, bValues);
-            var cBuffer = new OpenCL.Buffer<float32>(provider, Operations.ReadWrite, Memory.Device, cParallel);
+            var aBuffer = new Buffer<float32>(provider, Operations.ReadOnly, Memory.Device, aValues);
+            var bBuffer = new Buffer<float32>(provider, Operations.ReadOnly, Memory.Device, bValues);
+            var cBuffer = new Buffer<float32>(provider, Operations.ReadWrite, Memory.Device, cParallel);
 
             var matrixMult = provider.Compile<_2D, Buffer<float32>, Buffer<float32>, Buffer<float32>>(
                 (range, a, b, c) => from r in range

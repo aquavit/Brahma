@@ -91,10 +91,9 @@ namespace Brahma.OpenCL
                 throw new CLException(error);
         }
 
-        protected override Brahma.Kernel<TRange, Set[]> CompileQuery<TRange>(Expression<Func<Brahma.NDRange<TRange>,IEnumerable<Set[]>>> query)
+        private T CompileQuery<T>(LambdaExpression lambda) where T: IKernel, ICLKernel, new()
         {
-            var lambda = query as LambdaExpression;
-            var kernel = new Kernel<TRange, Set[]>();
+            var kernel = new T();
             lambda.GenerateKernel(this, kernel);
 
             Cl.ErrorCode error;
@@ -110,117 +109,86 @@ namespace Brahma.OpenCL
             return kernel;
         }
 
-        protected override Brahma.Kernel<TRange, T,Set[]> CompileQuery<TRange, T>(Expression<Func<Brahma.NDRange<TRange>,T,IEnumerable<Set[]>>> query)
+        protected override IKernel<TRange> CompileQuery<TRange>(Expression<Func<Brahma.NDRange<TRange>,IEnumerable<Set[]>>> query)
         {
-            var lambda = query as LambdaExpression;
-            var kernel = new Kernel<TRange, T, Set[]>();
-            lambda.GenerateKernel(this, kernel);
-
-            Cl.ErrorCode error;
-            using (Cl.Program program = Cl.CreateProgramWithSource(_context, 1, new[] { (kernel as ICLKernel).Source.ToString() }, null, out error))
-            {
-                error = Cl.BuildProgram(program, (uint)_devices.Length, _devices, _compileOptions, null, IntPtr.Zero);
-                if (error != Cl.ErrorCode.Success)
-                    throw new Exception(string.Join("\n", from device in _devices
-                                                          select Cl.GetProgramBuildInfo(program, device, Cl.ProgramBuildInfo.Log, out error).ToString()));
-                (kernel as ICLKernel).ClKernel = Cl.CreateKernel(program, CLCodeGenerator.KernelName, out error);
-            }
-
-            return kernel;
+            return CompileQuery<Kernel<TRange>>(query);
         }
 
-        protected override Brahma.Kernel<TRange, T1, T2, Set[]> CompileQuery<TRange,T1,T2>(Expression<Func<Brahma.NDRange<TRange>, T1, T2,IEnumerable<Set[]>>> query)
+        protected override IKernel<TRange, T> CompileQuery<TRange, T>(Expression<Func<Brahma.NDRange<TRange>,T,IEnumerable<Set[]>>> query)
         {
-            var lambda = query as LambdaExpression;
-            var kernel = new Kernel<TRange, T1, T2, Set[]>();
-            lambda.GenerateKernel(this, kernel);
-
-            Cl.ErrorCode error;
-            using (Cl.Program program = Cl.CreateProgramWithSource(_context, 1, new[] { (kernel as ICLKernel).Source.ToString() }, null, out error))
-            {
-                error = Cl.BuildProgram(program, (uint)_devices.Length, _devices, _compileOptions, null, IntPtr.Zero);
-                if (error != Cl.ErrorCode.Success)
-                    throw new Exception(string.Join("\n", from device in _devices
-                                 select Cl.GetProgramBuildInfo(program, device, Cl.ProgramBuildInfo.Log, out error).ToString()));
-                (kernel as ICLKernel).ClKernel = Cl.CreateKernel(program, CLCodeGenerator.KernelName, out error);
-            }
-
-            return kernel;
+            return CompileQuery<Kernel<TRange, T>>(query);
         }
 
-        protected override Brahma.Kernel<TRange, T1, T2, T3, Set[]> CompileQuery<TRange, T1, T2, T3>(Expression<Func<Brahma.NDRange<TRange>, T1, T2, T3, IEnumerable<Set[]>>> query)
+        protected override IKernel<TRange, T1, T2> CompileQuery<TRange,T1,T2>(Expression<Func<Brahma.NDRange<TRange>, T1, T2,IEnumerable<Set[]>>> query)
         {
-            var lambda = query as LambdaExpression;
-            var kernel = new Kernel<TRange, T1, T2, T3, Set[]>();
-            lambda.GenerateKernel(this, kernel);
-
-            Cl.ErrorCode error;
-            using (Cl.Program program = Cl.CreateProgramWithSource(_context, 1, new[] { (kernel as ICLKernel).Source.ToString() }, null, out error))
-            {
-                error = Cl.BuildProgram(program, (uint)_devices.Length, _devices, _compileOptions, null, IntPtr.Zero);
-                if (error != Cl.ErrorCode.Success)
-                    throw new Exception(string.Join("\n", from device in _devices
-                                                          select Cl.GetProgramBuildInfo(program, device, Cl.ProgramBuildInfo.Log, out error).ToString()));
-                (kernel as ICLKernel).ClKernel = Cl.CreateKernel(program, CLCodeGenerator.KernelName, out error);
-            }
-
-            return kernel;
+            return CompileQuery<Kernel<TRange, T1, T2>>(query);
         }
 
-        protected override Brahma.Kernel<TRange, T1, T2, T3, T4, Set[]> CompileQuery<TRange, T1, T2, T3, T4>(Expression<Func<Brahma.NDRange<TRange>, T1, T2, T3, T4, IEnumerable<Set[]>>> query)
+        protected override IKernel<TRange, T1, T2, T3> CompileQuery<TRange, T1, T2, T3>(Expression<Func<Brahma.NDRange<TRange>, T1, T2, T3, IEnumerable<Set[]>>> query)
         {
-            var lambda = query as LambdaExpression;
-            var kernel = new Kernel<TRange, T1, T2, T3, T4, Set[]>();
-            lambda.GenerateKernel(this, kernel);
-
-            Cl.ErrorCode error;
-            using (Cl.Program program = Cl.CreateProgramWithSource(_context, 1, new[] { (kernel as ICLKernel).Source.ToString() }, null, out error))
-            {
-                error = Cl.BuildProgram(program, (uint)_devices.Length, _devices, _compileOptions, null, IntPtr.Zero);
-                if (error != Cl.ErrorCode.Success)
-                    throw new Exception(string.Join("\n", from device in _devices
-                                                          select Cl.GetProgramBuildInfo(program, device, Cl.ProgramBuildInfo.Log, out error).ToString()));
-                (kernel as ICLKernel).ClKernel = Cl.CreateKernel(program, CLCodeGenerator.KernelName, out error);
-            }
-
-            return kernel;
+            return CompileQuery<Kernel<TRange, T1, T2, T3>>(query);
         }
 
-        public Kernel<TRange, Set[]> Compile<TRange>(Expression<Func<Brahma.NDRange<TRange>, IEnumerable<Set[]>>> query, CompileOptions options = DefaultOptions)
+        protected override IKernel<TRange, T1, T2, T3, T4> CompileQuery<TRange, T1, T2, T3, T4>(Expression<Func<Brahma.NDRange<TRange>, T1, T2, T3, T4, IEnumerable<Set[]>>> query)
+        {
+            return CompileQuery<Kernel<TRange, T1, T2, T3, T4>>(query);
+        }
+
+        protected override IKernel<TRange, T1, T2, T3, T4, T5> CompileQuery<TRange, T1, T2, T3, T4, T5>(Expression<Func<Brahma.NDRange<TRange>, T1, T2, T3, T4, T5, IEnumerable<Set[]>>> query)
+        {
+            return CompileQuery<Kernel<TRange, T1, T2, T3, T4, T5>>(query);
+        }
+
+        protected override IKernel<TRange, T1, T2, T3, T4, T5, T6> CompileQuery<TRange, T1, T2, T3, T4, T5, T6>(Expression<Func<Brahma.NDRange<TRange>, T1, T2, T3, T4, T5, T6, IEnumerable<Set[]>>> query)
+        {
+            return CompileQuery<Kernel<TRange, T1, T2, T3, T4, T5, T6>>(query);
+        }
+
+        protected override IKernel<TRange, T1, T2, T3, T4, T5, T6, T7> CompileQuery<TRange, T1, T2, T3, T4, T5, T6, T7>(Expression<Func<Brahma.NDRange<TRange>, T1, T2, T3, T4, T5, T6, T7, IEnumerable<Set[]>>> query)
+        {
+            return CompileQuery<Kernel<TRange, T1, T2, T3, T4, T5, T6, T7>>(query);
+        }
+
+        protected override IKernel<TRange, T1, T2, T3, T4, T5, T6, T7, T8> CompileQuery<TRange, T1, T2, T3, T4, T5, T6, T7, T8>(Expression<Func<Brahma.NDRange<TRange>, T1, T2, T3, T4, T5, T6, T7, T8, IEnumerable<Set[]>>> query)
+        {
+            return CompileQuery<Kernel<TRange, T1, T2, T3, T4, T5, T6, T7, T8>>(query);
+        }
+
+        public Kernel<TRange> Compile<TRange>(Expression<Func<Brahma.NDRange<TRange>, IEnumerable<Set[]>>> query, CompileOptions options = DefaultOptions)
             where TRange : struct, INDRangeDimension
         {
             SetCompileOptions(options);
-            return CompileQuery(query) as Kernel<TRange, Set[]>;
+            return CompileQuery(query) as Kernel<TRange>;
         }
 
-        public Kernel<TRange, T, Set[]> Compile<TRange, T>(Expression<Func<Brahma.NDRange<TRange>, T, IEnumerable<Set[]>>> query, CompileOptions options = DefaultOptions)
+        public Kernel<TRange, T> Compile<TRange, T>(Expression<Func<Brahma.NDRange<TRange>, T, IEnumerable<Set[]>>> query, CompileOptions options = DefaultOptions)
             where TRange: struct, INDRangeDimension
             where T : IMem
         {
             SetCompileOptions(options);
-            return CompileQuery(query) as Kernel<TRange, T, Set[]>;
+            return CompileQuery(query) as Kernel<TRange, T>;
         }
 
-        public Kernel<TRange, T1, T2, Set[]> Compile<TRange, T1, T2>(Expression<Func<Brahma.NDRange<TRange>, T1, T2, IEnumerable<Set[]>>> query, CompileOptions options = DefaultOptions)
+        public Kernel<TRange, T1, T2> Compile<TRange, T1, T2>(Expression<Func<Brahma.NDRange<TRange>, T1, T2, IEnumerable<Set[]>>> query, CompileOptions options = DefaultOptions)
             where TRange: struct, INDRangeDimension
             where T1 : IMem
             where T2 : IMem
         {
             SetCompileOptions(options);
-            return CompileQuery(query) as Kernel<TRange, T1, T2, Set[]>;
+            return CompileQuery(query) as Kernel<TRange, T1, T2>;
         }
 
-        public Kernel<TRange, T1, T2, T3, Set[]> Compile<TRange, T1, T2, T3>(Expression<Func<Brahma.NDRange<TRange>, T1, T2, T3, IEnumerable<Set[]>>> query, CompileOptions options = DefaultOptions)
+        public Kernel<TRange, T1, T2, T3> Compile<TRange, T1, T2, T3>(Expression<Func<Brahma.NDRange<TRange>, T1, T2, T3, IEnumerable<Set[]>>> query, CompileOptions options = DefaultOptions)
             where TRange : struct, INDRangeDimension
             where T1 : IMem
             where T2 : IMem
             where T3: IMem
         {
             SetCompileOptions(options);
-            return CompileQuery(query) as Kernel<TRange, T1, T2, T3, Set[]>;
+            return CompileQuery(query) as Kernel<TRange, T1, T2, T3>;
         }
 
-        public Kernel<TRange, T1, T2, T3, T4, Set[]> Compile<TRange, T1, T2, T3, T4>(Expression<Func<Brahma.NDRange<TRange>, T1, T2, T3, T4, IEnumerable<Set[]>>> query, CompileOptions options = DefaultOptions)
+        public Kernel<TRange, T1, T2, T3, T4> Compile<TRange, T1, T2, T3, T4>(Expression<Func<Brahma.NDRange<TRange>, T1, T2, T3, T4, IEnumerable<Set[]>>> query, CompileOptions options = DefaultOptions)
             where TRange : struct, INDRangeDimension
             where T1 : IMem
             where T2 : IMem
@@ -228,7 +196,61 @@ namespace Brahma.OpenCL
             where T4: IMem
         {
             SetCompileOptions(options);
-            return CompileQuery(query) as Kernel<TRange, T1, T2, T3, T4, Set[]>;
+            return CompileQuery(query) as Kernel<TRange, T1, T2, T3, T4>;
+        }
+
+        public Kernel<TRange, T1, T2, T3, T4, T5> Compile<TRange, T1, T2, T3, T4, T5>(Expression<Func<Brahma.NDRange<TRange>, T1, T2, T3, T4, T5, IEnumerable<Set[]>>> query, CompileOptions options = DefaultOptions)
+            where TRange : struct, INDRangeDimension
+            where T1 : IMem
+            where T2 : IMem
+            where T3 : IMem
+            where T4 : IMem
+            where T5 : IMem
+        {
+            SetCompileOptions(options);
+            return CompileQuery(query) as Kernel<TRange, T1, T2, T3, T4, T5>;
+        }
+
+        public Kernel<TRange, T1, T2, T3, T4, T5, T6> Compile<TRange, T1, T2, T3, T4, T5, T6>(Expression<Func<Brahma.NDRange<TRange>, T1, T2, T3, T4, T5, T6, IEnumerable<Set[]>>> query, CompileOptions options = DefaultOptions)
+            where TRange : struct, INDRangeDimension
+            where T1 : IMem
+            where T2 : IMem
+            where T3 : IMem
+            where T4 : IMem
+            where T5 : IMem
+            where T6 : IMem
+        {
+            SetCompileOptions(options);
+            return CompileQuery(query) as Kernel<TRange, T1, T2, T3, T4, T5, T6>;
+        }
+
+        public Kernel<TRange, T1, T2, T3, T4, T5, T6, T7> Compile<TRange, T1, T2, T3, T4, T5, T6, T7>(Expression<Func<Brahma.NDRange<TRange>, T1, T2, T3, T4, T5, T6, T7, IEnumerable<Set[]>>> query, CompileOptions options = DefaultOptions)
+            where TRange : struct, INDRangeDimension
+            where T1 : IMem
+            where T2 : IMem
+            where T3 : IMem
+            where T4 : IMem
+            where T5 : IMem
+            where T6 : IMem
+            where T7 : IMem
+        {
+            SetCompileOptions(options);
+            return CompileQuery(query) as Kernel<TRange, T1, T2, T3, T4, T5, T6, T7>;
+        }
+
+        public Kernel<TRange, T1, T2, T3, T4, T5, T6, T7, T8> Compile<TRange, T1, T2, T3, T4, T5, T6, T7, T8>(Expression<Func<Brahma.NDRange<TRange>, T1, T2, T3, T4, T5, T6, T7, T8, IEnumerable<Set[]>>> query, CompileOptions options = DefaultOptions)
+            where TRange : struct, INDRangeDimension
+            where T1 : IMem
+            where T2 : IMem
+            where T3 : IMem
+            where T4 : IMem
+            where T5 : IMem
+            where T6 : IMem
+            where T7 : IMem
+            where T8 : IMem
+        {
+            SetCompileOptions(options);
+            return CompileQuery(query) as Kernel<TRange, T1, T2, T3, T4, T5, T6, T7, T8>;
         }
 
         [KernelCallable]
@@ -256,8 +278,7 @@ namespace Brahma.OpenCL
         {
             get
             {
-                for (int i = 0; i < _devices.Length; i++)
-                    yield return _devices[i];
+                return _devices;
             }
         }
     }

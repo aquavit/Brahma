@@ -35,6 +35,11 @@ namespace Brahma.Types
             return value._value;
         }
 
+        public static implicit operator float32(int32 value)
+        {
+            return value._value;
+        }
+
         // TODO: Define all explicit conversion (http://msdn.microsoft.com/en-us/library/yht2cx7b%28v=VS.100%29.aspx)
 
         public static int32 operator +(int32 a, int32 b)

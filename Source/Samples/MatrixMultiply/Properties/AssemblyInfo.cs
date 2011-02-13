@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 
 //General assembly information
 
-[assembly: AssemblyTitle("Brahma.Samples.MatrixMultiply")]
+[assembly: AssemblyTitle("Brahma.OpenCL.Samples.MatrixMultiply")]
 [assembly: AssemblyDescription("Matrix multiplication sample (brute force) that shows how to use nested loops in Brahma")]
 
 // GUID for the ID of the typelib if this project is exposed to COM
