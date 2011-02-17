@@ -132,7 +132,7 @@ namespace Brahma.OpenCL.Samples.MatrixMultiply
                                     let tx = r.GlobalID0
                                     let ty = r.GlobalID1
 
-                                    let value = 0.0f
+                                    let value = default(float32)
                                     let sum = provider.Loop(0, columns, kIndices => from k in kIndices
                                                                                     let elementA = a[ty * columns + k]
                                                                                     let elementB = b[k * columns + tx]

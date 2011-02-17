@@ -19,6 +19,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using Brahma.Types;
 using OpenCL.Net;
 
 namespace Brahma.OpenCL
@@ -254,13 +255,13 @@ namespace Brahma.OpenCL
         }
 
         [KernelCallable]
-        public Func<int, IEnumerable<Set[]>> Loop(int startValue, int count, Func<IEnumerable<int>, IEnumerable<Set[]>> body)
+        public Func<int, IEnumerable<Set[]>> Loop(int32 startValue, int32 count, Func<IEnumerable<int32>, IEnumerable<Set[]>> body)
         {
             throw new NotSupportedException("Cannot call this method from code, only inside a kernel");
         }
 
         [KernelCallable]
-        public Func<int, IEnumerable<Set[]>> Loop(int startValue, int count, Func<int, IEnumerable<Set>> body)
+        public Func<int, IEnumerable<Set[]>> Loop(int32 startValue, int32 count, Func<int32, IEnumerable<Set>> body)
         {
             throw new NotSupportedException("Cannot call this method from code, only inside a kernel");
         }

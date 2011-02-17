@@ -16,6 +16,7 @@
 #endregion
 
 using System;
+using Brahma.Types;
 
 namespace Brahma.OpenCL
 {
@@ -36,15 +37,15 @@ namespace Brahma.OpenCL
     {
         public struct IDs_1D
         {
-            private int _x;
+            private int32 _x;
             
-            internal IDs_1D(int x)
+            internal IDs_1D(int32 x)
             {
                 _x = x;
             }
             
             [KernelCallable]
-            public int x
+            public int32 x
             {
                 get
                 {
@@ -63,7 +64,7 @@ namespace Brahma.OpenCL
         }
 
         [KernelCallable]
-        public int GlobalID0
+        public int32 GlobalID0
         {
             get
             {
@@ -72,7 +73,7 @@ namespace Brahma.OpenCL
         }
 
         [KernelCallable]
-        public int LocalID0
+        public int32 LocalID0
         {
             get
             {
@@ -80,7 +81,7 @@ namespace Brahma.OpenCL
             }
         }
 
-        int Brahma.INDRangeDimension.Dimensions
+        int32 Brahma.INDRangeDimension.Dimensions
         {
             get
             {
@@ -92,7 +93,7 @@ namespace Brahma.OpenCL
         {
             get
             {
-                return new[] { (IntPtr)_globalIDs.x };
+                return new[] { (IntPtr)(int)_globalIDs.x };
             }
         }
 
@@ -100,7 +101,7 @@ namespace Brahma.OpenCL
         {
             get
             {
-                return new[] { (IntPtr)_localIDs.x };
+                return new[] { (IntPtr)(int)_localIDs.x };
             }
         }
     }
@@ -109,17 +110,17 @@ namespace Brahma.OpenCL
     {
         public struct IDs_2D
         {
-            private int _x;
-            private int _y;
+            private int32 _x;
+            private int32 _y;
             
-            internal IDs_2D(int x, int y)
+            internal IDs_2D(int32 x, int32 y)
             {
                 _x = x;
                 _y = y;
             }
             
             [KernelCallable]
-            public int x
+            public int32 x
             {
                 get
                 {
@@ -128,7 +129,7 @@ namespace Brahma.OpenCL
             }
 
             [KernelCallable]
-            public int y
+            public int32 y
             {
                 get
                 {
@@ -148,7 +149,7 @@ namespace Brahma.OpenCL
         }
 
         [KernelCallable]
-        public int GlobalID0
+        public int32 GlobalID0
         {
             get
             {
@@ -157,7 +158,7 @@ namespace Brahma.OpenCL
         }
 
         [KernelCallable]
-        public int GlobalID1
+        public int32 GlobalID1
         {
             get
             {
@@ -166,7 +167,7 @@ namespace Brahma.OpenCL
         }
 
         [KernelCallable]
-        public int LocalID0
+        public int32 LocalID0
         {
             get
             {
@@ -175,7 +176,7 @@ namespace Brahma.OpenCL
         }
 
         [KernelCallable]
-        public int LocalID1
+        public int32 LocalID1
         {
             get
             {
@@ -183,7 +184,7 @@ namespace Brahma.OpenCL
             }
         }
 
-        int Brahma.INDRangeDimension.Dimensions
+        int32 Brahma.INDRangeDimension.Dimensions
         {
             get
             {
@@ -195,7 +196,7 @@ namespace Brahma.OpenCL
         {
             get
             {
-                return new[] { (IntPtr)_globalIDs.x, (IntPtr)_globalIDs.y };
+                return new[] { (IntPtr)(int)_globalIDs.x, (IntPtr)(int)_globalIDs.y };
             }
         }
 
@@ -203,7 +204,7 @@ namespace Brahma.OpenCL
         {
             get
             {
-                return new[] { (IntPtr)_localIDs.x, (IntPtr)_localIDs.y };
+                return new[] { (IntPtr)(int)_localIDs.x, (IntPtr)(int)_localIDs.y };
             }
         }
     }
@@ -212,11 +213,11 @@ namespace Brahma.OpenCL
     {
         public struct IDs_3D
         {
-            private int _x;
-            private int _y;
-            private int _z;
+            private int32 _x;
+            private int32 _y;
+            private int32 _z;
 
-            internal IDs_3D(int x, int y, int z)
+            internal IDs_3D(int32 x, int32 y, int32 z)
             {
                 _x = x;
                 _y = y;
@@ -224,7 +225,7 @@ namespace Brahma.OpenCL
             }
 
             [KernelCallable]
-            public int x
+            public int32 x
             {
                 get
                 {
@@ -233,7 +234,7 @@ namespace Brahma.OpenCL
             }
 
             [KernelCallable]
-            public int y
+            public int32 y
             {
                 get
                 {
@@ -242,7 +243,7 @@ namespace Brahma.OpenCL
             }
 
             [KernelCallable]
-            public int z
+            public int32 z
             {
                 get
                 {
@@ -262,7 +263,7 @@ namespace Brahma.OpenCL
         }
 
         [KernelCallable]
-        public int GlobalID0
+        public int32 GlobalID0
         {
             get
             {
@@ -271,7 +272,7 @@ namespace Brahma.OpenCL
         }
 
         [KernelCallable]
-        public int GlobalID1
+        public int32 GlobalID1
         {
             get
             {
@@ -280,7 +281,7 @@ namespace Brahma.OpenCL
         }
         
         [KernelCallable]
-        public int GlobalID2
+        public int32 GlobalID2
         {
             get
             {
@@ -289,7 +290,7 @@ namespace Brahma.OpenCL
         }
 
         [KernelCallable]
-        public int LocalID0
+        public int32 LocalID0
         {
             get
             {
@@ -298,7 +299,7 @@ namespace Brahma.OpenCL
         }
 
         [KernelCallable]
-        public int LocalID1
+        public int32 LocalID1
         {
             get
             {
@@ -307,7 +308,7 @@ namespace Brahma.OpenCL
         }
 
         [KernelCallable]
-        public int LocalID2
+        public int32 LocalID2
         {
             get
             {
@@ -315,7 +316,7 @@ namespace Brahma.OpenCL
             }
         }
 
-        int Brahma.INDRangeDimension.Dimensions
+        int32 Brahma.INDRangeDimension.Dimensions
         {
             get
             {
@@ -323,12 +324,11 @@ namespace Brahma.OpenCL
             }
         }
 
-
         IntPtr[] INDRangeDimension.GlobalWorkSize
         {
             get
             {
-                return new[] { (IntPtr)_globalIDs.x, (IntPtr)_globalIDs.y, (IntPtr)_globalIDs.z };
+                return new[] { (IntPtr)(int)_globalIDs.x, (IntPtr)(int)_globalIDs.y, (IntPtr)(int)_globalIDs.z };
             }
         }
 
@@ -336,7 +336,7 @@ namespace Brahma.OpenCL
         {
             get
             {
-                return new[] { (IntPtr)_localIDs.x, (IntPtr)_localIDs.y, (IntPtr)_localIDs.z };
+                return new[] { (IntPtr)(int)_localIDs.x, (IntPtr)(int)_localIDs.y, (IntPtr)(int)_localIDs.z };
             }
         }
     }

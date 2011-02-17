@@ -15,11 +15,13 @@
 // terms of the License.
 #endregion
 
+using Brahma.Types;
+
 namespace Brahma
 {
     public interface INDRangeDimension
     {
-        int Dimensions
+        int32 Dimensions
         {
             get;
         }

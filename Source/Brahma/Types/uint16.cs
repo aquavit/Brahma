@@ -19,18 +19,21 @@ using System;
 
 namespace Brahma.Types
 {
-    public struct int32: IPrimitiveType, IMem, IComparable<int32>
+    public struct uint16 : IPrimitiveType, IMem, IComparable<uint16>
     {
-        private static readonly IntPtr _size = (IntPtr)sizeof(int);
-        
-        internal int _value;
+        private static readonly IntPtr _size = (IntPtr)sizeof(ushort);
 
-        public static implicit operator int32(int value)
+        internal ushort _value;
+
+        public static implicit operator uint16(ushort value)
         {
-            return new int32 { _value = value };
+            return new uint16
+            {
+                _value = value
+            };
         }
 
-        public static implicit operator int(int32 value)
+        public static implicit operator ushort(uint16 value)
         {
             return value._value;
         }
@@ -39,7 +42,15 @@ namespace Brahma.Types
 
         // http://msdn.microsoft.com/en-us/library/y5b434w4.aspx
 
-        public static implicit operator int64(int32 value)
+        public static implicit operator int32(uint16 value)
+        {
+            return new int32
+                    {
+                        _value = value._value
+                    };
+        }
+
+        public static implicit operator int64(uint16 value)
         {
             return new int64
                     {
@@ -47,7 +58,7 @@ namespace Brahma.Types
                     };
         }
 
-        public static implicit operator float32(int32 value)
+        public static implicit operator float32(uint16 value)
         {
             return new float32
                     {
@@ -55,7 +66,7 @@ namespace Brahma.Types
                     };
         }
 
-        public static implicit operator float64(int32 value)
+        public static implicit operator float64(uint16 value)
         {
             return new float64
                     {
@@ -69,7 +80,7 @@ namespace Brahma.Types
 
         // http://msdn.microsoft.com/en-us/library/yht2cx7b%28v=VS.100%29.aspx
 
-        public static explicit operator int8(int32 value)
+        public static explicit operator int8(uint16 value)
         {
             return new int8
                     {
@@ -77,7 +88,7 @@ namespace Brahma.Types
                     };
         }
 
-        public static explicit operator uint8(int32 value)
+        public static explicit operator uint8(uint16 value)
         {
             return new uint8
                     {
@@ -85,7 +96,7 @@ namespace Brahma.Types
                     };
         }
 
-        public static explicit operator int16(int32 value)
+        public static explicit operator int16(uint16 value)
         {
             return new int16
                     {
@@ -93,38 +104,14 @@ namespace Brahma.Types
                     };
         }
 
-        public static explicit operator uint16(int32 value)
-        {
-            return new uint16
-                    {
-                        _value = (ushort)value._value
-                    };
-        }
-
-        public static explicit operator uint32(int32 value)
-        {
-            return new uint32
-                    {
-                        _value = (uint)value._value
-                    };
-        }
-
-        public static explicit operator uint64(int32 value)
-        {
-            return new uint64
-                    {
-                        _value = (ulong)value._value
-                    };
-        }
-
         #endregion
 
-        public static Set<int32> operator <=(int32 lhs, int32 rhs)
+        public static Set<uint16> operator <=(uint16 lhs, uint16 rhs)
         {
-            return new Set<int32>(lhs, rhs);
+            return new Set<uint16>(lhs, rhs);
         }
 
-        public static Set<int32> operator >=(int32 lhs, int32 rhs)
+        public static Set<uint16> operator >=(uint16 lhs, uint16 rhs)
         {
             throw new NotSupportedException();
         }
@@ -149,9 +136,9 @@ namespace Brahma.Types
 
         #endregion
 
-        #region IComparable<int32> Members
+        #region IComparable<uint16> Members
 
-        public int CompareTo(int32 other)
+        public int CompareTo(uint16 other)
         {
             return System.Math.Sign(_value - other._value);
         }
@@ -160,7 +147,7 @@ namespace Brahma.Types
 
         public override bool Equals(object obj)
         {
-            return obj is int32 ? ((int32)obj)._value == _value : false;
+            return obj is uint16 ? ((uint16)obj)._value == _value : false;
         }
 
         public override int GetHashCode()

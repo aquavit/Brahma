@@ -19,18 +19,21 @@ using System;
 
 namespace Brahma.Types
 {
-    public struct int32: IPrimitiveType, IMem, IComparable<int32>
+    public struct int8 : IPrimitiveType, IMem, IComparable<int8>
     {
-        private static readonly IntPtr _size = (IntPtr)sizeof(int);
-        
-        internal int _value;
+        private static readonly IntPtr _size = (IntPtr)sizeof(sbyte);
 
-        public static implicit operator int32(int value)
+        internal sbyte _value;
+
+        public static implicit operator int8(sbyte value)
         {
-            return new int32 { _value = value };
+            return new int8
+            {
+                _value = value
+            };
         }
 
-        public static implicit operator int(int32 value)
+        public static implicit operator sbyte(int8 value)
         {
             return value._value;
         }
@@ -39,7 +42,23 @@ namespace Brahma.Types
 
         // http://msdn.microsoft.com/en-us/library/y5b434w4.aspx
 
-        public static implicit operator int64(int32 value)
+        public static implicit operator int16(int8 value)
+        {
+            return new int16
+                    {
+                        _value = value._value
+                    };
+        }
+
+        public static implicit operator int32(int8 value)
+        {
+            return new int32
+                    {
+                        _value = value._value
+                    };
+        }
+
+        public static implicit operator int64(int8 value)
         {
             return new int64
                     {
@@ -47,7 +66,7 @@ namespace Brahma.Types
                     };
         }
 
-        public static implicit operator float32(int32 value)
+        public static implicit operator float32(int8 value)
         {
             return new float32
                     {
@@ -55,7 +74,7 @@ namespace Brahma.Types
                     };
         }
 
-        public static implicit operator float64(int32 value)
+        public static implicit operator float64(int8 value)
         {
             return new float64
                     {
@@ -69,15 +88,7 @@ namespace Brahma.Types
 
         // http://msdn.microsoft.com/en-us/library/yht2cx7b%28v=VS.100%29.aspx
 
-        public static explicit operator int8(int32 value)
-        {
-            return new int8
-                    {
-                        _value = (sbyte)value._value
-                    };
-        }
-
-        public static explicit operator uint8(int32 value)
+        public static explicit operator uint8(int8 value)
         {
             return new uint8
                     {
@@ -85,15 +96,7 @@ namespace Brahma.Types
                     };
         }
 
-        public static explicit operator int16(int32 value)
-        {
-            return new int16
-                    {
-                        _value = (short)value._value
-                    };
-        }
-
-        public static explicit operator uint16(int32 value)
+        public static explicit operator uint16(int8 value)
         {
             return new uint16
                     {
@@ -101,7 +104,7 @@ namespace Brahma.Types
                     };
         }
 
-        public static explicit operator uint32(int32 value)
+        public static explicit operator uint32(int8 value)
         {
             return new uint32
                     {
@@ -109,7 +112,7 @@ namespace Brahma.Types
                     };
         }
 
-        public static explicit operator uint64(int32 value)
+        public static explicit operator uint64(int8 value)
         {
             return new uint64
                     {
@@ -119,12 +122,12 @@ namespace Brahma.Types
 
         #endregion
 
-        public static Set<int32> operator <=(int32 lhs, int32 rhs)
+        public static Set<int8> operator <=(int8 lhs, int8 rhs)
         {
-            return new Set<int32>(lhs, rhs);
+            return new Set<int8>(lhs, rhs);
         }
 
-        public static Set<int32> operator >=(int32 lhs, int32 rhs)
+        public static Set<int8> operator >=(int8 lhs, int8 rhs)
         {
             throw new NotSupportedException();
         }
@@ -149,9 +152,9 @@ namespace Brahma.Types
 
         #endregion
 
-        #region IComparable<int32> Members
+        #region IComparable<int8> Members
 
-        public int CompareTo(int32 other)
+        public int CompareTo(int8 other)
         {
             return System.Math.Sign(_value - other._value);
         }
@@ -160,7 +163,7 @@ namespace Brahma.Types
 
         public override bool Equals(object obj)
         {
-            return obj is int32 ? ((int32)obj)._value == _value : false;
+            return obj is int8 ? ((int8)obj)._value == _value : false;
         }
 
         public override int GetHashCode()

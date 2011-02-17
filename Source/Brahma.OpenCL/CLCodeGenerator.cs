@@ -343,9 +343,9 @@ namespace Brahma.OpenCL
                         // Figure out what kind of loop body this is
                         var loopBody = method.Arguments[2] as LambdaExpression;
 
-                        if (loopBody.Parameters[0].Type == typeof(IEnumerable<int>))
+                        if (loopBody.Parameters[0].Type == typeof(IEnumerable<int32>))
                             loopVar = GetLoopVar(loopBody);
-                        if (loopBody.Parameters[0].Type == typeof(int))
+                        if (loopBody.Parameters[0].Type == typeof(int32))
                             loopVar = loopBody.Parameters[0];
 
                         _code.AppendFormat("for (int {0} = ", loopVar.Name);

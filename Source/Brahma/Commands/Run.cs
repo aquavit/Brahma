@@ -50,13 +50,12 @@ namespace Brahma.Commands
             {
                 IMem argument;
 
-                // TODO: Is this check redundant? I mean, CLCodeGenerator already does this (as does UnwindClosureAccess)
                 switch (memberExp.Member.MemberType)
                 {
                     case MemberTypes.Field:
                         argument = memberExp.GetClosureValue() as IMem;
                         if (argument == null)
-                            throw new ArgumentNullException(string.Format("{0} is not IMem. Did you use a non-Brahma type in your query? Try a cast, if it is supported", memberExp));
+                            throw new ArgumentException(string.Format("{0} is not IMem. Did you use a non-Brahma type in your query? Try a cast if it is supported.", memberExp));
 
                         break;
 

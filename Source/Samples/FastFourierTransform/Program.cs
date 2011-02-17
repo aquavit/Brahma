@@ -65,17 +65,17 @@ namespace Brahma.OpenCL.Samples.FastFourierTransform
             b = temp;
         }
 
-       private static Complex<float> FFT(int x, int fftSize, Complex<float>[] input, int size)
+        private static Complex<float> FFT(int x, int fftSize, Complex<float>[] input, int size)
         {
-            int b = (((int)System.Math.Floor((float)x / fftSize)) * (fftSize / 2));
+            int b = (((int) System.Math.Floor((float) x / fftSize)) * (fftSize / 2));
             int offset = x % (fftSize / 2);
             int x0 = b + offset;
             int x1 = x0 + size / 2;
 
             Complex<float> val0 = input[x0];
             Complex<float> val1 = input[x1];
-            double angle = -2 * System.Math.PI * ((float)x / fftSize);
-            var t = new Complex<float>((float)System.Math.Cos(angle), (float)System.Math.Sin(angle));
+            double angle = -2 * System.Math.PI * ((float) x / fftSize);
+            var t = new Complex<float>((float) System.Math.Cos(angle), (float) System.Math.Sin(angle));
 
             return new Complex<float>(val0.A + t.A * val1.A - t.B * val1.B, val0.B + t.B * val1.A + t.A * val1.B);
         }
@@ -149,8 +149,8 @@ namespace Brahma.OpenCL.Samples.FastFourierTransform
             var fft = provider.Compile<_1D, int32, Buffer<float32>, Buffer<float32>, Buffer<float32>, Buffer<float32>>(
                 (range, fftSize, a, ib, c, id) => from r in range
                                                let x = r.GlobalID0
-                                               let b = Math.Floor((float32)x / fftSize) * fftSize / 2
-                                               let offset = x%(fftSize/2)
+                                               let b = Math.Floor(x / fftSize) * fftSize / 2
+                                               let offset = x % (fftSize/2)
                                                let x0 = b + offset
                                                let x1 = x0 + size / 2
                                                let val0A = a[x0]
@@ -158,14 +158,14 @@ namespace Brahma.OpenCL.Samples.FastFourierTransform
                                                let val1A = a[x1]
                                                let val1B = ib[x1]
 
-                                               let angle = -2*Math.PI*((float32) x / fftSize)
+                                               let angle = -2 * Math.PI * ((float32)x / fftSize)
                                                let tA = Math.Cos(angle)
                                                let tB = Math.Sin(angle)
 
                                                select new[]
                                                           {
-                                                              c[x] <= val0A + tA*val1A - tB*val1B,
-                                                              id[x] <= val0B + tB*val1A + tA*val1B
+                                                              c[x] <= val0A + tA * val1A - tB * val1B,
+                                                              id[x] <= val0B + tB * val1A + tA * val1B
                                                           });
 
             var conjugate = provider.Compile<_1D, Buffer<float32>, Buffer<float32>>(

@@ -25,66 +25,116 @@ namespace Brahma.Types
     {
         private static readonly IntPtr _size = (IntPtr)sizeof(float);
 
-        private float _value;
+        internal float _value;
 
-        // TODO: Define all implicit conversions (http://msdn.microsoft.com/en-us/library/y5b434w4.aspx)
+        public static implicit operator float32(float value)
+        {
+            return new float32
+            {
+                _value = value
+            };
+        }
 
         public static implicit operator float(float32 value)
         {
             return value._value;
         }
 
-        public static implicit operator float32(float value)
+        #region Implicit conversions
+
+        // http://msdn.microsoft.com/en-us/library/y5b434w4.aspx
+
+        public static implicit operator float64(float32 value)
         {
-            return new float32 { _value = value };
+            return new float64
+                       {
+                           _value = value
+                       };
         }
 
-        // TODO: Define all explicit conversion (http://msdn.microsoft.com/en-us/library/yht2cx7b%28v=VS.100%29.aspx)
+        #endregion
 
-        public static explicit operator float32(int value)
+        #region Explicit conversions
+
+        // http://msdn.microsoft.com/en-us/library/yht2cx7b%28v=VS.100%29.aspx
+
+        public static explicit operator int8(float32 value)
         {
-            return new float32 { _value = value };
+            return new int8
+                       {
+                           _value = (sbyte)value._value
+                       };
         }
 
-        public static explicit operator double(float32 value)
+        public static explicit operator uint8(float32 value)
         {
-            return value._value;
+            return new uint8
+                       {
+                           _value = (byte)value._value
+                       };
         }
 
-        public static explicit operator float32(double value)
+        public static explicit operator int16(float32 value)
         {
-            return new float32
-            {
-                _value = (float)value
-            };
+            return new int16
+                       {
+                           _value = (short) value
+                       };
+        }
+
+        public static explicit operator uint16(float32 value)
+        {
+            return new uint16
+                       {
+                           _value = (ushort)value._value
+                       };
         }
 
         public static explicit operator int32(float32 value)
         {
-            return (int) value;
+            return new int32
+                       {
+                           _value = (int) value._value
+                       };
         }
 
-        public static float32 operator /(float32 a, float32 b)
+        public static explicit operator uint32(float32 value)
         {
-            return new float32 { _value = a._value / b._value };
+            return new uint32
+                       {
+                           _value = (uint) value._value
+                       };
         }
 
-        public static float32 operator *(float32 a, float32 b)
+        public static explicit operator int64(float32 value)
         {
-            return new float32 { _value = a._value * b._value };
+            return new int64
+                       {
+                           _value = (long) value._value
+                       };
         }
 
-        public static float32 operator +(float32 a, float32 b)
+        public static explicit operator uint64(float32 value)
         {
-            return new float32 { _value = a._value + b._value };
+            return new uint64
+                       {
+                           _value = (ulong) value._value
+                       };
         }
 
-        public static float32 operator -(float32 a, float32 b)
-        {
-            return new float32 { _value = a._value - b._value };
-        }
+        #endregion
 
         public static Set<float32> operator <=(float32 lhs, float32 rhs)
+        {
+            return new Set<float32>(lhs, rhs);
+        }
+
+        public static Set<float32> operator <=(float32 lhs, float rhs)
+        {
+            return new Set<float32>(lhs, rhs);
+        }
+
+        public static Set<float32> operator <=(float lhs, float32 rhs)
         {
             return new Set<float32>(lhs, rhs);
         }
@@ -94,14 +144,14 @@ namespace Brahma.Types
             return new Set<float32>(lhs, rhs);
         }
 
-        public static bool operator ==(float32 lhs, float32 rhs)
+        public static Set<float32> operator >=(float32 lhs, float rhs)
         {
-            return lhs._value == rhs._value;
+            return new Set<float32>(lhs, rhs);
         }
-        
-        public static bool operator !=(float32 lhs, float32 rhs)
+
+        public static Set<float32> operator >=(float lhs, float32 rhs)
         {
-            return lhs._value != rhs._value;
+            return new Set<float32>(lhs, rhs);
         }
 
         #region IMem Members

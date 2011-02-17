@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Text;
 using Brahma.OpenCL.Commands;
+using Brahma.Types;
 using OpenCL.Net;
 
 namespace Brahma.OpenCL
@@ -36,7 +37,7 @@ namespace Brahma.OpenCL
             set;
         }
 
-        int WorkDim
+        int32 WorkDim
         {
             get;
         }
@@ -66,7 +67,7 @@ namespace Brahma.OpenCL
             get; set;
         }
 
-        int ICLKernel.WorkDim
+        int32 ICLKernel.WorkDim
         {
             get { return ((INDRangeDimension)_range).Dimensions; }
         }
