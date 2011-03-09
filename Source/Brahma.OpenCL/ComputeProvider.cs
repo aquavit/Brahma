@@ -19,8 +19,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using Brahma.Types;
+using System.Text.RegularExpressions;
+
 using OpenCL.Net;
+
+using Brahma.Types;
 
 namespace Brahma.OpenCL
 {
@@ -281,6 +284,37 @@ namespace Brahma.OpenCL
             {
                 return _devices;
             }
+        }
+
+        private static string WildcardToRegex(string pattern)
+        {
+            return "^" + Regex.Escape(pattern).
+            Replace("\\*", ".*").
+            Replace("\\?", ".") + "$";
+        }
+
+        public static ComputeProvider Create(string platformName = "*", Cl.DeviceType deviceType = Cl.DeviceType.Default)
+        {
+            var platformNameRegex = new Regex(WildcardToRegex(platformName), RegexOptions.IgnoreCase);
+            Cl.Platform? currentPlatform = null;
+            Cl.ErrorCode error;
+            foreach (Cl.Platform platform in Cl.GetPlatformIDs(out error))
+                if (platformNameRegex.Match(Cl.GetPlatformInfo(platform, Cl.PlatformInfo.Name, out error).ToString()).Success)
+                {
+                    currentPlatform = platform;
+                    break;
+                }
+
+            if (currentPlatform == null)
+                throw new PlatformNotSupportedException(string.Format("Could not find a platform that matches {0}", platformName));
+
+            var compatibleDevices = from device in Cl.GetDeviceIDs(currentPlatform.Value, deviceType, out error)
+                                    select device;
+            if (compatibleDevices.Count() == 0)
+                throw new PlatformNotSupportedException(string.Format("Could not find a device with type {0} on platform {1}",
+                    deviceType, Cl.GetPlatformInfo(currentPlatform.Value, Cl.PlatformInfo.Name, out error)));
+
+            return new ComputeProvider(compatibleDevices.ToArray().First());
         }
     }
 }
