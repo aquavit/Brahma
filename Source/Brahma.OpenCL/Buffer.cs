@@ -42,7 +42,7 @@ namespace Brahma.OpenCL
         private static readonly int _elementSize = Marshal.SizeOf(typeof(T));
         
         private Cl.Mem _mem;
-        private bool _disposed = false;
+        private bool _disposed;
         private readonly int _length;
 
         public readonly Operations Operations;
@@ -99,6 +99,7 @@ namespace Brahma.OpenCL
             Memory = memory;
         }
 
+        [KernelCallable]
         public override T this[Types.int32 index]
         {
             get
