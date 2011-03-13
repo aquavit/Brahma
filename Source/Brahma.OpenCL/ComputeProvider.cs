@@ -19,6 +19,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Text;
 using System.Text.RegularExpressions;
 
 using OpenCL.Net;
@@ -276,6 +277,24 @@ namespace Brahma.OpenCL
                 _context.Dispose();
                 _disposed = true;
             }
+        }
+
+        public override string ToString()
+        {
+            var builder = new StringBuilder();
+            foreach (var device in _devices)
+            {
+                Cl.ErrorCode error;
+                var platform =
+                    Cl.GetDeviceInfo(device, Cl.DeviceInfo.Platform, out error).CastTo<Cl.Platform>();
+                var deviceType =
+                    Cl.GetDeviceInfo(device, Cl.DeviceInfo.Type, out error).CastTo<Cl.DeviceType>();
+
+                builder.AppendFormat("[Platform: {0}, device type:{1}]\n",
+                                     Cl.GetPlatformInfo(platform, Cl.PlatformInfo.Name, out error), deviceType);
+            }
+
+            return builder.ToString();
         }
 
         public IEnumerable<Cl.Device> Devices

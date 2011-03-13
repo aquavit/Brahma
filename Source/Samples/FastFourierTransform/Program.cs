@@ -102,36 +102,18 @@ namespace Brahma.OpenCL.Samples.FastFourierTransform
                 return;
             }
 
-            var platformNameRegex = new Regex(platformName.WildcardToRegex(), RegexOptions.IgnoreCase);
-            Cl.Platform? currentPlatform = null;
-            Cl.ErrorCode error;
-            foreach (Cl.Platform platform in Cl.GetPlatformIDs(out error))
-                if (platformNameRegex.Match(Cl.GetPlatformInfo(platform, Cl.PlatformInfo.Name, out error).ToString()).Success)
-                {
-                    currentPlatform = platform;
-                    break;
-                }
-
-            if (currentPlatform == null)
+            ComputeProvider provider;
+            try
             {
-                Console.WriteLine("Could not find any OpenCL platforms that match \"{0}\"", platformName);
+                provider = ComputeProvider.Create(platformName, deviceType);
+            }
+            catch (PlatformNotSupportedException ex)
+            {
+                Console.WriteLine(ex.Message);
                 return;
             }
-
-            var compatibleDevices = from device in Cl.GetDeviceIDs(currentPlatform.Value, deviceType, out error)
-                                    select device;
-            if (compatibleDevices.Count() == 0)
-            {
-                Console.WriteLine("Could not find a device with type {0} on platform {1}",
-                    deviceType, Cl.GetPlatformInfo(currentPlatform.Value, Cl.PlatformInfo.Name, out error));
-                return;
-            }
-
-            Console.WriteLine("Using platform {0} with device type {1}",
-                              Cl.GetPlatformInfo(currentPlatform.Value, Cl.PlatformInfo.Name, out error),
-                              deviceType);
-
-            var provider = new ComputeProvider(compatibleDevices.ToArray().First());
+            Console.WriteLine("Using " + provider);
+            
             var commandQueue = new CommandQueue(provider, provider.Devices.First());
 
             var random = new Random();
