@@ -37,7 +37,19 @@ namespace Brahma.OpenCL
             private readonly LambdaExpression _lambda;
 
             private readonly List<MemberExpression> _closures = new List<MemberExpression>();
-            private readonly StringBuilder _code = new StringBuilder();
+
+            private string _functionName = string.Empty;
+
+            private struct FunctionDescriptor
+            {
+                public string Code;
+                public Type ReturnType;
+                public Type[] ParameterTypes;
+            }
+
+            private readonly Dictionary<string, FunctionDescriptor> _functions = new Dictionary<string, FunctionDescriptor>();
+
+            private StringBuilder _code = new StringBuilder();
 
             private readonly List<string> _declaredMembers = new List<string>();
 
@@ -58,6 +70,13 @@ namespace Brahma.OpenCL
                 }
 
                 throw new InvalidOperationException(string.Format("Cannot use the type {0} inside a kernel", type));
+            }
+
+            private static IEnumerable<Type> GetAllButLast(Type[] types)
+            {
+                for (int i = 0; i < types.Length; i++)
+                    if (i < types.Length - 1)
+                        yield return types[i];
             }
 
             private static void UnwindMemberAccess(Expression expression, StringBuilder builder)
@@ -221,10 +240,28 @@ namespace Brahma.OpenCL
                         if (newExpression.Members[i].Name == newExpression.Arguments[i].ToString())
                             continue; // Trivial assignment
 
+                        // TODO: Verify with method name, too
                         // Loop
                         if ((newExpression.Arguments[i].Type == typeof(Func<int, IEnumerable<Set[]>>)) ||
                             (newExpression.Arguments[i].Type == typeof(Func<IEnumerable<int>, IEnumerable<Set[]>>)))
                         {
+                            Visit(newExpression.Arguments[i]);
+                            continue;
+                        }
+
+                        // TODO: Verify with method name, too
+                        // CompileFunction
+                        if (newExpression.Arguments[i].Type.IsConcreteGenericOf(typeof(Func<>)) ||
+                            newExpression.Arguments[i].Type.IsConcreteGenericOf(typeof(Func<,>)) ||
+                            newExpression.Arguments[i].Type.IsConcreteGenericOf(typeof(Func<,,>)) ||
+                            newExpression.Arguments[i].Type.IsConcreteGenericOf(typeof(Func<,,,>)) ||
+                            newExpression.Arguments[i].Type.IsConcreteGenericOf(typeof(Func<,,,,>)) ||
+                            newExpression.Arguments[i].Type.IsConcreteGenericOf(typeof(Func<,,,,,>)) ||
+                            newExpression.Arguments[i].Type.IsConcreteGenericOf(typeof(Func<,,,,,,>)) ||
+                            newExpression.Arguments[i].Type.IsConcreteGenericOf(typeof(Func<,,,,,,,>)) ||
+                            newExpression.Arguments[i].Type.IsConcreteGenericOf(typeof(Func<,,,,,,,,>)))
+                        {
+                            _functionName = newExpression.Members[i].Name;
                             Visit(newExpression.Arguments[i]);
                             continue;
                         }
@@ -361,6 +398,43 @@ namespace Brahma.OpenCL
 
                         break;
 
+                    case "CompileFunction":
+
+                        if (string.IsNullOrEmpty(_functionName))
+                            throw new InvalidExpressionTreeException("Anonymous functions are not supported, try declaring it using a let first", method);
+
+                        var functionCode = new StringBuilder();
+
+                        var functionReturnType = method.Type.GetGenericArguments().Last();
+                        var functionParameterTypes = GetAllButLast(method.Type.GetGenericArguments()).ToArray();
+
+                        functionCode.AppendFormat("{0} {1}(", TranslateType(functionReturnType), _functionName);
+
+                        for (int i = 0; i < functionParameterTypes.Length; i++)
+                            functionCode.Append(string.Format("{0} {1},", TranslateType(functionParameterTypes[i]), (method.Arguments[0] as LambdaExpression).Parameters[i]));
+                        if (functionCode[functionCode.Length - 1] == ',')
+                            functionCode.Remove(functionCode.Length - 1, 1);
+
+                        functionCode.AppendLine(") {");
+                        functionCode.Append("return (");
+
+                        var saveCurrentStringBuilder = _code;
+                        _code = functionCode;
+                        Visit(method.Arguments[0]);
+                        _code = saveCurrentStringBuilder;
+
+                        functionCode.Append("); }");
+
+                        _functions.Add(_functionName, new FunctionDescriptor
+                                                          {
+                                                              Code = functionCode.ToString(),
+                                                              ReturnType = functionReturnType,
+                                                              ParameterTypes = functionParameterTypes
+                                                          });
+
+                        _functionName = string.Empty;
+                        break;
+
                     case "Select":
                         if (!(method.Arguments[0] is ParameterExpression))
                         {
@@ -446,9 +520,64 @@ namespace Brahma.OpenCL
                         _code.Append(")");
 
                         break;
+
+                    case "Exp":
+                        _code.AppendFormat("{0}exp(", NativeMethodPrefix);
+                        Visit(method.Arguments[0]);
+                        _code.Append(")");
+
+                        break;
+                    
+                    case "Sqrt":
+                        _code.AppendFormat("{0}sqrt(", NativeMethodPrefix);
+                        Visit(method.Arguments[0]);
+                        _code.Append(")");
+
+                        break;
+                    
+                    case "Log":
+                        _code.AppendFormat("{0}log(", NativeMethodPrefix);
+                        Visit(method.Arguments[0]);
+                        _code.Append(")");
+
+                        break;
                 }
 
                 return method;
+            }
+
+            protected override Expression VisitInvocation(InvocationExpression invocation)
+            {
+                FunctionDescriptor localFunction;
+                var member = (invocation.Expression as MemberExpression);
+                if (member == null)
+                    return invocation;
+
+                if (_functions.TryGetValue(member.Member.Name, out localFunction))
+                {
+                    var functionType = (member.Member as PropertyInfo).PropertyType;
+                    var functionReturnType = functionType.GetGenericArguments().Last();
+                    var functionParameterTypes = GetAllButLast(functionType.GetGenericArguments()).ToArray();
+
+                    if ((localFunction.ReturnType == functionReturnType) &&
+                        (localFunction.ParameterTypes.SequenceEqual(functionParameterTypes)))
+                    {
+                        _code.AppendFormat("{0}(", member.Member.Name);
+
+                        if (invocation.Arguments.Count > 0)
+                        {
+                            Visit(invocation.Arguments[0]);
+                            for (int i = 1; i < invocation.Arguments.Count; i++)
+                            {
+                                _code.Append(", ");
+                                Visit(invocation.Arguments[i]);
+                            }
+                        }
+                        _code.Append(")");
+                    }
+                }
+                
+                return invocation;
             }
 
             public CodeGenerator(ComputeProvider provider, LambdaExpression lambda)
@@ -477,6 +606,11 @@ namespace Brahma.OpenCL
                     parameters.Remove(parameters.Length - 1, 1);
 
                 var kernelSource = new StringBuilder();
+
+                // Add any functions we generated
+                foreach (var func in _functions)
+                    kernelSource.AppendLine(func.Value.Code);
+
                 kernelSource.AppendLine(string.Format("__kernel void {0}({1}) {{", KernelName, parameters));
                 kernelSource.Append(_code.ToString());
                 kernelSource.AppendLine("}");

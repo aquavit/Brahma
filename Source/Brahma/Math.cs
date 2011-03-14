@@ -22,7 +22,7 @@ namespace Brahma
 {
     public static class Math
     {
-        public static readonly float32 PI = (float32)System.Math.PI;
+        public const float PI = 3.1415926535897931f;
         
         [KernelCallable]
         public static T Powr<T>(T x, T y)
@@ -85,6 +85,24 @@ namespace Brahma
 
         [KernelCallable]
         public static float32 Cos(float32 value)
+        {
+            throw new NotSupportedException("Can only call this method from inside a kernel");
+        }
+
+        [KernelCallable]
+        public static T Exp<T>(T value)
+        {
+            throw new NotSupportedException("Can only call this method from inside a kernel");
+        }
+        
+        [KernelCallable]
+        public static T Sqrt<T>(T value)
+        {
+            throw new NotSupportedException("Can only call this method from inside a kernel");
+        }
+
+        [KernelCallable]
+        public static T Log<T>(T value)
         {
             throw new NotSupportedException("Can only call this method from inside a kernel");
         }

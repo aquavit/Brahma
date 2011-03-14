@@ -19,6 +19,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Brahma.Samples", "Samples\B
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FastFourierTransform", "Samples\FastFourierTransform\FastFourierTransform.csproj", "{B335EE09-436A-4514-B9D8-F2E8FE49D918}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlackScholes", "Samples\BlackScholes\BlackScholes.csproj", "{59DCADFE-C9D0-45A0-B35D-CA31C611C8E8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -107,6 +109,14 @@ Global
 		{B335EE09-436A-4514-B9D8-F2E8FE49D918}.Release|x64.ActiveCfg = Release|x64
 		{B335EE09-436A-4514-B9D8-F2E8FE49D918}.Release|x86.ActiveCfg = Release|x86
 		{B335EE09-436A-4514-B9D8-F2E8FE49D918}.Release|x86.Build.0 = Release|x86
+		{59DCADFE-C9D0-45A0-B35D-CA31C611C8E8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{59DCADFE-C9D0-45A0-B35D-CA31C611C8E8}.Debug|x64.ActiveCfg = Debug|x86
+		{59DCADFE-C9D0-45A0-B35D-CA31C611C8E8}.Debug|x86.ActiveCfg = Debug|x86
+		{59DCADFE-C9D0-45A0-B35D-CA31C611C8E8}.Debug|x86.Build.0 = Debug|x86
+		{59DCADFE-C9D0-45A0-B35D-CA31C611C8E8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{59DCADFE-C9D0-45A0-B35D-CA31C611C8E8}.Release|x64.ActiveCfg = Release|x86
+		{59DCADFE-C9D0-45A0-B35D-CA31C611C8E8}.Release|x86.ActiveCfg = Release|x86
+		{59DCADFE-C9D0-45A0-B35D-CA31C611C8E8}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -116,5 +126,6 @@ Global
 		{AF40CA2B-AE60-483C-B9CA-E1E6E3688D7E} = {E54DCF27-1592-467F-8E05-F0B9745111E0}
 		{C46DE069-F581-4AFE-BE34-387C5D46DDEF} = {E54DCF27-1592-467F-8E05-F0B9745111E0}
 		{B335EE09-436A-4514-B9D8-F2E8FE49D918} = {E54DCF27-1592-467F-8E05-F0B9745111E0}
+		{59DCADFE-C9D0-45A0-B35D-CA31C611C8E8} = {E54DCF27-1592-467F-8E05-F0B9745111E0}
 	EndGlobalSection
 EndGlobal

@@ -78,7 +78,7 @@ namespace Brahma.OpenCL.Samples.MatrixMultiply
             int32 iterations = 100;
             Cl.DeviceType deviceType = Cl.DeviceType.Default;
 
-            args.Process(() => Console.WriteLine("Usage is {0} platform=<platform name with wildcards (*)> device=<Cpu/Gpu/Default localWorkSize=<local work size (10)> iterations=<Number of iterations to run (100)> (Default)> rows=<rows (100)> cols=<columns (100)>",
+            args.Process(() => Console.WriteLine("Usage is {0} platform=<platform name with wildcards (*)> device=<Cpu/Gpu/Default> localWorkSize=<local work size (10)> iterations=<Number of iterations to run (100)> (Default)> rows=<rows (100)> cols=<columns (100)>",
                 Path.GetFileNameWithoutExtension(Assembly.GetEntryAssembly().CodeBase)),
                 new CommandLine.Switch("platform", v => platformName = v.First()),
                 new CommandLine.Switch("device", v => deviceType = (Cl.DeviceType)Enum.Parse(typeof(Cl.DeviceType), v.First())),
