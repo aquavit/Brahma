@@ -70,11 +70,11 @@ namespace Brahma.OpenCL
             Memory = Memory.Device;
         }
 
-        public Buffer(ComputeProvider provider, Operations operations, Memory memory, T[] data) // Create and copy/use data from host
+        public Buffer(ComputeProvider provider, Operations operations, Memory memory, Array data) // Create and copy/use data from host
         {
             Cl.ErrorCode error;
             _length = data.Length;
-            
+
             _mem = Cl.CreateBuffer(provider.Context, (Cl.MemFlags)operations | (memory == Memory.Host ? Cl.MemFlags.UseHostPtr : (Cl.MemFlags)memory | Cl.MemFlags.CopyHostPtr),
                 (IntPtr)(_elementSize * data.Length), data, out error);
 
@@ -83,6 +83,11 @@ namespace Brahma.OpenCL
 
             Operations = operations;
             Memory = memory;
+        }
+
+        public Buffer(ComputeProvider provider, Operations operations, Memory memory, T[] data) // Create and copy/use data from host
+            : this(provider, operations, memory, (Array)data)
+        {
         }
 
         public Buffer(ComputeProvider provider, Operations operations, Memory memory, IntPtr data, int length) // Create and copy/use data from host
