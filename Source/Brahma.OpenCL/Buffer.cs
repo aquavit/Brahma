@@ -167,6 +167,14 @@ namespace Brahma.OpenCL
         public static ReadBuffer<T> Read<T>(this Buffer<T> buffer,
             int offset,
             int count,
+            Array data) where T : struct, IMem
+        {
+            return new ReadBuffer<T>(buffer, true, offset, count, data);
+        }
+
+        public static ReadBuffer<T> Read<T>(this Buffer<T> buffer,
+            int offset,
+            int count,
             IntPtr data) where T : struct, IMem
         {
             return new ReadBuffer<T>(buffer, true, offset, count, data);
@@ -183,6 +191,14 @@ namespace Brahma.OpenCL
         public static ReadBuffer<T> ReadAsync<T>(this Buffer<T> buffer,
             int offset,
             int count,
+            Array data) where T : struct, IMem
+        {
+            return new ReadBuffer<T>(buffer, false, offset, count, data);
+        }
+
+        public static ReadBuffer<T> ReadAsync<T>(this Buffer<T> buffer,
+            int offset,
+            int count,
             IntPtr data) where T : struct, IMem
         {
             return new ReadBuffer<T>(buffer, false, offset, count, data);
@@ -199,6 +215,14 @@ namespace Brahma.OpenCL
         public static WriteBuffer<T> Write<T>(this Buffer<T> buffer,
             int offset,
             int count,
+            Array data) where T : struct, IMem
+        {
+            return new WriteBuffer<T>(buffer, true, offset, count, data);
+        }
+
+        public static WriteBuffer<T> Write<T>(this Buffer<T> buffer,
+            int offset,
+            int count,
             IntPtr data) where T : struct, IMem
         {
             return new WriteBuffer<T>(buffer, true, offset, count, data);
@@ -208,6 +232,14 @@ namespace Brahma.OpenCL
             int offset,
             int count,
             T[] data) where T : struct, IMem
+        {
+            return new WriteBuffer<T>(buffer, false, offset, count, data);
+        }
+
+        public static WriteBuffer<T> WriteAsync<T>(this Buffer<T> buffer,
+            int offset,
+            int count,
+            Array data) where T : struct, IMem
         {
             return new WriteBuffer<T>(buffer, false, offset, count, data);
         }

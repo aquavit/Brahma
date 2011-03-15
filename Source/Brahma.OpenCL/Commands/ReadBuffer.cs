@@ -24,17 +24,37 @@ namespace Brahma.OpenCL.Commands
     public sealed class ReadBuffer<T> : Brahma.Commands.Command
         where T : struct, IMem
     {
-        internal ReadBuffer(Buffer<T> buffer,
-                          bool blocking,
-                          int offset,
-                          int count,
-                          T[] data)
+        private ReadBuffer(Buffer<T> buffer,
+            bool blocking,
+            int offset,
+            int count,
+            Array data,
+            IntPtr dataPtr)
         {
             Buffer = buffer;
             Blocking = blocking;
             Offset = offset;
             Count = count;
             Data = data;
+            DataPtr = dataPtr;
+        }
+
+        internal ReadBuffer(Buffer<T> buffer,
+            bool blocking,
+            int offset,
+            int count,
+            Array data)
+            : this(buffer, blocking, offset, count, data, IntPtr.Zero)
+        {
+        }
+
+        internal ReadBuffer(Buffer<T> buffer,
+                          bool blocking,
+                          int offset,
+                          int count,
+                          T[] data)
+            : this(buffer, blocking, offset, count, (Array)data)
+        {
         }
 
         internal ReadBuffer(Buffer<T> buffer,
@@ -42,48 +62,44 @@ namespace Brahma.OpenCL.Commands
                           int offset,
                           int count,
                           IntPtr data)
+            : this(buffer, blocking, offset, count, null, data)
         {
-            Buffer = buffer;
-            Blocking = blocking;
-            Offset = offset;
-            Count = count;
-            DataPtr = data;
         }
 
-        internal Buffer<T> Buffer
+        private Buffer<T> Buffer
         {
             get;
-            private set;
+            set;
         }
 
-        internal bool Blocking
+        private bool Blocking
         {
             get;
-            private set;
+            set;
         }
 
-        internal int Offset
+        private int Offset
         {
             get;
-            private set;
+            set;
         }
 
-        internal int Count
+        private int Count
         {
             get;
-            private set;
+            set;
         }
 
-        internal T[] Data
+        private Array Data
         {
             get;
-            private set;
+            set;
         }
 
-        internal IntPtr DataPtr
+        private IntPtr DataPtr
         {
             get;
-            private set;
+            set;
         }
 
         public override void Execute(object sender)
