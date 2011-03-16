@@ -404,6 +404,33 @@ namespace Brahma.OpenCL
             }
         }
 
+#if DEBUG
+        public string GetBufferValues<T>(Buffer<T> buffer, CommandQueue commandQueue = null)
+            where T: struct, IMem
+        {
+            bool disposeCommandQueue = commandQueue == null;
+            commandQueue = commandQueue ?? new CommandQueue(this, _devices.First());
+
+            var resultData = new T[buffer.Length];
+            commandQueue
+                .Add(buffer.Read(0, buffer.Length, resultData))
+                .Finish();
+
+            var result = new StringBuilder();
+            for (int i = 0; i < resultData.Length; i++)
+            {
+                result.Append(resultData[i].ToString());
+                if (i < resultData.Length - 1)
+                    result.Append(", ");
+            }
+
+            if (disposeCommandQueue)
+                commandQueue.Dispose();
+
+            return result.ToString();
+        }
+#endif
+
         private static string WildcardToRegex(string pattern)
         {
             return "^" + Regex.Escape(pattern).
