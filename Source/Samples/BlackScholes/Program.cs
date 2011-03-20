@@ -145,9 +145,7 @@ namespace BlackScholes
                 .Finish();
 
             // TODO: Continue here
-            // There are two problems with this code.
             // 1. Using a range variable inside the body of a function does not carry over to OpenCL (that variable is not in scope)
-            // 2. Replacing a simple lambda with a method group crashes CLCodeGenerator, line 414 (needs parameter name to write function)
             var blackScholes = provider.Compile
                 <_1D, Buffer<float32>, Buffer<float32>, Buffer<float32>, Buffer<float32>, Buffer<float32>>(
                     (range, stocks, strikes, times, call, put) =>
@@ -156,6 +154,7 @@ namespace BlackScholes
                     let index = r.GlobalID0
 
                     let l = provider.CompileFunction<float32, float32>(l => Brahma.Math.Fabs(l))
+
                     let k = provider.CompileFunction<float32, float32>(k => 1f / (1f + 0.2316419f * k))
 
                     let cnd = provider.CompileFunction<float32, float32>(x => 1f - 1f / Brahma.Math.Sqrt(2f * Brahma.Math.PI) *
@@ -173,12 +172,14 @@ namespace BlackScholes
                         (float32 stockPrice, float32 strikePrice, float32 timeToExpiration) => (float32)(stockPrice * cumulativeNormalDistribution(d1(stockPrice, strikePrice, timeToExpiration)) -
                                                                        strikePrice * Brahma.Math.Exp(-RiskFreeInterestRate * timeToExpiration) * cumulativeNormalDistribution(d2(d1(stockPrice, strikePrice, timeToExpiration), timeToExpiration))))
 
-                    let putOption = 0f
+                    let putOption = provider.CompileFunction(
+                        (float32 stockPrice, float32 strikePrice, float32 timeToExpiration) => (float32)(strikePrice * Brahma.Math.Exp(-RiskFreeInterestRate * timeToExpiration) * cumulativeNormalDistribution(-d2(d1(stockPrice, strikePrice, timeToExpiration), timeToExpiration) - 
+                            stockPrice * cumulativeNormalDistribution(-d1(stockPrice, strikePrice, timeToExpiration)))))
 
                     select new Brahma.Set[]
                                {
                                    call[index] <= callOption(stocks[index], strikes[index], times[index]),
-                                   put[index] <= putOption
+                                   put[index] <= putOption(stocks[index], strikes[index], times[index])
                                });
 
             #endregion

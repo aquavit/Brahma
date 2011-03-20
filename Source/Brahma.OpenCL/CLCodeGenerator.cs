@@ -402,6 +402,8 @@ namespace Brahma.OpenCL
 
                         if (string.IsNullOrEmpty(_functionName))
                             throw new InvalidExpressionTreeException("Anonymous functions are not supported, try declaring it using a let first", method);
+                        if ((method.Arguments[0] as LambdaExpression) == null)
+                            throw new InvalidExpressionTreeException("Inline functions in Brahma have to be lambda expressions", method.Arguments[0]);
 
                         var functionCode = new StringBuilder();
 
