@@ -111,18 +111,18 @@ namespace Brahma.OpenCL.Commands
                            where ev != null
                            select ev.Value;
 
-            Cl.Event eventID;
-            Cl.ErrorCode error;
+            Event eventID;
+            ErrorCode error = ErrorCode.Unknown;
             if (Data == null)
                 error = Cl.EnqueueReadBuffer(commandQueue.Queue, Buffer.Mem,
-                    Blocking ? Cl.Bool.True : Cl.Bool.False, (IntPtr)Offset,
+                    Blocking ? Bool.True : Bool.False, (IntPtr)Offset,
                     (IntPtr)(Count * Buffer.ElementSize), DataPtr, (uint)waitList.Count(), waitList.Count() == 0 ? null : waitList.ToArray(), out eventID);
             else
                 error = Cl.EnqueueReadBuffer(commandQueue.Queue, Buffer.Mem,
-                    Blocking ? Cl.Bool.True : Cl.Bool.False, (IntPtr)Offset,
+                    Blocking ? Bool.True : Bool.False, (IntPtr)Offset,
                     (IntPtr)(Count * Buffer.ElementSize), Data, (uint)waitList.Count(), waitList.Count() == 0 ? null : waitList.ToArray(), out eventID);
             
-            if (error != Cl.ErrorCode.Success)
+            if (error != ErrorCode.Success)
                 throw new CLException(error);
 
             if (Name == string.Empty)

@@ -22,7 +22,7 @@ namespace Brahma.OpenCL
 {
     public interface IImageComponentType
     {
-        Cl.ChannelType ChannelType
+        ChannelType ChannelType
         {
             get;
         }
@@ -43,11 +43,11 @@ namespace Brahma.OpenCL
             }
         }
 
-        public Cl.ChannelType ChannelType
+        public ChannelType ChannelType
         {
             get
             {
-                return Cl.ChannelType.Snorm_Int8;
+                return ChannelType.Snorm_Int8;
             }
         }
     }
@@ -61,11 +61,11 @@ namespace Brahma.OpenCL
             }
         }
 
-        public Cl.ChannelType ChannelType
+        public ChannelType ChannelType
         {
             get
             {
-                return Cl.ChannelType.Snorm_Int16;
+                return ChannelType.Snorm_Int16;
             }
         }
     }
@@ -79,11 +79,11 @@ namespace Brahma.OpenCL
             }
         }
 
-        public Cl.ChannelType ChannelType
+        public ChannelType ChannelType
         {
             get
             {
-                return Cl.ChannelType.Unorm_Int8;
+                return ChannelType.Unorm_Int8;
             }
         }
     }
@@ -97,11 +97,11 @@ namespace Brahma.OpenCL
             }
         }
 
-        public Cl.ChannelType ChannelType
+        public ChannelType ChannelType
         {
             get
             {
-                return Cl.ChannelType.Unorm_Int16;
+                return ChannelType.Unorm_Int16;
             }
         }
     }
@@ -115,11 +115,11 @@ namespace Brahma.OpenCL
             }
         }
 
-        public Cl.ChannelType ChannelType
+        public ChannelType ChannelType
         {
             get
             {
-                return Cl.ChannelType.Unorm_Short565;
+                return ChannelType.Unorm_Short565;
             }
         }
     }
@@ -133,11 +133,11 @@ namespace Brahma.OpenCL
             }
         }
 
-        public Cl.ChannelType ChannelType
+        public ChannelType ChannelType
         {
             get
             {
-                return Cl.ChannelType.Unorm_Short555;
+                return ChannelType.Unorm_Short555;
             }
         }
     }
@@ -151,11 +151,11 @@ namespace Brahma.OpenCL
             }
         }
 
-        public Cl.ChannelType ChannelType
+        public ChannelType ChannelType
         {
             get
             {
-                return Cl.ChannelType.Unorm_Int101010;
+                return ChannelType.Unorm_Int101010;
             }
         }
     }
@@ -169,11 +169,11 @@ namespace Brahma.OpenCL
             }
         }
 
-        public Cl.ChannelType ChannelType
+        public ChannelType ChannelType
         {
             get
             {
-                return Cl.ChannelType.Signed_Int8;
+                return ChannelType.Signed_Int8;
             }
         }
     }
@@ -187,11 +187,11 @@ namespace Brahma.OpenCL
             }
         }
 
-        public Cl.ChannelType ChannelType
+        public ChannelType ChannelType
         {
             get
             {
-                return Cl.ChannelType.Signed_Int16;
+                return ChannelType.Signed_Int16;
             }
         }
     }
@@ -205,11 +205,11 @@ namespace Brahma.OpenCL
             }
         }
 
-        public Cl.ChannelType ChannelType
+        public ChannelType ChannelType
         {
             get
             {
-                return Cl.ChannelType.Signed_Int32;
+                return ChannelType.Signed_Int32;
             }
         }
     }
@@ -223,11 +223,11 @@ namespace Brahma.OpenCL
             }
         }
 
-        public Cl.ChannelType ChannelType
+        public ChannelType ChannelType
         {
             get
             {
-                return Cl.ChannelType.Unsigned_Int8;
+                return ChannelType.Unsigned_Int8;
             }
         }
     }
@@ -241,11 +241,11 @@ namespace Brahma.OpenCL
             }
         }
 
-        public Cl.ChannelType ChannelType
+        public ChannelType ChannelType
         {
             get
             {
-                return Cl.ChannelType.Unsigned_Int16;
+                return ChannelType.Unsigned_Int16;
             }
         }
     }
@@ -259,11 +259,11 @@ namespace Brahma.OpenCL
             }
         }
 
-        public Cl.ChannelType ChannelType
+        public ChannelType ChannelType
         {
             get
             {
-                return Cl.ChannelType.Unsigned_Int32;
+                return ChannelType.Unsigned_Int32;
             }
         }
     }
@@ -277,11 +277,11 @@ namespace Brahma.OpenCL
             }
         }
 
-        public Cl.ChannelType ChannelType
+        public ChannelType ChannelType
         {
             get
             {
-                return Cl.ChannelType.HalfFloat;
+                return ChannelType.HalfFloat;
             }
         }
     }
@@ -295,18 +295,18 @@ namespace Brahma.OpenCL
             }
         }
 
-        public Cl.ChannelType ChannelType
+        public ChannelType ChannelType
         {
             get
             {
-                return Cl.ChannelType.Float;
+                return ChannelType.Float;
             }
         }
     }
 
     public interface IImageFormat: Brahma.IImageFormat
     {
-        Cl.ChannelOrder ChannelOrder
+        ChannelOrder ChannelOrder
         {
             get;
         }
@@ -329,11 +329,11 @@ namespace Brahma.OpenCL
             }
         }
 
-        public Cl.ChannelOrder ChannelOrder
+        public ChannelOrder ChannelOrder
         {
             get
             {
-                return Cl.ChannelOrder.R;
+                return ChannelOrder.R;
             }
         }
 
@@ -360,11 +360,11 @@ namespace Brahma.OpenCL
             }
         }
 
-        public Cl.ChannelOrder ChannelOrder
+        public ChannelOrder ChannelOrder
         {
             get 
             {
-                return Cl.ChannelOrder.A;
+                return ChannelOrder.A;
             }
         }
 
@@ -392,11 +392,11 @@ namespace Brahma.OpenCL
             }
         }
 
-        public Cl.ChannelOrder ChannelOrder
+        public ChannelOrder ChannelOrder
         {
             get
             {
-                return Cl.ChannelOrder.RG;
+                return ChannelOrder.RG;
             }
         }
 
@@ -424,11 +424,11 @@ namespace Brahma.OpenCL
             }
         }
 
-        public Cl.ChannelOrder ChannelOrder
+        public ChannelOrder ChannelOrder
         {
             get
             {
-                return Cl.ChannelOrder.RA;
+                return ChannelOrder.RA;
             }
         }
 
@@ -457,11 +457,11 @@ namespace Brahma.OpenCL
             }
         }
 
-        public Cl.ChannelOrder ChannelOrder
+        public ChannelOrder ChannelOrder
         {
             get
             {
-                return Cl.ChannelOrder.RGB;
+                return ChannelOrder.RGB;
             }
         }
 
@@ -491,11 +491,11 @@ namespace Brahma.OpenCL
             }
         }
 
-        public Cl.ChannelOrder ChannelOrder
+        public ChannelOrder ChannelOrder
         {
             get
             {
-                return Cl.ChannelOrder.RGBA;
+                return ChannelOrder.RGBA;
             }
         }
 
@@ -525,11 +525,11 @@ namespace Brahma.OpenCL
             }
         }
 
-        public Cl.ChannelOrder ChannelOrder
+        public ChannelOrder ChannelOrder
         {
             get
             {
-                return Cl.ChannelOrder.RGBA;
+                return ChannelOrder.RGBA;
             }
         }
 
@@ -559,11 +559,11 @@ namespace Brahma.OpenCL
             }
         }
 
-        public Cl.ChannelOrder ChannelOrder
+        public ChannelOrder ChannelOrder
         {
             get
             {
-                return Cl.ChannelOrder.ARGB;
+                return ChannelOrder.ARGB;
             }
         }
 
@@ -590,11 +590,11 @@ namespace Brahma.OpenCL
             }
         }
 
-        public Cl.ChannelOrder ChannelOrder
+        public ChannelOrder ChannelOrder
         {
             get
             {
-                return Cl.ChannelOrder.Intensity;
+                return ChannelOrder.Intensity;
             }
         }
 
@@ -621,11 +621,11 @@ namespace Brahma.OpenCL
             }
         }
 
-        public Cl.ChannelOrder ChannelOrder
+        public ChannelOrder ChannelOrder
         {
             get
             {
-                return Cl.ChannelOrder.Luminance;
+                return ChannelOrder.Luminance;
             }
         }
 

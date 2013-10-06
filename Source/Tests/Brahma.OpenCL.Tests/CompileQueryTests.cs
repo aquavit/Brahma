@@ -28,7 +28,7 @@ namespace Brahma.OpenCL.Tests
     {
         public object[] GetPlatforms()
         {
-            Cl.ErrorCode error;
+            ErrorCode error;
             return (from platform in Cl.GetPlatformIDs(out error)
                     select (object)platform).ToArray();
         }
@@ -37,14 +37,14 @@ namespace Brahma.OpenCL.Tests
         [TestCaseSource("GetPlatforms")]
         [Category(Categories.Correctness)]
         [Description("Compiles the identity query for all platforms")]
-        public void IdentityQuery(Cl.Platform platform)
+        public void IdentityQuery(Platform platform)
         {
-            Cl.ErrorCode error;
+            ErrorCode error;
 
             Console.WriteLine("Creating compute provider for {0}",
-                              Cl.GetPlatformInfo(platform, Cl.PlatformInfo.Name, out error));
+                              Cl.GetPlatformInfo(platform, PlatformInfo.Name, out error));
 
-            using (var provider = new ComputeProvider(Cl.GetDeviceIDs(platform, Cl.DeviceType.All, out error)))
+            using (var provider = new ComputeProvider(Cl.GetDeviceIDs(platform, DeviceType.All, out error)))
             {
                 var query = provider.Compile<_1D, Buffer<int32>, Buffer<int32>>(
                     (range, input, output) => from r in range

@@ -86,12 +86,12 @@ namespace Brahma.OpenCL.Samples.FastFourierTransform
             int32 size = 1024;
             int localWorkSize = 32;
             int iterations = 100;
-            Cl.DeviceType deviceType = Cl.DeviceType.Default;
+            DeviceType deviceType = DeviceType.Default;
 
             args.Process(() => Console.WriteLine("Usage is {0} device=<Cpu/Gpu/Default> localWorkSize=<local work size (32)> iterations=<Number of iterations to run (100)> size=<Size of input - must be a power of two (1024)>", 
                 Path.GetFileNameWithoutExtension(Assembly.GetEntryAssembly().CodeBase)), 
                 new CommandLine.Switch("platform", v => platformName = v.First()),
-                new CommandLine.Switch("device", v => deviceType = (Cl.DeviceType)Enum.Parse(typeof(Cl.DeviceType), v.First())),
+                new CommandLine.Switch("device", v => deviceType = (DeviceType)Enum.Parse(typeof(DeviceType), v.First())),
                 new CommandLine.Switch("localWorkSize", v => localWorkSize = int.Parse(v.First(), CultureInfo.CurrentCulture)),
                 new CommandLine.Switch("iterations", v => iterations = int.Parse(v.First(), CultureInfo.CurrentCulture)),
                 new CommandLine.Switch("size", v => size = int.Parse(v.First(), CultureInfo.CurrentCulture)));

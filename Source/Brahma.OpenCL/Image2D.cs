@@ -25,20 +25,20 @@ namespace Brahma.OpenCL
     {
         private static readonly T _imageFormat = new T();
         
-        private readonly Cl.Mem _image;
+        private readonly global::OpenCL.Net.IMem _image;
         private readonly int _width;
         private readonly int _height;
         private readonly int _rowPitch = -1;
 
         public Image2D(ComputeProvider provider, Operations operations, bool hostAccessible, int width, int height, int rowPitch = -1) // Create, no data
         {
-            Cl.ErrorCode error;
-            _image = Cl.CreateImage2D(provider.Context, (Cl.MemFlags)operations | (hostAccessible ? Cl.MemFlags.AllocHostPtr : 0),
-                new Cl.ImageFormat(_imageFormat.ChannelOrder, _imageFormat.ChannelType.ChannelType), (IntPtr)width, (IntPtr)height,
+            ErrorCode error = ErrorCode.Unknown;
+            _image = Cl.CreateImage2D(provider.Context, (MemFlags)operations | (hostAccessible ? MemFlags.AllocHostPtr : 0),
+                new ImageFormat(_imageFormat.ChannelOrder, _imageFormat.ChannelType.ChannelType), (IntPtr)width, (IntPtr)height,
                 rowPitch == -1 ? (IntPtr)(width * _imageFormat.ComponentCount * _imageFormat.ChannelType.Size) : (IntPtr)rowPitch,
                 null, out error);
 
-            if (error != Cl.ErrorCode.Success)
+            if (error != ErrorCode.Success)
                 throw new CLException(error);
 
             _width = width;
@@ -48,13 +48,13 @@ namespace Brahma.OpenCL
 
         public Image2D(ComputeProvider provider, Operations operations, Memory memory, int width, int height, T[] data, int rowPitch = -1) // Create and copy/use data from host
         {
-            Cl.ErrorCode error;
-            _image = Cl.CreateImage2D(provider.Context, (Cl.MemFlags)operations | (memory == Memory.Host ? Cl.MemFlags.UseHostPtr : (Cl.MemFlags)memory | Cl.MemFlags.CopyHostPtr),
-                new Cl.ImageFormat(_imageFormat.ChannelOrder, _imageFormat.ChannelType.ChannelType), (IntPtr)width, (IntPtr)height,
+            ErrorCode error = ErrorCode.Unknown;
+            _image = Cl.CreateImage2D(provider.Context, (MemFlags)operations | (memory == Memory.Host ? MemFlags.UseHostPtr : (MemFlags)memory | MemFlags.CopyHostPtr),
+                new ImageFormat(_imageFormat.ChannelOrder, _imageFormat.ChannelType.ChannelType), (IntPtr)width, (IntPtr)height,
                 rowPitch == -1 ? (IntPtr)(width * _imageFormat.ComponentCount * _imageFormat.ChannelType.Size) : (IntPtr)rowPitch,
                 data, out error);
 
-            if (error != Cl.ErrorCode.Success)
+            if (error != ErrorCode.Success)
                 throw new CLException(error);
 
             _width = width;

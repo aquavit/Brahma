@@ -24,31 +24,31 @@ namespace Brahma.OpenCL
 {
     public enum Operations: ulong
     {
-        ReadWrite = Cl.MemFlags.ReadWrite,
-        ReadOnly = Cl.MemFlags.ReadOnly,
-        WriteOnly = Cl.MemFlags.WriteOnly,
+        ReadWrite = MemFlags.ReadWrite,
+        ReadOnly = MemFlags.ReadOnly,
+        WriteOnly = MemFlags.WriteOnly,
     }
 
     public enum Memory : ulong 
     {
         Device = 0,
-        HostAccessible = Cl.MemFlags.AllocHostPtr,
-        Host = Cl.MemFlags.UseHostPtr
+        HostAccessible = MemFlags.AllocHostPtr,
+        Host = MemFlags.UseHostPtr
     }
     
     public class Buffer<T>: Brahma.Buffer<T> where T: struct, IMem
     {
         private static readonly IntPtr _intPtrSize = (IntPtr)Marshal.SizeOf(typeof(IntPtr));
         private static readonly int _elementSize = Marshal.SizeOf(typeof(T));
-        
-        private Cl.Mem _mem;
+
+        private global::OpenCL.Net.IMem _mem;
         private bool _disposed;
         private readonly int _length;
 
         public readonly Operations Operations;
         public readonly Memory Memory;
 
-        internal Cl.Mem Mem
+        internal global::OpenCL.Net.IMem Mem
         {
             get
             {
@@ -58,12 +58,12 @@ namespace Brahma.OpenCL
 
         public Buffer(ComputeProvider provider, Operations operations, bool hostAccessible, int length) // Create, no data
         {
-            Cl.ErrorCode error;
+            ErrorCode error;
             _length = length;
             var size = (IntPtr)(_length * _elementSize);
-            _mem = Cl.CreateBuffer(provider.Context, (Cl.MemFlags)operations | (hostAccessible ? Cl.MemFlags.AllocHostPtr : 0), size, null, out error);
+            _mem = Cl.CreateBuffer(provider.Context, (MemFlags)operations | (hostAccessible ? MemFlags.AllocHostPtr : 0), size, null, out error);
 
-            if (error != Cl.ErrorCode.Success)
+            if (error != ErrorCode.Success)
                 throw new CLException(error);
 
             Operations = operations;
@@ -72,13 +72,13 @@ namespace Brahma.OpenCL
 
         public Buffer(ComputeProvider provider, Operations operations, Memory memory, Array data) // Create and copy/use data from host
         {
-            Cl.ErrorCode error;
+            ErrorCode error;
             _length = data.Length;
 
-            _mem = Cl.CreateBuffer(provider.Context, (Cl.MemFlags)operations | (memory == Memory.Host ? Cl.MemFlags.UseHostPtr : (Cl.MemFlags)memory | Cl.MemFlags.CopyHostPtr),
+            _mem = Cl.CreateBuffer(provider.Context, (MemFlags)operations | (memory == Memory.Host ? MemFlags.UseHostPtr : (MemFlags)memory | MemFlags.CopyHostPtr),
                 (IntPtr)(_elementSize * data.Length), data, out error);
 
-            if (error != Cl.ErrorCode.Success)
+            if (error != ErrorCode.Success)
                 throw new CLException(error);
 
             Operations = operations;
@@ -92,12 +92,12 @@ namespace Brahma.OpenCL
 
         public Buffer(ComputeProvider provider, Operations operations, Memory memory, IntPtr data, int length) // Create and copy/use data from host
         {
-            Cl.ErrorCode error;
+            ErrorCode error;
             _length = length;
-            _mem = Cl.CreateBuffer(provider.Context, (Cl.MemFlags)operations | (memory == Memory.Host ? Cl.MemFlags.UseHostPtr : (Cl.MemFlags)memory | (data != IntPtr.Zero ? Cl.MemFlags.CopyHostPtr : 0)),
+            _mem = Cl.CreateBuffer(provider.Context, (MemFlags)operations | (memory == Memory.Host ? MemFlags.UseHostPtr : (MemFlags)memory | (data != IntPtr.Zero ? MemFlags.CopyHostPtr : 0)),
                 (IntPtr)(_elementSize * _length), data, out error);
 
-            if (error != Cl.ErrorCode.Success)
+            if (error != ErrorCode.Success)
                 throw new CLException(error);
 
             Operations = operations;

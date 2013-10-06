@@ -45,8 +45,8 @@ namespace Brahma.OpenCL
     {
         private const CompileOptions DefaultOptions = CompileOptions.UseNativeFunctions | CompileOptions.FusedMultiplyAdd | CompileOptions.FastRelaxedMath;
         
-        private readonly Cl.Context _context;
-        private readonly Cl.Device[] _devices;
+        private readonly Context _context;
+        private readonly Device[] _devices;
         private bool _disposed;
         private string _compileOptions = string.Empty;
 
@@ -72,7 +72,7 @@ namespace Brahma.OpenCL
             private set;
         }
 
-        internal Cl.Context Context
+        internal Context Context
         {
             get 
             {
@@ -80,7 +80,7 @@ namespace Brahma.OpenCL
             }
         }
         
-        public ComputeProvider(params Cl.Device[] devices)
+        public ComputeProvider(params Device[] devices)
         {
             if (devices == null)
                 throw new ArgumentNullException("devices");
@@ -89,10 +89,10 @@ namespace Brahma.OpenCL
             
             _devices = devices;
             
-            Cl.ErrorCode error;
+            ErrorCode error;
             _context = Cl.CreateContext(null, (uint)devices.Length, _devices, null, IntPtr.Zero, out error);
-            
-            if (error != Cl.ErrorCode.Success)
+
+            if (error != ErrorCode.Success)
                 throw new CLException(error);
         }
 
@@ -101,13 +101,13 @@ namespace Brahma.OpenCL
             var kernel = new T();
             lambda.GenerateKernel(this, kernel);
 
-            Cl.ErrorCode error;
-            using (Cl.Program program = Cl.CreateProgramWithSource(_context, 1, new[] { (kernel as ICLKernel).Source.ToString() }, null, out error))
+            ErrorCode error;
+            using (Program program = Cl.CreateProgramWithSource(_context, 1, new[] { (kernel as ICLKernel).Source.ToString() }, null, out error))
             {
                 error = Cl.BuildProgram(program, (uint)_devices.Length, _devices, _compileOptions, null, IntPtr.Zero);
-                if (error != Cl.ErrorCode.Success)
+                if (error != ErrorCode.Success)
                     throw new Exception(string.Join("\n", from device in _devices
-                                                          select Cl.GetProgramBuildInfo(program, device, Cl.ProgramBuildInfo.Log, out error).ToString()));
+                                                          select Cl.GetProgramBuildInfo(program, device, ProgramBuildInfo.Log, out error).ToString()));
                 (kernel as ICLKernel).ClKernel = Cl.CreateKernel(program, CLCodeGenerator.KernelName, out error);
             }
 
@@ -383,20 +383,20 @@ namespace Brahma.OpenCL
             var builder = new StringBuilder();
             foreach (var device in _devices)
             {
-                Cl.ErrorCode error;
+                ErrorCode error;
                 var platform =
-                    Cl.GetDeviceInfo(device, Cl.DeviceInfo.Platform, out error).CastTo<Cl.Platform>();
+                    Cl.GetDeviceInfo(device, DeviceInfo.Platform, out error).CastTo<Platform>();
                 var deviceType =
-                    Cl.GetDeviceInfo(device, Cl.DeviceInfo.Type, out error).CastTo<Cl.DeviceType>();
+                    Cl.GetDeviceInfo(device, DeviceInfo.Type, out error).CastTo<DeviceType>();
 
                 builder.AppendFormat("[Platform: {0}, device type:{1}]\n",
-                                     Cl.GetPlatformInfo(platform, Cl.PlatformInfo.Name, out error), deviceType);
+                                     Cl.GetPlatformInfo(platform, PlatformInfo.Name, out error), deviceType);
             }
 
             return builder.ToString();
         }
 
-        public IEnumerable<Cl.Device> Devices
+        public IEnumerable<Device> Devices
         {
             get
             {
@@ -438,13 +438,13 @@ namespace Brahma.OpenCL
             Replace("\\?", ".") + "$";
         }
 
-        public static ComputeProvider Create(string platformName = "*", Cl.DeviceType deviceType = Cl.DeviceType.Default)
+        public static ComputeProvider Create(string platformName = "*", DeviceType deviceType = DeviceType.Default)
         {
             var platformNameRegex = new Regex(WildcardToRegex(platformName), RegexOptions.IgnoreCase);
-            Cl.Platform? currentPlatform = null;
-            Cl.ErrorCode error;
-            foreach (Cl.Platform platform in Cl.GetPlatformIDs(out error))
-                if (platformNameRegex.Match(Cl.GetPlatformInfo(platform, Cl.PlatformInfo.Name, out error).ToString()).Success)
+            Platform? currentPlatform = null;
+            ErrorCode error;
+            foreach (Platform platform in Cl.GetPlatformIDs(out error))
+                if (platformNameRegex.Match(Cl.GetPlatformInfo(platform, PlatformInfo.Name, out error).ToString()).Success)
                 {
                     currentPlatform = platform;
                     break;
@@ -457,7 +457,7 @@ namespace Brahma.OpenCL
                                     select device;
             if (compatibleDevices.Count() == 0)
                 throw new PlatformNotSupportedException(string.Format("Could not find a device with type {0} on platform {1}",
-                    deviceType, Cl.GetPlatformInfo(currentPlatform.Value, Cl.PlatformInfo.Name, out error)));
+                    deviceType, Cl.GetPlatformInfo(currentPlatform.Value, PlatformInfo.Name, out error)));
 
             return new ComputeProvider(compatibleDevices.ToArray().First());
         }

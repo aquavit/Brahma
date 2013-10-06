@@ -69,12 +69,12 @@ namespace BlackScholes
             int iterations = 16;
             int32 optionCount = 4000000;
             int localWorkSize = 32;
-            Cl.DeviceType deviceType = Cl.DeviceType.Default;
+            DeviceType deviceType = DeviceType.Default;
 
             args.Process(() => Console.WriteLine("Usage is {0} device=<Cpu/Gpu/Default> localWorkSize=<local work size (32)> iterations=<Number of iterations to run (16)> optionCount=<Number of options to evaluate (4000000)>",
                 Path.GetFileNameWithoutExtension(Assembly.GetEntryAssembly().CodeBase)),
                 new CommandLine.Switch("platform", v => platformName = v.First()),
-                new CommandLine.Switch("device", v => deviceType = (Cl.DeviceType)Enum.Parse(typeof(Cl.DeviceType), v.First())),
+                new CommandLine.Switch("device", v => deviceType = (DeviceType)Enum.Parse(typeof(DeviceType), v.First())),
                 new CommandLine.Switch("localWorkSize", v => localWorkSize = int.Parse(v.First(), CultureInfo.CurrentCulture)),
                 new CommandLine.Switch("iterations", v => iterations = int.Parse(v.First(), CultureInfo.CurrentCulture)),
                 new CommandLine.Switch("optionCount", v => optionCount = int.Parse(v.First(), CultureInfo.CurrentCulture)));
@@ -91,7 +91,7 @@ namespace BlackScholes
             }
             Console.WriteLine("Using " + provider);
 
-            var commandQueue = new CommandQueue(provider, provider.Devices.First());
+            var commandQueue = new Brahma.OpenCL.CommandQueue(provider, provider.Devices.First());
 
             var random = new Random(2009);
 

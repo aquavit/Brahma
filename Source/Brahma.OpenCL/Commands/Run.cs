@@ -30,8 +30,8 @@ namespace Brahma.OpenCL.Commands
         {
             var kernel = Kernel as ICLKernel;
             
-            Cl.ErrorCode error = Cl.SetKernelArg(kernel.ClKernel, (uint)index, argument.Size, argument.Data);
-            if (error != Cl.ErrorCode.Success)
+            ErrorCode error = Cl.SetKernelArg(kernel.ClKernel, (uint)index, argument.Size, argument.Data);
+            if (error != ErrorCode.Success)
                 throw new CLException(error);
         }
         
@@ -52,10 +52,10 @@ namespace Brahma.OpenCL.Commands
                             where ev != null
                             select ev.Value).ToArray();
 
-            Cl.Event eventID;
-            Cl.ErrorCode error = Cl.EnqueueNDRangeKernel(queue.Queue, kernel.ClKernel, (uint32)kernel.WorkDim, null,
+            Event eventID;
+            ErrorCode error = Cl.EnqueueNDRangeKernel(queue.Queue, kernel.ClKernel, (uint32)kernel.WorkDim, null,
                 range.GlobalWorkSize, range.LocalWorkSize, (uint)waitList.Length, waitList.Length == 0 ? null : waitList.ToArray(), out eventID);
-            if (error != Cl.ErrorCode.Success)
+            if (error != ErrorCode.Success)
                 throw new CLException(error);
 
             if (Name == string.Empty)
