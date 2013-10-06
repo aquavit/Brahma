@@ -1,3 +1,0 @@
-[submodule "Libraries/OpenCL.Net"]
-	path = Libraries/OpenCL.Net
-	url = https://github.com/aquavit/OpenCL.Net.git
